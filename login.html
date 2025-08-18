@@ -191,5 +191,31 @@
 
     <!-- Referência ao arquivo JavaScript externo -->
     <script type="module" src="script.js"></script>
+    
+    <script>// --- Lógica para o botão de ver senha no cadastro.html e login.html ---
+function setupPasswordToggle(passwordInputId, toggleButtonId) {
+    const passwordInput = document.getElementById(passwordInputId);
+    const toggleButton = document.getElementById(toggleButtonId);
+
+    if (passwordInput && toggleButton) {
+        toggleButton.addEventListener('click', function () {
+            // Alterna o tipo do input entre 'password' e 'text'
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Alterna o ícone de olho
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash'); // Olho cortado
+        });
+    }
+}
+
+// Chamar a função para a página de cadastro
+setupPasswordToggle('password', 'togglePassword');
+
+// (Se você quiser adicionar o mesmo para o login.html, adicione um ID para o botão lá e chame a função novamente)
+// Exemplo para login.html (assumindo que o input de senha tem id="passwordLogin" e o botão id="togglePasswordLogin"):
+// setupPasswordToggle('passwordLogin', 'togglePasswordLogin');
+</script>
 </body>
 </html>
