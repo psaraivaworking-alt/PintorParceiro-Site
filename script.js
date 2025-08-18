@@ -77,24 +77,6 @@ function formatCpfInput(inputElement) {
 }
 
 
-// --- Lógica para o botão de ver senha no cadastro.html e login.html ---
-function setupPasswordToggle(passwordInputId, toggleButtonId) {
-    const passwordInput = document.getElementById(passwordInputId);
-    const toggleButton = document.getElementById(toggleButtonId);
-
-    if (passwordInput && toggleButton) {
-        toggleButton.addEventListener('click', function () {
-            // Alterna o tipo do input entre 'password' e 'text'
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            
-            // Alterna o ícone de olho
-            this.querySelector('i').classList.toggle('fa-eye');
-            this.querySelector('i').classList.toggle('fa-eye-slash'); // Olho cortado
-        });
-    }
-}
-
 // --- Lógica da Página de Cadastro (cadastro.html) ---
 const registerForm = document.getElementById('registerForm');
 if (registerForm) {
