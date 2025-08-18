@@ -31,7 +31,7 @@ function showMessage(msg, isError = false) {
         if (isError) {
             messageBox.classList.add('error-message');
         } else {
-            messageBox.classList.remove('error-message');
+            messageBox.classList.remove('error-error-message');
         }
         setTimeout(() => {
             messageBox.style.display = 'none';
@@ -90,7 +90,7 @@ if (registerForm) {
         formatCpfInput(cpfInputCadastro); // Aplica a formatação ao campo CPF
     }
 
-    setupPasswordToggle('password', 'togglePassword'); // Ativa o botão de ver senha
+    // setupPasswordToggle('password', 'togglePassword'); // Removido, pois você lida no HTML
 
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -158,7 +158,7 @@ if (registerForm) {
 // --- Lógica da Página de Login (login.html) ---
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
-    setupPasswordToggle('password', 'togglePassword'); // Ativa o botão de ver senha no login.html também, se você tiver um lá
+    // setupPasswordToggle('password', 'togglePassword'); // Removido, pois você lida no HTML
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
