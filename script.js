@@ -6,7 +6,7 @@ import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, where,
 
 // Sua configuração do Firebase (a mesma que você forneceu)
 const firebaseConfig = {
-    apiKey: "AIzaSyCmuGFCKnZ-qBVUpDxs6moJis19lx8nvXw",
+    apiKey: "AIzaSyCmuGFCKnZ-qBVUpDxs6moJis19lx8nvXw", // <--- Certifique-se de que esta é a sua nova API Key restrita
     authDomain: "pintordata.firebaseapp.com",
     projectId: "pintordata",
     storageBucket: "pintordata.firebasestorage.app",
@@ -64,6 +64,8 @@ if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        // Novo: Obter o valor do campo de nome
+        const name = registerForm['name'].value; 
         const email = registerForm['email'].value;
         const password = registerForm['password'].value;
         const cpf = registerForm['cpf'].value;
@@ -77,6 +79,7 @@ if (registerForm) {
             const user = userCredential.user;
             
             await setDoc(doc(db, "pintores", user.uid), {
+                nome: name, // Novo: Salvar o nome no Firestore
                 email: email,
                 cpf: cpf,
                 cep: cep,
@@ -172,7 +175,7 @@ if (profileForm) {
 
                 if (docSnap.exists()) {
                     const painterData = docSnap.data();
-                    if (nameInput) nameInput.value = painterData.nome || '';
+                    if (nameInput) nameInput.value = painterData.nome || ''; // Preenche o nome (se existir)
                     if (emailInput) emailInput.value = painterData.email || '';
                     if (cpfInput) cpfInput.value = painterData.cpf || '';
                     if (cepInputPerfil) cepInputPerfil.value = painterData.cep || '';
@@ -270,9 +273,11 @@ if (searchButton) {
                 } else {
                     querySnapshot.forEach((doc) => {
                         const painter = doc.data();
+                        // Certifique-se de que 'painter.nome' existe antes de usá-lo
+                        const painterName = painter.nome || 'Pintor Parceiro'; 
                         const painterCard = `
                             <div class="painter-card">
-                                <h3>${painter.nome || 'Pintor Parceiro'}</h3>
+                                <h3>${painterName}</h3>
                                 <p><strong>Telefone:</strong> ${painter.telefone || 'Não informado'}</p>
                                 <p><strong>CEP:</strong> ${painter.cep || 'Não informado'}</p>
                                 <p><strong>Email:</strong> ${painter.email || 'Não informado'}</p>
