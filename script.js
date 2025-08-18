@@ -53,6 +53,48 @@ function formatCepInput(inputElement) {
     });
 }
 
+// Função para formatar o CPF (XXX.XXX.XXX-XX) e limitar a 11 dígitos numéricos
+function formatCpfInput(inputElement) {
+    inputElement.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é dígito
+        
+        // Limita a 11 dígitos
+        if (value.length > 11) {
+            value = value.substring(0, 11);
+        }
+
+        // Aplica a formatação
+        if (value.length > 9) {
+            value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
+        } else if (value.length > 6) {
+            value = value.replace(/^(\d{3})(\d{3})(\d{3})$/, '$1.$2.$3');
+        } else if (value.length > 3) {
+            value = value.replace(/^(\d{3})(\d{3})$/, '$1.$2');
+        }
+        
+        e.target.value = value;
+    });
+}
+
+
+// --- Lógica para o botão de ver senha no cadastro.html e login.html ---
+function setupPasswordToggle(passwordInputId, toggleButtonId) {
+    const passwordInput = document.getElementById(passwordInputId);
+    const toggleButton = document.getElementById(toggleButtonId);
+
+    if (passwordInput && toggleButton) {
+        toggleButton.addEventListener('click', function () {
+            // Alterna o tipo do input entre 'password' e 'text'
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Alterna o ícone de olho
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash'); // Olho cortado
+        });
+    }
+}
+
 // --- Lógica da Página de Cadastro (cadastro.html) ---
 const registerForm = document.getElementById('registerForm');
 if (registerForm) {
@@ -61,27 +103,50 @@ if (registerForm) {
         formatCepInput(cepInputCadastro);
     }
 
+    const cpfInputCadastro = registerForm.querySelector('#cpf');
+    if (cpfInputCadastro) {
+        formatCpfInput(cpfInputCadastro); // Aplica a formatação ao campo CPF
+    }
+
+    setupPasswordToggle('password', 'togglePassword'); // Ativa o botão de ver senha
+
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Novo: Obter o valor do campo de nome
         const name = registerForm['name'].value; 
         const email = registerForm['email'].value;
         const password = registerForm['password'].value;
-        const cpf = registerForm['cpf'].value;
+        const cpf = registerForm['cpf'].value.replace(/\D/g, ''); // Limpa o CPF para salvar apenas números
         const cep = registerForm['cep'].value;
         const address = registerForm['address'].value;
         const phone = registerForm['phone'].value;
         const bio = registerForm['bio'].value;
 
+        // Validação básica do CPF (11 dígitos)
+        if (cpf.length !== 11) {
+            showMessage("CPF inválido. Por favor, digite 11 dígitos.", true);
+            return;
+        }
+
         try {
+            // **Verificar se o CPF já existe no Firestore**
+            const q = query(collection(db, "pintores"), where("cpf", "==", cpf));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                showMessage("Este CPF já está cadastrado. Por favor, use outro ou faça login.", true);
+                return; // Impede o cadastro se o CPF já existe
+            }
+
+            // Se o CPF é único, procede com o cadastro do usuário na autenticação
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             
+            // Salva as informações extras do pintor no Firestore
             await setDoc(doc(db, "pintores", user.uid), {
-                nome: name, // Novo: Salvar o nome no Firestore
+                nome: name,
                 email: email,
-                cpf: cpf,
+                cpf: cpf, // Salva o CPF sem formatação no banco de dados
                 cep: cep,
                 endereco: address,
                 telefone: phone,
@@ -111,6 +176,8 @@ if (registerForm) {
 // --- Lógica da Página de Login (login.html) ---
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
+    setupPasswordToggle('password', 'togglePassword'); // Ativa o botão de ver senha no login.html também, se você tiver um lá
+
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -162,6 +229,9 @@ if (profileForm) {
     if (cepInputPerfil) {
         formatCepInput(cepInputPerfil);
     }
+    if (cpfInput) {
+        formatCpfInput(cpfInput); // Aplica a formatação também no perfil
+    }
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
@@ -211,17 +281,41 @@ if (profileForm) {
             return;
         }
 
-        const updatedData = {
-            nome: nameInput ? nameInput.value.trim() : '',
-            cpf: cpfInput ? cpfInput.value.trim() : '',
-            cep: cepInputPerfil ? cepInputPerfil.value.trim() : '',
-            endereco: addressInput ? addressInput.value.trim() : '',
-            telefone: phoneInput ? phoneInput.value.trim() : '',
-            biografia: bioTextarea ? bioTextarea.value.trim() : ''
-        };
+        const cpf = cpfInput ? cpfInput.value.trim().replace(/\D/g, '') : '';
+
+        // Validação básica do CPF para o perfil (11 dígitos)
+        if (cpf.length !== 11) {
+            showMessage("CPF inválido. Por favor, digite 11 dígitos.", true);
+            return;
+        }
 
         try {
+            // Checar se o CPF está sendo alterado E se o novo CPF já existe
             const docRef = doc(db, "pintores", currentUserUid);
+            const docSnap = await getDoc(docRef);
+            const currentCpfInDb = docSnap.exists() ? docSnap.data().cpf : null;
+
+            if (cpf !== currentCpfInDb) { // Só verifica duplicidade se o CPF foi alterado
+                const q = query(collection(db, "pintores"), where("cpf", "==", cpf));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty && querySnapshot.docs[0].id !== currentUserUid) {
+                    // CPF encontrado e pertence a outro usuário
+                    showMessage("Este CPF já está sendo usado por outro pintor.", true);
+                    return;
+                }
+            }
+
+
+            const updatedData = {
+                nome: nameInput ? nameInput.value.trim() : '',
+                cpf: cpf, // Salva o CPF sem formatação
+                cep: cepInputPerfil ? cepInputPerfil.value.trim() : '',
+                endereco: addressInput ? addressInput.value.trim() : '',
+                telefone: phoneInput ? phoneInput.value.trim() : '',
+                biografia: bioTextarea ? bioTextarea.value.trim() : ''
+            };
+
             await updateDoc(docRef, updatedData);
             showMessage("Perfil atualizado com sucesso!");
         } catch (error) {
