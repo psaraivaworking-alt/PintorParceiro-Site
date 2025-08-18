@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pintor Parceiro - Encontre o Pintor Ideal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #333;
+            --bg-light: #f9f9f9;
+            --text-color: #555;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #fff;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px 0;
+        }
+
+        header {
+            background-color: #fff;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links .btn-primary {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .nav-links a:hover {
+            background-color: #f0f0f0;
+        }
+
+        .nav-links .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        
+        .hero-banner {
+            text-align: center;
+            background-color: var(--bg-light);
+            position: relative;
+            overflow: hidden;
+            padding: 100px 0;
+            color: #fff;
+        }
+        
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+            z-index: 1;
+        }
+        
+        .hero-banner img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            width: 80%;
+            max-width: 800px;
+            margin: auto;
+        }
+        
+        .hero-content h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .hero-actions .btn {
+            padding: 12px 25px;
+            text-decoration: none;
+            color: #fff;
+            border-radius: 5px;
+            font-weight: 600;
+            margin: 0 10px;
+            transition: transform 0.2s;
+        }
+
+        .hero-actions .btn-primary {
+            background-color: var(--primary-color);
+        }
+
+        .hero-actions .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+
+        .hero-actions .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .section {
+            padding: 60px 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+        
+        .feature-cards {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .card {
+            background-color: var(--bg-light);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            width: 100%;
+            max-width: 250px;
+            box-shadow: var(--shadow);
+        }
+        
+        .card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .stats-section {
+            background-color: var(--primary-color);
+            color: #fff;
+            text-align: center;
+        }
+
+        .stats-cards {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .stat-card p {
+            font-size: 1rem;
+        }
+
+        .cta-section {
+            text-align: center;
+        }
+        
+        .cta-section .cta-actions {
+            margin-top: 20px;
+        }
+
+        footer {
+            background-color: var(--secondary-color);
+            color: #fff;
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+
+        .footer-content h4 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container navbar">
+            <a href="index.html" class="logo">Pintor Parceiro</a>
+            <div class="nav-links">
+                <a href="cadastro.html" class="btn-primary">Sou Pintor, Quero me Cadastrar</a>
+                <a href="busca.html">Buscar Pintores</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero-banner">
+            <img src="https://i.postimg.cc/mgMzw75r/Abertura-do-site-1.jpg" alt="Banner de um pintor trabalhando">
+            <div class="hero-content">
+                <h1>Encontre o Pintor Perfeito</h1>
+                <p>A maior plataforma para conectar você aos melhores pintores da sua região. Busque por CEP e encontre profissionais qualificados perto de você.</p>
+                <div class="hero-actions">
+                    <a href="busca.html" class="btn btn-primary">Buscar Pintores</a>
+                    <a href="cadastro.html" class="btn btn-secondary">Sou Pintor, Quero me Cadastrar</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Como Funciona o Pintor Parceiro</h2>
+                    <p>Nossa plataforma conecta clientes e pintores de forma simples e eficiente.</p>
+                </div>
+                <div class="feature-cards">
+                    <div class="card">
+                        <h3>Busca Inteligente</h3>
+                        <p>Encontre pintores qualificados na sua região usando apenas o CEP.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Pintores Verificados</h3>
+                        <p>Todos os profissionais passam por verificação de dados.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Qualidade Garantida</h3>
+                        <p>Profissionais experientes e bem avaliados.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Resposta Rápida</h3>
+                        <p>Contato direto com os pintores da sua região.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section stats-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Por que escolher o Pintor Parceiro?</h2>
+                    <p>Oferecemos a melhor experiência para conectar você aos pintores mais qualificados da sua região.</p>
+                </div>
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <h3>500+</h3>
+                        <p>Pintores Cadastrados</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>50+</h3>
+                        <p>Cidades Atendidas</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>98%</h3>
+                        <p>Satisfação</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>24h</h3>
+                        <p>Resposta Média</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section cta-section">
+            <div class="container">
+                <h2>Pronto para encontrar seu pintor ideal?</h2>
+                <p>Comece agora mesmo e conecte-se com os melhores profissionais da sua região</p>
+                <div class="cta-actions">
+                    <a href="busca.html" class="btn btn-primary">Buscar Agora</a>
+                    <a href="cadastro.html" class="btn btn-secondary">Cadastrar Pintor</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <h4>Pintor Parceiro</h4>
+            <p>Conectando você aos melhores pintores da sua região</p>
+            <p>© 2025 Todos os direitos reservados - Tintas Veloz</p>
+        </div>
+    </footer>
+
+</body>
+</html>

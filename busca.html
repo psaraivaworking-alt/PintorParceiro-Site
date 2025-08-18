@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pintor Parceiro - Buscar Pintores</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #333;
+            --bg-light: #f9f9f9;
+            --text-color: #555;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-light);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px 0;
+        }
+
+        header {
+            background-color: #fff;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links .btn-primary {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .nav-links a:hover {
+            background-color: #f0f0f0;
+        }
+
+        .nav-links .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .search-section {
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .search-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .search-box input[type="text"] {
+            padding: 12px 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            width: 300px;
+            max-width: 80%;
+        }
+
+        .search-box button {
+            padding: 12px 25px;
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .search-box button:hover {
+            background-color: #0056b3;
+        }
+
+        .results-section {
+            padding: 40px 0;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            justify-content: center;
+        }
+
+        .painter-card {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            text-align: left;
+            transition: transform 0.2s;
+        }
+
+        .painter-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .painter-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .painter-card p {
+            margin-bottom: 5px;
+        }
+
+        .painter-card .bio {
+            font-style: italic;
+            color: #777;
+            margin-top: 15px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 50px 0;
+            font-size: 1.2rem;
+            color: #888;
+        }
+
+        footer {
+            background-color: var(--secondary-color);
+            color: #fff;
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+
+        .footer-content h4 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container navbar">
+            <a href="index.html" class="logo">Pintor Parceiro</a>
+            <div class="nav-links">
+                <a href="cadastro.html" class="btn-primary">Sou Pintor, Quero me Cadastrar</a>
+                <a href="busca.html">Buscar Pintores</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="search-section">
+            <div class="container">
+                <h2>Encontre o Pintor Ideal Pelo CEP</h2>
+                <p>Digite o CEP da região desejada para encontrar pintores qualificados perto de você.</p>
+                <div class="search-box">
+                    <input type="text" id="cepSearchInput" placeholder="Digite o CEP (ex: 12345-678)" maxlength="9">
+                    <button id="searchButton">Buscar Pintores</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="results-section">
+            <div class="container">
+                <div id="paintersResults" class="results-grid">
+                    <!-- Cards dos pintores serão inseridos aqui pelo JavaScript -->
+                </div>
+                <div id="noResultsMessage" class="no-results" style="display: none;">
+                    Nenhum pintor encontrado para o CEP informado.
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <h4>Pintor Parceiro</h4>
+            <p>Conectando você aos melhores pintores da sua região</p>
+            <p>© 2025 Todos os direitos reservados - Tintas Veloz</p>
+        </div>
+    </footer>
+
+    <!-- Script do Firebase e lógica de busca -->
+    <script type="module">
+        // Importar as funções necessárias do Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+        // Sua configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmuGFCKnZ-qBVUpDxs6moJis19lx8nvXw",
+            authDomain: "pintordata.firebaseapp.com",
+            projectId: "pintordata",
+            storageBucket: "pintordata.firebasestorage.app",
+            messagingSenderId: "994883381349",
+            appId: "1:994883381349:web:b802e44d49d6f6f163fe8c"
+        };
+
+        // Inicializar o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Referências aos elementos HTML
+        const cepSearchInput = document.getElementById('cepSearchInput');
+        const searchButton = document.getElementById('searchButton');
+        const paintersResults = document.getElementById('paintersResults');
+        const noResultsMessage = document.getElementById('noResultsMessage');
+
+        // Função para formatar o CEP (adiciona o hífen)
+        cepSearchInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é dígito
+            if (value.length > 5) {
+                value = value.substring(0, 5) + '-' + value.substring(5, 8);
+            }
+            e.target.value = value;
+        });
+
+        // Event listener para o botão de busca
+        searchButton.addEventListener('click', async () => {
+            const cepToSearch = cepSearchInput.value.trim();
+
+            // Limpa resultados anteriores e oculta a mensagem de "não encontrado"
+            paintersResults.innerHTML = '';
+            noResultsMessage.style.display = 'none';
+
+            if (cepToSearch) {
+                try {
+                    // Consulta o Firestore para pintores com o CEP correspondente
+                    const q = query(collection(db, "pintores"), where("cep", "==", cepToSearch));
+                    const querySnapshot = await getDocs(q);
+
+                    if (querySnapshot.empty) {
+                        // Exibe mensagem se nenhum pintor for encontrado
+                        noResultsMessage.style.display = 'block';
+                    } else {
+                        // Para cada pintor encontrado, cria e exibe um card
+                        querySnapshot.forEach((doc) => {
+                            const painter = doc.data();
+                            const painterCard = `
+                                <div class="painter-card">
+                                    <h3>${painter.nome || 'Pintor Parceiro'}</h3>
+                                    <p><strong>Telefone:</strong> ${painter.telefone || 'Não informado'}</p>
+                                    <p><strong>CEP:</strong> ${painter.cep || 'Não informado'}</p>
+                                    <p><strong>Email:</strong> ${painter.email || 'Não informado'}</p>
+                                    <p class="bio"><strong>Bio:</strong> ${painter.biografia || 'Nenhuma biografia disponível.'}</p>
+                                </div>
+                            `;
+                            paintersResults.innerHTML += painterCard;
+                        });
+                    }
+                } catch (error) {
+                    console.error("Erro ao buscar pintores:", error);
+                    alert("Ocorreu um erro ao buscar pintores. Tente novamente mais tarde.");
+                }
+            } else {
+                alert("Por favor, digite um CEP para buscar.");
+            }
+        });
+    </script>
+</body>
+</html>
