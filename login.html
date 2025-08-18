@@ -189,62 +189,7 @@
         </div>
     </footer>
 
-    <!-- Script do Firebase e lógica de login -->
-    <script type="module">
-        // Importar as funções necessárias do Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-
-        // Sua configuração do Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyCmuGFCKnZ-qBVUpDxs6moJis19lx8nvXw",
-            authDomain: "pintordata.firebaseapp.com",
-            projectId: "pintordata",
-            storageBucket: "pintordata.firebasestorage.app",
-            messagingSenderId: "994883381349",
-            appId: "1:994883381349:web:b802e44d49d6f6f163fe8c"
-        };
-
-        // Inicializar o Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        // Selecionar o formulário de login
-        const loginForm = document.getElementById('loginForm');
-
-        // Adicionar um evento de "escuta" para o envio do formulário
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Impedir o envio padrão do formulário
-
-            const email = loginForm['email'].value;
-            const password = loginForm['password'].value;
-
-            try {
-                // Tentar fazer login com email e senha
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                alert("Login realizado com sucesso! Bem-vindo(a), " + user.email);
-                // Opcional: Redirecionar para a página de perfil após o login
-                // window.location.href = 'perfil.html'; 
-
-            } catch (error) {
-                // Lidar com erros de login
-                const errorCode = error.code;
-                const errorMessage = error.message;
-
-                if (errorCode === 'auth/wrong-password') {
-                    alert("Senha incorreta. Por favor, tente novamente.");
-                } else if (errorCode === 'auth/user-not-found') {
-                    alert("Usuário não encontrado. Verifique o email ou cadastre-se.");
-                } else if (errorCode === 'auth/invalid-email') {
-                    alert("O formato do email é inválido.");
-                } else {
-                    alert("Erro no login: " + errorMessage);
-                }
-                console.error(error);
-            }
-        });
-    </script>
+    <!-- Referência ao arquivo JavaScript externo -->
+    <script type="module" src="script.js"></script>
 </body>
 </html>
