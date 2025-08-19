@@ -4,14 +4,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebas
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-// Sua nova configuração do Firebase para o projeto 'dadospintorparceiroveloz'
+// Sua configuração do Firebase (voltando para a API Key que você pediu)
 const firebaseConfig = {
-  apiKey: "AIzaSyBDNb5W_CxnPvyR6J7KSG0j6mTLgdTwZBs",
-  authDomain: "dadospintorparceiroveloz.firebaseapp.com",
-  projectId: "dadospintorparceiroveloz",
-  storageBucket: "dadospintorparceiroveloz.firebasestorage.app",
-  messagingSenderId: "688575061008",
-  appId: "1:688575061008:web:29fc2dbe6f5cab66893e95"
+    apiKey: "AIzaSyCmuGFCKnZ-qBVUpDxs6moJis19lx8nvXw", 
+    authDomain: "pintordata.firebaseapp.com",
+    projectId: "pintordata",
+    storageBucket: "pintordata.firebasestorage.app",
+    messagingSenderId: "994883381349",
+    appId: "1:994883381349:web:b802e44d49d6f6f163fe8c"
 };
 
 // Inicializar o Firebase
@@ -23,30 +23,29 @@ const db = getFirestore(app);
 
 // Função para exibir mensagens na UI (substituindo o alert)
 function showMessage(msg, isError = false) {
+    // Verifica se o elemento messageBox existe na página atual
     const messageBox = document.getElementById('messageBox');
     if (messageBox) {
         messageBox.textContent = msg;
         messageBox.style.display = 'block';
         if (isError) {
             messageBox.classList.add('error-message');
-            messageBox.classList.remove('success-message'); 
         } else {
-            messageBox.classList.add('success-message'); 
             messageBox.classList.remove('error-message');
         }
         setTimeout(() => {
             messageBox.style.display = 'none';
-            messageBox.classList.remove('error-message', 'success-message'); 
-        }, 5000); 
+        }, 5000); // Mensagem desaparece após 5 segundos
     } else {
-        alert(msg); 
+        // Fallback para alert se messageBox não existir (ex: para páginas sem o elemento)
+        alert(msg);
     }
 }
 
 // Função para formatar o CEP (adiciona o hífen)
 function formatCepInput(inputElement) {
     inputElement.addEventListener('input', (e) => {
-        let value = e.target.value.replace(/\D/g, ''); 
+        let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é dígito
         if (value.length > 5) {
             value = value.substring(0, 5) + '-' + value.substring(5, 8);
         }
@@ -57,12 +56,14 @@ function formatCepInput(inputElement) {
 // Função para formatar o CPF (XXX.XXX.XXX-XX) e limitar a 11 dígitos numéricos
 function formatCpfInput(inputElement) {
     inputElement.addEventListener('input', (e) => {
-        let value = e.target.value.replace(/\D/g, ''); 
+        let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é dígito
         
+        // Limita a 11 dígitos
         if (value.length > 11) {
             value = value.substring(0, 11);
         }
 
+        // Aplica a formatação
         if (value.length > 9) {
             value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
         } else if (value.length > 6) {
@@ -75,21 +76,6 @@ function formatCpfInput(inputElement) {
     });
 }
 
-// Lógica para o botão de ver senha
-function setupPasswordToggle(passwordInputId, toggleButtonId) {
-    const passwordInput = document.getElementById(passwordInputId);
-    const toggleButton = document.getElementById(toggleButtonId);
-
-    if (passwordInput && toggleButton) {
-        toggleButton.addEventListener('click', function () {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            
-            this.querySelector('i').classList.toggle('fa-eye');
-            this.querySelector('i').classList.toggle('fa-eye-slash'); 
-        });
-    }
-}
 
 // --- Lógica da Página de Cadastro (cadastro.html) ---
 const registerForm = document.getElementById('registerForm');
@@ -101,10 +87,8 @@ if (registerForm) {
 
     const cpfInputCadastro = registerForm.querySelector('#cpf');
     if (cpfInputCadastro) {
-        formatCpfInput(cpfInputCadastro); 
+        formatCpfInput(cpfInputCadastro); // Aplica a formatação ao campo CPF
     }
-
-    setupPasswordToggle('password', 'togglePassword'); 
 
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -112,35 +96,37 @@ if (registerForm) {
         const name = registerForm['name'].value; 
         const email = registerForm['email'].value;
         const password = registerForm['password'].value;
-        const cpf = registerForm['cpf'].value.replace(/\D/g, ''); 
+        const cpf = registerForm['cpf'].value.replace(/\D/g, ''); // Limpa o CPF para salvar apenas números
         const cep = registerForm['cep'].value;
         const address = registerForm['address'].value;
         const phone = registerForm['phone'].value;
         const bio = registerForm['bio'].value;
 
+        // Validação básica do CPF (11 dígitos)
         if (cpf.length !== 11) {
             showMessage("CPF inválido. Por favor, digite 11 dígitos.", true);
             return;
         }
 
         try {
+            // **Verificar se o CPF já existe no Firestore**
             const q = query(collection(db, "pintores"), where("cpf", "==", cpf));
             const querySnapshot = await getDocs(q);
 
             if (!querySnapshot.empty) {
                 showMessage("Este CPF já está cadastrado. Por favor, use outro ou faça login.", true);
-                return; 
+                return; // Impede o cadastro se o CPF já existe
             }
 
+            // Se o CPF é único, procede com o cadastro do usuário na autenticação
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             
-            console.log("Usuário autenticado no cadastro:", user.email, "UID:", user.uid); 
-
+            // Salva as informações extras do pintor no Firestore
             await setDoc(doc(db, "pintores", user.uid), {
                 nome: name,
                 email: email,
-                cpf: cpf, 
+                cpf: cpf, // Salva o CPF sem formatação no banco de dados
                 cep: cep,
                 endereco: address,
                 telefone: phone,
@@ -148,36 +134,28 @@ if (registerForm) {
             });
 
             showMessage("Cadastro realizado com sucesso! Você já pode acessar seu perfil.");
-            // window.location.href = 'login.html'; // Removido para que a mensagem seja visível
+            // Opcional: Redirecionar para a página de login ou perfil após o cadastro
+            // window.location.href = 'login.html';
 
         } catch (error) {
-            console.error("Erro completo da operacao Firebase:", error); 
             const errorCode = error.code;
             const errorMessage = error.message;
-
-            console.log("Firebase Error Code (codigo do erro):", errorCode);   
-            console.log("Firebase Error Message (mensagem do erro):", errorMessage); 
 
             if (errorCode === 'auth/email-already-in-use') {
                 showMessage("O email fornecido já está em uso por outra conta.", true);
             } else if (errorCode === 'auth/weak-password') {
                 showMessage("A senha é muito fraca. Ela deve ter pelo menos 6 caracteres.", true);
-            } else if (errorCode === 'auth/operation-not-allowed') { 
-                showMessage("Criação de conta por e-mail/senha não habilitada. Verifique o Firebase Authentication > Sign-in method.", true);
-            }
-            else {
+            } else {
                 showMessage("Erro no cadastro: " + errorMessage, true);
             }
+            console.error(error);
         }
     });
-    
 }
 
 // --- Lógica da Página de Login (login.html) ---
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
-    setupPasswordToggle('password', 'togglePassword'); 
-
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -189,6 +167,7 @@ if (loginForm) {
             const user = userCredential.user;
 
             showMessage("Login realizado com sucesso! Bem-vindo(a), " + user.email);
+            // Redirecionar para a página de perfil após o login
             window.location.href = 'perfil.html'; 
 
         } catch (error) {
@@ -218,7 +197,7 @@ if (profileForm) {
     const nameInput = document.getElementById('name');
     const emailInput = document.getElementById('email');
     const cpfInput = document.getElementById('cpf');
-    const cepInputPerfil = document.getElementById('cep'); 
+    const cepInputPerfil = document.getElementById('cep'); // Renomeado para evitar conflito
     const addressInput = document.getElementById('address');
     const phoneInput = document.getElementById('phone');
     const bioTextarea = document.getElementById('bio');
@@ -229,7 +208,7 @@ if (profileForm) {
         formatCepInput(cepInputPerfil);
     }
     if (cpfInput) {
-        formatCpfInput(cpfInput); 
+        formatCpfInput(cpfInput); // Aplica a formatação também no perfil
     }
 
     onAuthStateChanged(auth, async (user) => {
@@ -244,7 +223,7 @@ if (profileForm) {
 
                 if (docSnap.exists()) {
                     const painterData = docSnap.data();
-                    if (nameInput) nameInput.value = painterData.nome || ''; 
+                    if (nameInput) nameInput.value = painterData.nome || ''; // Preenche o nome (se existir)
                     if (emailInput) emailInput.value = painterData.email || '';
                     if (cpfInput) cpfInput.value = painterData.cpf || '';
                     if (cepInputPerfil) cepInputPerfil.value = painterData.cep || '';
@@ -282,29 +261,33 @@ if (profileForm) {
 
         const cpf = cpfInput ? cpfInput.value.trim().replace(/\D/g, '') : '';
 
+        // Validação básica do CPF para o perfil (11 dígitos)
         if (cpf.length !== 11) {
             showMessage("CPF inválido. Por favor, digite 11 dígitos.", true);
             return;
         }
 
         try {
+            // Checar se o CPF está sendo alterado E se o novo CPF já existe
             const docRef = doc(db, "pintores", currentUserUid);
             const docSnap = await getDoc(docRef);
             const currentCpfInDb = docSnap.exists() ? docSnap.data().cpf : null;
 
-            if (cpf !== currentCpfInDb) { 
+            if (cpf !== currentCpfInDb) { // Só verifica duplicidade se o CPF foi alterado
                 const q = query(collection(db, "pintores"), where("cpf", "==", cpf));
                 const querySnapshot = await getDocs(q);
 
                 if (!querySnapshot.empty && querySnapshot.docs[0].id !== currentUserUid) {
+                    // CPF encontrado e pertence a outro usuário
                     showMessage("Este CPF já está sendo usado por outro pintor.", true);
                     return;
                 }
             }
 
+
             const updatedData = {
                 nome: nameInput ? nameInput.value.trim() : '',
-                cpf: cpf, 
+                cpf: cpf, // Salva o CPF sem formatação
                 cep: cepInputPerfil ? cepInputPerfil.value.trim() : '',
                 endereco: addressInput ? addressInput.value.trim() : '',
                 telefone: phoneInput ? phoneInput.value.trim() : '',
@@ -362,6 +345,7 @@ if (searchButton) {
                 } else {
                     querySnapshot.forEach((doc) => {
                         const painter = doc.data();
+                        // Certifique-se de que 'painter.nome' existe antes de usá-lo
                         const painterName = painter.nome || 'Pintor Parceiro'; 
                         const painterCard = `
                             <div class="painter-card">
