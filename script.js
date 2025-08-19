@@ -90,8 +90,6 @@ if (registerForm) {
         formatCpfInput(cpfInputCadastro); // Aplica a formatação ao campo CPF
     }
 
-    // setupPasswordToggle('password', 'togglePassword'); // Removido, pois você lida no HTML
-
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -124,6 +122,9 @@ if (registerForm) {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             
+            // LOG DE DEPURACÃO: Verifique se o UID do usuário está disponível aqui
+            console.log("Usuário autenticado no cadastro:", user.email, "UID:", user.uid); // <-- ADICIONE ESTA LINHA
+
             // Salva as informações extras do pintor no Firestore
             await setDoc(doc(db, "pintores", user.uid), {
                 nome: name,
@@ -153,13 +154,12 @@ if (registerForm) {
             console.error(error);
         }
     });
+    
 }
 
 // --- Lógica da Página de Login (login.html) ---
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
-    // setupPasswordToggle('password', 'togglePassword'); // Removido, pois você lida no HTML
-
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
