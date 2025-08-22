@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pintor Parceiro - Encontre o Pintor Ideal</title>
+    <title>Pintor Parceiro - Cadastro</title>
     <link rel="icon" href="https://i.postimg.cc/Wz2WcVgm/Selo-Pintor-PArceiro.png" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Para ícones -->
     <link rel="stylesheet" href="style.css"> <!-- Link para o arquivo CSS externo -->
 </head>
-<body class="home-page">
+<body class="form-page">
 
     <header>
         <div class="navbar">
@@ -30,98 +30,200 @@
         </div>
     </header>
 
-    <main>
-        <section class="hero-section">
-            <img src="https://i.postimg.cc/mgMzw75r/Abertura-do-site-1.jpg" alt="Banner de um pintor trabalhando" class="hero-banner-image">
-            <div class="hero-content">
-                <h1>Encontre o Pintor Perfeito</h1>
-                <p>A maior plataforma para conectar você aos melhores pintores da sua região. Busque por CEP e encontre profissionais qualificados perto de você.</p>
-                <div class="hero-actions">
-                    <a href="busca.html" class="btn btn-primary">Buscar Pintores</a>
-                    <a href="cadastro.html" class="btn btn-secondary">Sou Pintor, Quero me Cadastrar</a>
+    <main class="main-content">
+        <div class="container form-card">
+            <h2>Cadastre-se</h2>
+
+            <div class="registration-choice">
+                <h3>Escolha o tipo de perfil:</h3>
+                <div class="choice-buttons">
+                    <button type="button" id="btnPainter" class="btn-choice active">Sou Pintor</button>
+                    <button type="button" id="btnClient" class="btn-choice">Sou Cliente</button>
                 </div>
             </div>
-        </section>
 
-        <section class="how-it-works-section">
-            <div class="container how-it-works-content">
-                <div class="how-it-works-text">
-                    <h2>Como Funciona o Pintor Parceiro</h2>
-                    <p>Nossa plataforma foi desenvolvida para simplificar a sua vida. Com apenas alguns cliques, você encontra o profissional ideal para o seu projeto de pintura, com a garantia de qualidade e um serviço ágil e seguro.</p>
-                </div>
-                <div class="feature-cards-grid">
-                    <div class="feature-card">
-                        <i class="fas fa-search icon"></i>
-                        <h3>Busca Inteligente</h3>
-                        <p>Encontre pintores qualificados na sua região usando apenas o CEP ou a cidade.</p>
+            <!-- Formulário de Cadastro de Pintor -->
+            <form id="painterRegisterForm">
+                <h3 class="form-section-title">Dados do Pintor</h3>
+                <div class="form-grid col-2">
+                    <div class="form-group">
+                        <label for="painterName">Nome Completo</label>
+                        <input type="text" id="painterName" name="painterName" required>
                     </div>
-                    <div class="feature-card">
-                        <i class="fas fa-user-check icon"></i>
-                        <h3>Pintores Verificados</h3>
-                        <p>Todos os profissionais em nossa plataforma passam por um rigoroso processo de verificação.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-paint-roller icon"></i>
-                        <h3>Qualidade Garantida</h3>
-                        <p>Trabalhamos apenas com pintores experientes e com excelentes avaliações de outros clientes.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-comments icon"></i>
-                        <h3>Resposta Rápida</h3>
-                        <p>Tenha contato direto e rápido com os pintores disponíveis, facilitando a negociação.</p>
+                    <div class="form-group">
+                        <label for="painterEmail">Email</label>
+                        <input type="email" id="painterEmail" name="painterEmail" required>
                     </div>
                 </div>
+                <div class="form-grid col-2">
+                    <div class="form-group password-group">
+                        <label for="painterPassword">Senha</label>
+                        <input type="password" id="painterPassword" name="painterPassword" required minlength="6">
+                        <span class="password-toggle" id="togglePainterPassword">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                    <div class="form-group password-group">
+                        <label for="painterConfirmPassword">Confirmar Senha</label>
+                        <input type="password" id="painterConfirmPassword" name="painterConfirmPassword" required minlength="6">
+                        <span class="password-toggle" id="togglePainterConfirmPassword">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-grid col-2">
+                    <div class="form-group cpf-input">
+                        <label for="painterCpf">CPF</label>
+                        <input type="text" id="painterCpf" name="painterCpf" required maxlength="14">
+                    </div>
+                    <div class="form-group">
+                        <label for="painterPhone">Telefone de Contato</label>
+                        <input type="tel" id="painterPhone" name="painterPhone" required maxlength="15">
+                    </div>
+                </div>
+
+                <h3 class="form-section-title">Endereço do Pintor</h3>
+                <div class="form-grid col-2">
+                    <div class="form-group">
+                        <label for="painterCep">CEP</label>
+                        <input type="text" id="painterCep" name="painterCep" required maxlength="9">
+                    </div>
+                    <div class="form-group">
+                        <label for="painterCity">Cidade</label>
+                        <input type="text" id="painterCity" name="painterCity" required readonly>
+                    </div>
+                </div>
+                <div class="form-group form-full-width">
+                    <label for="painterState">Estado</label>
+                    <input type="text" id="painterState" name="painterState" required readonly>
+                </div>
+                <div class="form-grid col-2">
+                    <div class="form-group">
+                        <label for="painterStreet">Rua</label>
+                        <input type="text" id="painterStreet" name="painterStreet" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="painterNumber">Número</label>
+                        <input type="text" id="painterNumber" name="painterNumber">
+                        <div class="no-number-option">
+                            <input type="checkbox" id="painterNoNumber">
+                            <label for="painterNoNumber">Sem Número (S/N)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="form-section-title">Outras Informações do Pintor</h3>
+                <div class="form-grid col-2">
+                    <div class="form-group">
+                        <label for="painterSocialMedia">Rede Social (opcional)</label>
+                        <input type="text" id="painterSocialMedia" name="painterSocialMedia" placeholder="URL do perfil">
+                    </div>
+                    <div class="form-group experience-group">
+                        <label>Tempo de Experiência</label>
+                        <input type="number" id="painterExperienceValue" name="painterExperienceValue" min="0" value="0" required>
+                        <div class="radio-options">
+                            <div class="radio-option">
+                                <input type="radio" id="painterExpMonths" name="painterExperienceUnit" value="Meses" checked>
+                                <label for="painterExpMonths">Meses</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="painterExpYears" name="painterExperienceUnit" value="Anos">
+                                <label for="painterExpYears">Anos</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group form-full-width">
+                    <label for="painterBio">Biografia (Máx. 200 caracteres)</label>
+                    <textarea id="painterBio" name="painterBio" rows="4" maxlength="200" placeholder="Fale um pouco sobre sua experiência, especialidades, etc." required></textarea>
+                    <div class="bio-counter" id="painterBioCounter">0/200</div>
+                    <div class="profanity-error" id="painterBioProfanityError">Conteúdo inapropriado detectado na biografia.</div>
+                </div>
+                
+                <button type="submit" class="btn-submit">Criar Conta de Pintor</button>
+            </form>
+
+            <!-- Formulário de Cadastro de Cliente -->
+            <form id="clientRegisterForm" style="display: none;">
+                <h3 class="form-section-title">Dados do Cliente</h3>
+                <div class="form-grid col-2">
+                    <div class="form-group">
+                        <label for="clientName">Nome Completo</label>
+                        <input type="text" id="clientName" name="clientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientEmail">Email</label>
+                        <input type="email" id="clientEmail" name="clientEmail" required>
+                    </div>
+                </div>
+                <div class="form-grid col-2">
+                    <div class="form-group password-group">
+                        <label for="clientPassword">Senha</label>
+                        <input type="password" id="clientPassword" name="clientPassword" required minlength="6">
+                        <span class="password-toggle" id="toggleClientPassword">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                    <div class="form-group password-group">
+                        <label for="clientConfirmPassword">Confirmar Senha</label>
+                        <input type="password" id="clientConfirmPassword" name="clientConfirmPassword" required minlength="6">
+                        <span class="password-toggle" id="toggleClientConfirmPassword">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-grid col-2">
+                    <div class="form-group cpf-input">
+                        <label for="clientCpf">CPF</label>
+                        <input type="text" id="clientCpf" name="clientCpf" required maxlength="14">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientPhone">Telefone de Contato</label>
+                        <input type="tel" id="clientPhone" name="clientPhone" required maxlength="15">
+                    </div>
+                </div>
+
+                <h3 class="form-section-title">Endereço do Cliente</h3>
+                <div class="form-grid col-2">
+                    <div class="form-group">
+                        <label for="clientCep">CEP</label>
+                        <input type="text" id="clientCep" name="clientCep" required maxlength="9">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientCity">Cidade</label>
+                        <input type="text" id="clientCity" name="clientCity" required readonly>
+                    </div>
+                </div>
+                <div class="form-group form-full-width">
+                    <label for="clientState">Estado</label>
+                    <input type="text" id="clientState" name="clientState" required readonly>
+                </div>
+                <div class="form-grid col-2">
+                    <div class="form-group">
+                        <label for="clientStreet">Rua</label>
+                        <input type="text" id="clientStreet" name="clientStreet" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientNumber">Número</label>
+                        <input type="text" id="clientNumber" name="clientNumber">
+                        <div class="no-number-option">
+                            <input type="checkbox" id="clientNoNumber">
+                            <label for="clientNoNumber">Sem Número (S/N)</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-submit">Criar Conta de Cliente</button>
+            </form>
+
+            <div id="messageBox" class="message-box"></div> <!-- Caixa de mensagens -->
+            <div class="login-link">
+                Já tem cadastro? <a href="login.html">Acessar Perfil</a>
             </div>
-        </section>
-
-        <section class="stats-section">
-            <div class="container">
-                <h2>Por que escolher o Pintor Parceiro?</h2>
-                <p>Oferecemos a melhor experiência para conectar você aos pintores mais qualificados da sua região, garantindo transparência e satisfação.</p>
-                <div class="stats-cards">
-                    <div class="stat-card">
-                        <h3>500+</h3>
-                        <p>Pintores Cadastrados</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>50+</h3>
-                        <p>Cidades Atendidas</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>98%</h3>
-                        <p>Satisfação</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>24h</h3>
-                        <p>Resposta Média</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="cta-section">
-            <img src="https://i.postimg.cc/k47P24dC/Ilustracao-3-1.png" alt="Ilustração de um pintor feliz" class="cta-image">
-            <div class="cta-content">
-                <h2>Pronto para encontrar seu pintor ideal?</h2>
-                <p>Comece agora mesmo e conecte-se com os melhores profissionais da sua região para transformar o seu ambiente!</p>
-                <div class="cta-actions">
-                    <a href="busca.html" class="btn btn-primary">Buscar Agora</a>
-                    <a href="cadastro.html" class="btn btn-secondary">Cadastrar Pintor</a>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <div class="container footer-content">
-            <h4>Pintor Parceiro</h4>
-            <p>Conectando você aos melhores pintores da sua região</p>
-            <p>© 2025 Todos os direitos reservados - Tintas Veloz</p>
         </div>
-    </footer>
+    </main>
 
     <!-- Referência ao arquivo JavaScript externo -->
     <script type="module" src="script.js"></script>
-
 </body>
 </html>
