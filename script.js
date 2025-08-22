@@ -14,10 +14,15 @@ const firebaseConfig = {
     appId: "1:994883381349:web:b802e44d49d6f6f163fe8c"
 };
 
+console.log("Firebase Config carregada:", firebaseConfig); // Log de depuração
+
 // Inicializar o Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+console.log("Firebase App inicializado:", app); // Log de depuração
+console.log("Firestore DB inicializado:", db); // Log de depuração
 
 // --- Funções Utilitárias ---
 
@@ -109,6 +114,7 @@ if (registerForm) {
         }
 
         try {
+            console.log("Tentando verificar CPF no Firestore..."); // Log de depuração
             // **Verificar se o CPF já existe no Firestore**
             const q = query(collection(db, "pintores"), where("cpf", "==", cpf));
             const querySnapshot = await getDocs(q);
@@ -118,10 +124,14 @@ if (registerForm) {
                 return; // Impede o cadastro se o CPF já existe
             }
 
+            console.log("CPF único. Tentando criar usuário no Firebase Auth..."); // Log de depuração
             // Se o CPF é único, procede com o cadastro do usuário na autenticação
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             
+            console.log("Usuário criado no Auth. UID:", user.uid); // Log de depuração
+            console.log("Tentando salvar dados no Firestore para UID:", user.uid); // Log de depuração
+
             // Salva as informações extras do pintor no Firestore
             await setDoc(doc(db, "pintores", user.uid), {
                 nome: name,
@@ -141,14 +151,16 @@ if (registerForm) {
             const errorCode = error.code;
             const errorMessage = error.message;
 
+            console.error("Erro no processo de cadastro/Firestore:", error); // Log de erro detalhado
             if (errorCode === 'auth/email-already-in-use') {
                 showMessage("O email fornecido já está em uso por outra conta.", true);
             } else if (errorCode === 'auth/weak-password') {
                 showMessage("A senha é muito fraca. Ela deve ter pelo menos 6 caracteres.", true);
+            } else if (errorCode === 'auth/network-request-failed') {
+                showMessage("Erro de conexão. Verifique sua internet.", true);
             } else {
                 showMessage("Erro no cadastro: " + errorMessage, true);
             }
-            console.error(error);
         }
     });
 }
