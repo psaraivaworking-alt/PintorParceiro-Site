@@ -4,159 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pintor Parceiro - Login</title>
+    <link rel="icon" href="https://i.postimg.cc/Wz2WcVgm/Selo-Pintor-PArceiro.png" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #007bff;
-            --secondary-color: #333;
-            --bg-light: #f9f9f9;
-            --text-color: #555;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            line-height: 1.6;
-            color: var(--text-color);
-            background-color: var(--bg-light);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 600px;
-            margin: auto;
-            padding: 20px 0;
-        }
-
-        header {
-            background-color: #fff;
-            padding: 1rem 0;
-            border-bottom: 1px solid #eee;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 90%;
-            max-width: 1200px;
-            margin: auto;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-
-        .main-content {
-            flex-grow: 1; /* Faz com que o conteúdo principal ocupe o espaço restante */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 0;
-        }
-
-        .form-card {
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-            width: 100%;
-            max-width: 450px; /* Um pouco menor para o formulário de login */
-        }
-
-        .form-card h2 {
-            text-align: center;
-            color: var(--secondary-color);
-            margin-bottom: 2rem;
-            font-size: 2rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-
-        .btn-submit {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            border: none;
-            background-color: var(--primary-color);
-            color: #fff;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        
-        .btn-submit:hover {
-            background-color: #0056b3;
-        }
-
-        .register-link {
-            text-align: center;
-            margin-top: 1.5rem;
-        }
-
-        .register-link a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        footer {
-            background-color: var(--secondary-color);
-            color: #fff;
-            text-align: center;
-            padding: 40px 0;
-            margin-top: auto; /* Empurra o rodapé para o final da página */
-        }
-
-        .footer-content h4 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-    </style>
+    <!-- Para os ícones (Font Awesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- LINK PARA O SEU ARQUIVO CSS EXTERNO -->
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="form-page">
 
     <header>
         <div class="navbar">
-            <a href="index.html" class="logo">Pintor Parceiro</a>
+            <a href="index.html" class="logo">
+                <img src="https://i.postimg.cc/cL0sk9DQ/Marca-Pintor-Parceiro-1.png" alt="Logo Pintor Parceiro" class="logo-img">
+            </a>
             <div class="nav-links">
-                <a href="cadastro.html" class="btn-primary">Sou Pintor, Quero me Cadastrar</a>
-                <a href="busca.html">Buscar Pintores</a>
+                <a href="cadastro.html" class="btn-primary-header">Sou Pintor, Quero me Cadastrar</a>
+                <a href="busca.html" class="btn-primary-header">Buscar Pintores</a>
+                <!-- O link "Login" foi removido daqui para evitar redundância, pois você já está nesta página. -->
             </div>
         </div>
     </header>
@@ -169,15 +36,19 @@
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group password-group"> <!-- Adicionado password-group para o ícone de olho -->
                     <label for="password">Senha</label>
                     <input type="password" id="password" name="password" required>
+                    <span class="password-toggle" id="togglePasswordLogin">
+                        <i class="fas fa-eye"></i>
+                    </span>
                 </div>
                 <button type="submit" class="btn-submit">Entrar</button>
             </form>
             <div class="register-link">
                 Ainda não tem cadastro? <a href="cadastro.html">Crie sua conta aqui</a>
             </div>
+            <div id="messageBox" class="message-box" style="display:none; margin-top:15px;"></div>
         </div>
     </main>
 
@@ -191,31 +62,5 @@
 
     <!-- Referência ao arquivo JavaScript externo -->
     <script type="module" src="script.js"></script>
-    
-    <script>// --- Lógica para o botão de ver senha no cadastro.html e login.html ---
-function setupPasswordToggle(passwordInputId, toggleButtonId) {
-    const passwordInput = document.getElementById(passwordInputId);
-    const toggleButton = document.getElementById(toggleButtonId);
-
-    if (passwordInput && toggleButton) {
-        toggleButton.addEventListener('click', function () {
-            // Alterna o tipo do input entre 'password' e 'text'
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            
-            // Alterna o ícone de olho
-            this.querySelector('i').classList.toggle('fa-eye');
-            this.querySelector('i').classList.toggle('fa-eye-slash'); // Olho cortado
-        });
-    }
-}
-
-// Chamar a função para a página de cadastro
-setupPasswordToggle('password', 'togglePassword');
-
-// (Se você quiser adicionar o mesmo para o login.html, adicione um ID para o botão lá e chame a função novamente)
-// Exemplo para login.html (assumindo que o input de senha tem id="passwordLogin" e o botão id="togglePasswordLogin"):
-// setupPasswordToggle('passwordLogin', 'togglePasswordLogin');
-</script>
 </body>
 </html>
