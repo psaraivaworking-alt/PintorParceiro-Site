@@ -8,31 +8,37 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Para ícones -->
     <link rel="stylesheet" href="style.css"> <!-- Link para o arquivo CSS externo -->
-    <!-- Para os ícones de cartão (Font Awesome) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<body>
+<body class="home-page">
 
     <header>
         <div class="navbar">
             <a href="index.html" class="logo">
                 <img src="https://i.postimg.cc/cL0sk9DQ/Marca-Pintor-Parceiro-1.png" alt="Logo Pintor Parceiro" class="logo-img">
             </a>
-            <div class="nav-links">
-                <a href="cadastro.html" class="btn-primary-header">Cadastre-se</a>
-                <a href="busca.html" class="btn-primary-header">Buscar Pintores</a>
+            <!-- Botão Hamburger para dispositivos móveis -->
+            <button class="hamburger-menu" id="hamburgerMenu" aria-label="Abrir menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+            <div class="nav-links" id="navLinks">
+                <!-- Links serão preenchidos dinamicamente pelo JavaScript -->
             </div>
         </div>
     </header>
 
     <main>
         <section class="hero-section">
-            <div class="container">
-                <img src="https://i.postimg.cc/mgMzw75r/Abertura-do-site-1.jpg" alt="Pintor trabalhando feliz" class="hero-banner-image">
+            <img src="https://i.postimg.cc/mgMzw75r/Abertura-do-site-1.jpg" alt="Banner de um pintor trabalhando" class="hero-banner-image">
+            <div class="hero-content">
                 <h1>Encontre o Pintor Perfeito</h1>
                 <p>A maior plataforma para conectar você aos melhores pintores da sua região. Busque por CEP e encontre profissionais qualificados perto de você.</p>
-                <a href="busca.html" class="btn-primary">Busque Pintores</a>
+                <div class="hero-actions">
+                    <a href="busca.html" class="btn btn-primary">Buscar Pintores</a>
+                </div>
             </div>
         </section>
 
@@ -40,28 +46,28 @@
             <div class="container how-it-works-content">
                 <div class="how-it-works-text">
                     <h2>Como Funciona o Pintor Parceiro</h2>
-                    <p>"Pintor Parceiro Veloz" é um programa da Tintas Veloz destinado a profissionais da área, que oferece eventos para apresentação da linha de produtos, demonstrações práticas e troca de experiências. Os eventos incluem sorteios de brindes e produtos Veloz, e são realizados em diferentes cidades, como Cametá e Macapá, no Pará, para celebrar e fortalecer a parceria com esses pintores.</p>
+                    <p>Nossa plataforma foi desenvolvida para simplificar a sua vida. Com apenas alguns cliques, você encontra o profissional ideal para o seu projeto de pintura, com a garantia de qualidade e um serviço ágil e seguro.</p>
                 </div>
                 <div class="feature-cards-grid">
                     <div class="feature-card">
                         <i class="fas fa-search icon"></i>
                         <h3>Busca Inteligente</h3>
-                        <p>Encontre pintores qualificados na sua região usando apenas o CEP.</p>
+                        <p>Encontre pintores qualificados na sua região usando apenas o CEP ou a cidade.</p>
                     </div>
                     <div class="feature-card">
-                        <i class="fas fa-award icon"></i>
+                        <i class="fas fa-user-check icon"></i>
+                        <h3>Pintores Verificados</h3>
+                        <p>Todos os profissionais em nossa plataforma passam por um rigoroso processo de verificação.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-paint-roller icon"></i>
                         <h3>Qualidade Garantida</h3>
-                        <p>Profissionais experientes e bem avaliados.</p>
+                        <p>Trabalhamos apenas com pintores experientes e com excelentes avaliações de outros clientes.</p>
                     </div>
                     <div class="feature-card">
-                        <i class="fas fa-clock icon"></i>
+                        <i class="fas fa-comments icon"></i>
                         <h3>Resposta Rápida</h3>
-                        <p>Contato direto com os pintores da sua região.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-handshake icon"></i>
-                        <h3>Variedade de Contratos</h3>
-                        <p>Tenha um leque de oportunidades por região e CEP.</p>
+                        <p>Tenha contato direto e rápido com os pintores disponíveis, facilitando a negociação.</p>
                     </div>
                 </div>
             </div>
@@ -70,7 +76,7 @@
         <section class="stats-section">
             <div class="container">
                 <h2>Por que escolher o Pintor Parceiro?</h2>
-                <p>Oferecemos a melhor experiência para conectar você aos pintores mais qualificados da sua região.</p>
+                <p>Oferecemos a melhor experiência para conectar você aos pintores mais qualificados da sua região, garantindo transparência e satisfação.</p>
                 <div class="stats-cards">
                     <div class="stat-card">
                         <h3>500+</h3>
@@ -93,13 +99,13 @@
         </section>
 
         <section class="cta-section">
-            <img src="https://i.postimg.cc/prgQx4k6/Ilustracao-CTA.png" alt="Ilustração de um pintor feliz" class="cta-image">
+            <img src="https://i.postimg.cc/k47P24dC/Ilustracao-3-1.png" alt="Ilustração de um pintor feliz" class="cta-image">
             <div class="cta-content">
                 <h2>Pronto para encontrar seu pintor ideal?</h2>
-                <p>Comece agora mesmo e conecte-se com os melhores profissionais da sua região. Qualidade e conveniência a um clique!</p>
+                <p>Comece agora mesmo e conecte-se com os melhores profissionais da sua região para transformar o seu ambiente!</p>
                 <div class="cta-actions">
                     <a href="busca.html" class="btn btn-primary">Buscar Agora</a>
-                    <a href="cadastro.html" class="btn btn-secondary">Cadastrar seu Perfil</a>
+                    <a href="cadastro.html" class="btn btn-secondary">Cadastrar Pintor</a>
                 </div>
             </div>
         </section>
@@ -112,5 +118,9 @@
             <p>© 2025 Todos os direitos reservados - Tintas Veloz</p>
         </div>
     </footer>
+
+    <!-- Referência ao arquivo JavaScript externo -->
+    <script type="module" src="script.js"></script>
+
 </body>
 </html>
