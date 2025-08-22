@@ -4,189 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pintor Parceiro - Buscar Pintores</title>
+    <link rel="icon" href="https://i.postimg.cc/Wz2WcVgm/Selo-Pintor-PArceiro.png" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #007bff;
-            --secondary-color: #333;
-            --bg-light: #f9f9f9;
-            --text-color: #555;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            line-height: 1.6;
-            color: var(--text-color);
-            background-color: var(--bg-light);
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: auto;
-            padding: 20px 0;
-        }
-
-        header {
-            background-color: #fff;
-            padding: 1rem 0;
-            border-bottom: 1px solid #eee;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-
-        .nav-links a {
-            margin-left: 20px;
-            color: var(--secondary-color);
-            text-decoration: none;
-            font-weight: 600;
-            padding: 8px 15px;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-
-        .nav-links .btn-primary {
-            background-color: var(--primary-color);
-            color: #fff;
-        }
-
-        .nav-links a:hover {
-            background-color: #f0f0f0;
-        }
-
-        .nav-links .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-        .search-section {
-            padding: 60px 0;
-            text-align: center;
-        }
-
-        .search-box {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 30px;
-        }
-
-        .search-box input[type="text"] {
-            padding: 12px 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1.1rem;
-            width: 300px;
-            max-width: 80%;
-        }
-
-        .search-box button {
-            padding: 12px 25px;
-            background-color: var(--primary-color);
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .search-box button:hover {
-            background-color: #0056b3;
-        }
-
-        .results-section {
-            padding: 40px 0;
-        }
-
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            justify-content: center;
-        }
-
-        .painter-card {
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: var(--shadow);
-            text-align: left;
-            transition: transform 0.2s;
-        }
-
-        .painter-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .painter-card h3 {
-            color: var(--primary-color);
-            margin-bottom: 10px;
-        }
-
-        .painter-card p {
-            margin-bottom: 5px;
-        }
-
-        .painter-card .bio {
-            font-style: italic;
-            color: #777;
-            margin-top: 15px;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 50px 0;
-            font-size: 1.2rem;
-            color: #888;
-        }
-
-        footer {
-            background-color: var(--secondary-color);
-            color: #fff;
-            text-align: center;
-            padding: 40px 0;
-            margin-top: 60px;
-        }
-
-        .footer-content h4 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-    </style>
+    <!-- Para os ícones (Font Awesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- LINK PARA O SEU ARQUIVO CSS EXTERNO -->
+    <link rel="stylesheet" href="style.css"> 
 </head>
-<body>
+<body class="form-page"> 
 
     <header>
-        <div class="container navbar">
-            <a href="index.html" class="logo">Pintor Parceiro</a>
+        <div class="navbar">
+            <a href="index.html" class="logo">
+                <img src="https://i.postimg.cc/cL0sk9DQ/Marca-Pintor-Parceiro-1.png" alt="Logo Pintor Parceiro" class="logo-img">
+            </a>
             <div class="nav-links">
-                <a href="cadastro.html" class="btn-primary">Sou Pintor, Quero me Cadastrar</a>
-                <a href="busca.html">Buscar Pintores</a>
+                <!-- Links serão preenchidos pelo JavaScript embutido -->
             </div>
         </div>
     </header>
@@ -194,22 +29,35 @@
     <main>
         <section class="search-section">
             <div class="container">
-                <h2>Encontre o Pintor Ideal Pelo CEP</h2>
-                <p>Digite o CEP da região desejada para encontrar pintores qualificados perto de você.</p>
-                <div class="search-box">
-                    <input type="text" id="cepSearchInput" placeholder="Digite o CEP (ex: 12345-678)" maxlength="9">
-                    <button id="searchButton">Buscar Pintores</button>
+                <h2>Encontre o Pintor Ideal</h2>
+                <p>Escolha o método de busca e encontre profissionais qualificados perto de você.</p>
+                
+                <div class="search-options">
+                    <div class="radio-option">
+                        <input type="radio" id="searchByCep" name="searchType" value="cep" checked>
+                        <label for="searchByCep"><i class="fas fa-map-marker-alt"></i> Buscar por CEP</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="searchByCity" name="searchType" value="city">
+                        <label for="searchByCity"><i class="fas fa-city"></i> Buscar por Cidade</label>
+                    </div>
                 </div>
+
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Digite o CEP (ex: 12345-678)" maxlength="9">
+                    <button id="searchButton"><i class="fas fa-search"></i> Buscar Pintores</button>
+                </div>
+                <div id="messageBox" class="message-box" style="display:none; margin-top:15px;"></div>
             </div>
         </section>
 
-        <section class="results-section">
+        <section class="results-section painters-results-section">
             <div class="container">
                 <div id="paintersResults" class="results-grid">
                     <!-- Cards dos pintores serão inseridos aqui pelo JavaScript -->
                 </div>
                 <div id="noResultsMessage" class="no-results" style="display: none;">
-                    Nenhum pintor encontrado para o CEP informado.
+                    Nenhum pintor encontrado para os critérios informados.
                 </div>
             </div>
         </section>
@@ -223,7 +71,251 @@
         </div>
     </footer>
 
-    <!-- Referência ao arquivo JavaScript externo -->
-    <script type="module" src="script.js"></script>
+    <!-- Script JavaScript embutido para as funcionalidades da página -->
+    <script type="module">
+        // Importa as funções necessárias do Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+        // Sua configuração do Firebase.
+        // ATENÇÃO: Em um ambiente de produção real, evite expor a chave de API diretamente no código do cliente.
+        // Considere usar variáveis de ambiente ou um serviço de proxy para maior segurança.
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmuGFCKnZ-qBVUpDxs6moJis19lx8nvXw", 
+            authDomain: "pintordata.firebaseapp.com",
+            projectId: "pintordata",
+            storageBucket: "pintordata.firebasestorage.app",
+            messagingSenderId: "994883381349",
+            appId: "1:994883381349:web:b802e44d49d6f6f163fe8c"
+        };
+
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- Funções Utilitárias ---
+
+        /**
+         * Exibe uma mensagem na caixa de mensagens da UI.
+         * @param {string} msg - A mensagem a ser exibida.
+         * @param {boolean} isError - Indica se a mensagem é um erro (true) ou sucesso (false).
+         */
+        function showMessage(msg, isError = false) {
+            const messageBox = document.getElementById('messageBox');
+            if (messageBox) {
+                messageBox.textContent = msg;
+                messageBox.style.display = 'block';
+                if (isError) {
+                    messageBox.classList.add('error-message');
+                    messageBox.classList.remove('success-message'); // Garante que a classe de sucesso seja removida
+                } else {
+                    messageBox.classList.add('success-message'); // Adiciona classe de sucesso
+                    messageBox.classList.remove('error-message'); // Garante que a classe de erro seja removida
+                }
+                setTimeout(() => {
+                    messageBox.style.display = 'none';
+                    messageBox.classList.remove('success-message', 'error-message'); // Remove ambas as classes ao esconder
+                }, 5000);
+            } else {
+                console.log(msg); // Fallback para o console se a caixa de mensagens não existir
+            }
+        }
+
+        /**
+         * Formata o input de CEP automaticamente (adiciona o hífen).
+         * @param {HTMLInputElement} inputElement - O elemento input do CEP.
+         */
+        function formatCepInput(inputElement) {
+            inputElement.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é dígito
+                if (value.length > 5) {
+                    value = value.substring(0, 5) + '-' + value.substring(5, 8);
+                }
+                e.target.value = value;
+            });
+        }
+
+        // --- Lógica do Header Dinâmico ---
+        const navLinksContainer = document.querySelector('.nav-links');
+
+        // Monitora o estado de autenticação para atualizar o header
+        onAuthStateChanged(auth, (user) => {
+            navLinksContainer.innerHTML = ''; // Limpa os links existentes
+            if (user) {
+                // Usuário está logado
+                const profileLink = document.createElement('a');
+                profileLink.href = 'perfil.html';
+                profileLink.textContent = 'Meu Perfil';
+                profileLink.classList.add('btn-primary-header');
+
+                // A opção "Buscar Pintores" NÃO será adicionada aqui, pois o usuário já está na página de busca.
+                
+                const logoutButton = document.createElement('button');
+                logoutButton.id = 'logoutButton';
+                logoutButton.textContent = 'Sair';
+                logoutButton.addEventListener('click', async () => {
+                    try {
+                        await signOut(auth);
+                        // Redireciona para a página inicial ou atualiza o header
+                        window.location.href = 'index.html'; 
+                    } catch (error) {
+                        console.error('Erro ao fazer logout:', error);
+                        showMessage('Erro ao sair. Tente novamente.', true);
+                    }
+                });
+
+                navLinksContainer.appendChild(profileLink);
+                navLinksContainer.appendChild(logoutButton);
+            } else {
+                // Usuário não está logado
+                const registerLink = document.createElement('a');
+                registerLink.href = 'cadastro.html';
+                registerLink.textContent = 'Cadastrar';
+                registerLink.classList.add('btn-primary-header');
+
+                const loginLink = document.createElement('a');
+                loginLink.href = 'login.html';
+                loginLink.textContent = 'Login';
+                loginLink.classList.add('btn-primary-header');
+
+                // A opção "Buscar Pintores" NÃO será adicionada aqui, pois o usuário já está na página de busca.
+
+                navLinksContainer.appendChild(loginLink);
+                navLinksContainer.appendChild(registerLink);
+            }
+        });
+
+        // --- Lógica da Página de Busca ---
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const paintersResults = document.getElementById('paintersResults');
+        const noResultsMessage = document.getElementById('noResultsMessage');
+        const searchByCepRadio = document.getElementById('searchByCep');
+        const searchByCityRadio = document.getElementById('searchByCity');
+
+        // Inicializa a formatação do CEP se a opção CEP estiver selecionada no carregamento da página
+        if (searchByCepRadio.checked) {
+            formatCepInput(searchInput);
+        }
+
+        // Event listeners para alternar o tipo de busca (CEP ou Cidade/Estado)
+        searchByCepRadio.addEventListener('change', () => {
+            searchInput.value = ''; // Limpa o campo ao trocar
+            searchInput.placeholder = 'Digite o CEP (ex: 12345-678)';
+            searchInput.maxLength = 9;
+            searchInput.removeEventListener('input', handleCityStateInput); // Remove listener antigo de cidade/estado
+            searchInput.addEventListener('input', handleCepInput); // Adiciona listener de CEP
+        });
+
+        searchByCityRadio.addEventListener('change', () => {
+            searchInput.value = ''; // Limpa o campo ao trocar
+            searchInput.placeholder = 'Digite a Cidade (ex: São Paulo)'; // Placeholder atualizado
+            searchInput.maxLength = 50; // Aumenta o max length para cidades/estados
+            searchInput.removeEventListener('input', handleCepInput); // Remove listener antigo de CEP
+            searchInput.addEventListener('input', handleCityStateInput); // Adiciona listener de cidade/estado
+        });
+
+        /**
+         * Função para lidar com o input de CEP, aplicando a máscara.
+         * @param {Event} e - O evento de input.
+         */
+        function handleCepInput(e) {
+            let value = e.target.value.replace(/\D/g, ''); 
+            if (value.length > 5) {
+                value = value.substring(0, 5) + '-' + value.substring(5, 8);
+            }
+            e.target.value = value;
+        }
+        
+        /**
+         * Função para lidar com o input de Cidade/Estado (sem formatação específica).
+         * @param {Event} e - O evento de input.
+         */
+        function handleCityStateInput(e) {
+            // Nenhuma formatação automática complexa para cidade/estado
+            // Apenas garante que o input é tratado como texto simples
+        }
+
+        // Adiciona o listener de CEP inicialmente ao carregar a página
+        searchInput.addEventListener('input', handleCepInput);
+
+        // Event listener para o botão de busca
+        searchButton.addEventListener('click', async () => {
+            const searchTerm = searchInput.value.trim();
+            const currentSearchType = document.querySelector('input[name="searchType"]:checked').value;
+
+            // Limpa resultados anteriores e oculta a mensagem de "não encontrado"
+            paintersResults.innerHTML = '';
+            noResultsMessage.style.display = 'none';
+            showMessage('', false); // Limpa mensagens de feedback anteriores
+
+            if (!searchTerm) {
+                showMessage('Por favor, digite um termo para buscar.', true);
+                return;
+            }
+
+            try {
+                let q;
+                let paintersToRender = [];
+
+                if (currentSearchType === 'cep') {
+                    // Validação para o formato do CEP
+                    if (searchTerm.replace(/\D/g, '').length !== 8) { // Verifica 8 dígitos numéricos
+                        showMessage('Por favor, digite um CEP válido (8 dígitos numéricos).', true);
+                        return;
+                    }
+                    // Consulta por CEP exato
+                    q = query(collection(db, "pintores"), where("cep", "==", searchTerm));
+                    const querySnapshot = await getDocs(q);
+                    paintersToRender = querySnapshot.docs.map(doc => doc.data());
+
+                } else { // currentSearchType === 'city' - Busca APENAS por cidade
+                    // Tenta buscar por cidade com correspondência exata
+                    let cityQuery = query(collection(db, "pintores"), where("cidade", "==", searchTerm));
+                    let citySnapshot = await getDocs(cityQuery);
+                    paintersToRender = citySnapshot.docs.map(doc => doc.data());
+
+                    // Removido: A lógica de fallback para buscar por estado foi removida.
+                    // Agora, a busca por cidade é estritamente pelo campo 'cidade'.
+                }
+
+                if (paintersToRender.length === 0) {
+                    noResultsMessage.style.display = 'block';
+                } else {
+                    renderPainters(paintersToRender);
+                }
+            } catch (error) {
+                console.error("Erro ao buscar pintores:", error);
+                showMessage("Ocorreu um erro ao buscar pintores. Tente novamente mais tarde.", true);
+            }
+        });
+
+        /**
+         * Renderiza os cartões dos pintores na área de resultados.
+         * @param {Array<Object>} painters - Um array de objetos de pintores a serem exibidos.
+         */
+        function renderPainters(painters) {
+            if (painters.length === 0) {
+                noResultsMessage.style.display = 'block';
+                return;
+            }
+
+            painters.forEach((painter) => {
+                const painterCard = `
+                    <div class="painter-card">
+                        <h3>${painter.nome || 'Pintor Parceiro'}</h3>
+                        <p><strong>Telefone:</strong> ${painter.telefone || 'Não informado'}</p>
+                        <p><strong>Experiência:</strong> ${painter.experiencia || 'Não informado'}</p>
+                        ${painter.redeSocial ? `<p><strong>Rede Social:</strong> <a href="${painter.redeSocial}" target="_blank">${painter.redeSocial}</a></p>` : ''}
+                        <p class="bio"><strong>Bio:</strong> ${painter.biografia || 'Nenhuma biografia disponível.'}</p>
+                        
+                    </div>
+                `;
+                paintersResults.innerHTML += painterCard;
+            });
+        }
+    </script>
 </body>
 </html>
