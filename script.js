@@ -1,25 +1,58 @@
 // firebase.js
 // Importar as funções necessárias do Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
 // Sua configuração do Firebase.
-// ATENÇÃO: Em um ambiente de produção real, evite expor a chave de API diretamente no código do cliente.
-// Considere usar variáveis de ambiente ou um serviço de proxy para maior segurança.
-const firebaseConfig = {
-    apiKey: "AIzaSyCmuGFCKnZ-qBVUpDxs6moJis19lx8nvXw", 
-    authDomain: "pintordata.firebaseapp.com",
-    projectId: "pintordata",
-    storageBucket: "pintordata.firebasestorage.app",
-    messagingSenderId: "994883381349",
-    appId: "1:994883381349:web:b802e44d49d6f6f163fe8c"
-};
+// A chave de API agora é obtida do ambiente Canvas.
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
 
 // Inicializar o Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+let currentUserId = null; // ID do usuário logado (autenticado ou anônimo)
+let isAuthReady = false; // Flag para indicar que o estado de autenticação foi determinado
+
+// Observador de estado de autenticação para definir currentUserId e isAuthReady
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        currentUserId = user.uid;
+        // Tentativa de sign in com custom token, se disponível e o usuário for anônimo inicialmente.
+        // Se o usuário já estiver logado (e não for anônimo), não precisamos do token customizado.
+        if (typeof __initial_auth_token !== 'undefined' && user.isAnonymous) {
+            try {
+                await signInWithCustomToken(auth, __initial_auth_token);
+                // Após o signInWithCustomToken, o onAuthStateChanged será disparado novamente com o usuário autenticado,
+                // então podemos apenas garantir que o ID está correto.
+                currentUserId = auth.currentUser.uid;
+                console.log("Usuário autenticado com token customizado.");
+            } catch (error) {
+                console.error("Erro ao fazer login com token customizado:", error);
+                // Se falhar, talvez tente continuar anonimamente ou redirecione para login.
+            }
+        }
+    } else {
+        currentUserId = null;
+        // Se não houver token customizado, ou se o login falhou, tenta entrar anonimamente.
+        if (typeof __initial_auth_token === 'undefined') {
+            try {
+                await signInAnonymously(auth);
+                currentUserId = auth.currentUser.uid;
+                console.log("Login anônimo realizado.");
+            } catch (error) {
+                console.error("Erro ao fazer login anonimamente:", error);
+            }
+        }
+    }
+    isAuthReady = true; // Marca que o estado de autenticação inicial foi determinado
+    // Chamar funções que dependem do estado de autenticação inicial aqui
+    dynamicHeaderLinks();
+    loadProfileData(); // Carrega os dados do perfil após a autenticação
+});
 
 // --- Funções Utilitárias ---
 
@@ -29,24 +62,22 @@ const db = getFirestore(app);
  * @param {boolean} isError - Indica se a mensagem é um erro (true) ou sucesso (false).
  */
 function showMessage(msg, isError = false) {
-    // Verifica se o elemento messageBox existe na página atual
     const messageBox = document.getElementById('messageBox');
     if (messageBox) {
         messageBox.textContent = msg;
         messageBox.style.display = 'block';
         if (isError) {
             messageBox.classList.add('error-message');
-            messageBox.classList.remove('success-message'); // Garante que a classe de sucesso seja removida
+            messageBox.classList.remove('success-message');
         } else {
-            messageBox.classList.add('success-message'); // Adiciona classe de sucesso
-            messageBox.classList.remove('error-message'); // Garante que a classe de erro seja removida
+            messageBox.classList.add('success-message');
+            messageBox.classList.remove('error-message');
         }
         setTimeout(() => {
             messageBox.style.display = 'none';
-            messageBox.classList.remove('success-message', 'error-message'); // Remove ambas as classes ao esconder
-        }, 5000); // Mensagem desaparece após 5 segundos
+            messageBox.classList.remove('success-message', 'error-message');
+        }, 5000);
     } else {
-        // Fallback para o console se a caixa de mensagens não existir (ex: para páginas sem o elemento)
         console.log(msg); 
     }
 }
@@ -56,9 +87,9 @@ function showMessage(msg, isError = false) {
  * @param {HTMLInputElement} inputElement - O elemento input do CEP.
  */
 function formatCepInput(inputElement) {
-    if (!inputElement) return; // Garante que o elemento existe
+    if (!inputElement) return;
     inputElement.addEventListener('input', (e) => {
-        let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é dígito
+        let value = e.target.value.replace(/\D/g, '');
         if (value.length > 5) {
             value = value.substring(0, 5) + '-' + value.substring(5, 8);
         }
@@ -71,16 +102,12 @@ function formatCepInput(inputElement) {
  * @param {HTMLInputElement} inputElement - O elemento input do CPF.
  */
 function formatCpfInput(inputElement) {
-    if (!inputElement) return; // Garante que o elemento existe
+    if (!inputElement) return;
     inputElement.addEventListener('input', (e) => {
-        let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é dígito
-        
-        // Limita a 11 dígitos
+        let value = e.target.value.replace(/\D/g, '');
         if (value.length > 11) {
             value = value.substring(0, 11);
         }
-
-        // Aplica a formatação
         if (value.length > 9) {
             value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
         } else if (value.length > 6) {
@@ -88,7 +115,6 @@ function formatCpfInput(inputElement) {
         } else if (value.length > 3) {
             value = value.replace(/^(\d{3})(\d{3})$/, '$1.$2');
         }
-        
         e.target.value = value;
     });
 }
@@ -98,29 +124,24 @@ function formatCpfInput(inputElement) {
  * @param {HTMLInputElement} inputElement - O elemento input do Telefone.
  */
 function formatPhoneInput(inputElement) {
-    if (!inputElement) return; // Garante que o elemento existe
+    if (!inputElement) return;
     inputElement.addEventListener('input', (e) => {
-        let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é dígito
-
+        let value = e.target.value.replace(/\D/g, '');
         if (value.length > 11) {
             value = value.substring(0, 11);
         }
-
-        // Aplica a formatação (DD) 9XXXX-XXXX ou (DD) XXXX-XXXX
-        if (value.length > 10) { // Para 11 dígitos (com 9 na frente)
+        if (value.length > 10) {
             value = value.replace(/^(\d\d)(\d{5})(\d{4}).*/, '($1) $2-$3');
-        } else if (value.length > 6) { // Para 10 dígitos
+        } else if (value.length > 6) {
             value = value.replace(/^(\d\d)(\d{4})(\d{4}).*/, '($1) $2-$3');
-        } else if (value.length > 2) { // Para DDD
-            value = value.replace(/^(\d\d)(\d+)/, '($1) $2');
-        } else {
+        } else if (value.length > 2) {
             value = value.replace(/^(\d*)/, '($1');
+        } else {
+            value = value.replace(/^(\d*)/, '$1');
         }
-        
         e.target.value = value;
     });
 }
-
 
 /**
  * Função para auto-preencher cidade/estado pelo CEP (ViaCEP).
@@ -129,9 +150,9 @@ function formatPhoneInput(inputElement) {
  * @param {HTMLInputElement} stateInput - O campo de input do Estado.
  */
 async function fetchCepData(cepInput, cityInput, stateInput) {
-    if (!cepInput || !cityInput || !stateInput) return; // Garante que os elementos existem
+    if (!cepInput || !cityInput || !stateInput) return;
 
-    let cep = cepInput.value.replace(/\D/g, ''); // Limpa o CEP
+    let cep = cepInput.value.replace(/\D/g, '');
     if (cep.length !== 8) {
         cityInput.value = '';
         stateInput.value = '';
@@ -158,7 +179,7 @@ async function fetchCepData(cepInput, cityInput, stateInput) {
     }
 }
 
-// Palavras proibidas para o filtro de profanidade (pode expandir esta lista)
+// Palavras proibidas para o filtro de profanidade
 const forbiddenWords = ['cu', 'merda', 'caralho', 'buceta', 'puta', 'foda', 'desgraça', 'inferno', 'viado', 'prostituta'];
 
 /**
@@ -168,10 +189,7 @@ const forbiddenWords = ['cu', 'merda', 'caralho', 'buceta', 'puta', 'foda', 'des
  */
 function containsProfanity(text) {
     const lowerText = text.toLowerCase();
-    // Exceção para a palavra "pinto" se não estiver sozinha ou em contexto de profanidade (ex: "pinto a parede")
     if (lowerText.includes('pinto') && !forbiddenWords.some(word => lowerText.replace('pinto', '').includes(word))) {
-        // Se a palavra "pinto" estiver, mas não outras profanidades, permite.
-        // Isso é uma heurística e pode precisar de ajustes dependendo do contexto.
         return false; 
     }
     return forbiddenWords.some(word => lowerText.includes(word));
@@ -188,13 +206,10 @@ function setupPasswordToggle(passwordInputId, toggleButtonId) {
 
     if (passwordInput && toggleButton) {
         toggleButton.addEventListener('click', function () {
-            // Alterna o tipo do input entre 'password' e 'text'
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            
-            // Alterna o ícone de olho
             this.querySelector('i').classList.toggle('fa-eye');
-            this.querySelector('i').classList.toggle('fa-eye-slash'); // Olho cortado
+            this.querySelector('i').classList.toggle('fa-eye-slash');
         });
     }
 }
@@ -204,107 +219,95 @@ function setupPasswordToggle(passwordInputId, toggleButtonId) {
  */
 function setupMenuToggle() {
     const hamburgerMenu = document.getElementById('hamburgerMenu');
-    const navLinks = document.querySelector('.nav-links'); // Seleciona o container nav-links
+    const navLinks = document.querySelector('.nav-links');
 
     if (hamburgerMenu && navLinks) {
         hamburgerMenu.addEventListener('click', () => {
             navLinks.classList.toggle('menu-active');
-            hamburgerMenu.classList.toggle('is-active'); // Para animar o ícone, se houver CSS
+            hamburgerMenu.classList.toggle('is-active');
         });
     }
 }
 
-// --- Lógica do Header Dinâmico (para todas as páginas que usam o script.js) ---
-const navLinksContainer = document.querySelector('.nav-links');
+/**
+ * Preenche dinamicamente os links do cabeçalho com base no estado de autenticação.
+ */
+function dynamicHeaderLinks() {
+    const navLinksContainer = document.querySelector('.nav-links');
+    if (!navLinksContainer || !isAuthReady) return;
 
-if (navLinksContainer) {
-    onAuthStateChanged(auth, (user) => {
-        navLinksContainer.innerHTML = ''; // Limpa os links existentes
-        const currentPage = window.location.pathname.split('/').pop(); // Obtém o nome da página atual
+    navLinksContainer.innerHTML = '';
+    const currentPage = window.location.pathname.split('/').pop();
 
-        if (user) {
-            // Usuário está logado
-            const profileLink = document.createElement('a');
-            profileLink.href = 'perfil.html';
-            profileLink.textContent = 'Meu Perfil';
-            profileLink.classList.add('btn-primary-header');
+    if (currentUserId && auth.currentUser && !auth.currentUser.isAnonymous) { // Se o usuário está realmente logado (não anônimo)
+        const profileLink = document.createElement('a');
+        profileLink.href = 'perfil.html';
+        profileLink.textContent = 'Meu Perfil';
+        profileLink.classList.add('btn-primary-header');
 
-            const logoutButton = document.createElement('button');
-            logoutButton.id = 'logoutButton';
-            logoutButton.textContent = 'Sair';
-            logoutButton.addEventListener('click', async () => {
-                try {
-                    await signOut(auth);
-                    window.location.href = 'index.html'; 
-                } catch (error) {
-                    console.error('Erro ao fazer logout:', error);
-                    showMessage('Erro ao sair. Tente novamente.', true);
-                }
-            });
-
-            navLinksContainer.appendChild(profileLink);
-            // Só adiciona "Buscar Pintores" se não estiver na página de busca
-            if (currentPage !== 'busca.html') {
-                const searchLink = document.createElement('a');
-                searchLink.href = 'busca.html';
-                searchLink.textContent = 'Buscar Pintores';
-                searchLink.classList.add('btn-primary-header'); // Adicionando estilo de botão
-                navLinksContainer.appendChild(searchLink);
+        const logoutButton = document.createElement('button');
+        logoutButton.id = 'logoutButton';
+        logoutButton.textContent = 'Sair';
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+                showMessage('Erro ao sair. Tente novamente.', true);
             }
-            navLinksContainer.appendChild(logoutButton);
-        } else {
-            // Usuário não está logado
-            // Só adiciona "Cadastrar" se não estiver na página de cadastro
-            if (currentPage !== 'cadastro.html') {
-                const registerLink = document.createElement('a');
-                registerLink.href = 'cadastro.html';
-                registerLink.textContent = 'Cadastrar';
-                registerLink.classList.add('btn-primary-header');
-                navLinksContainer.appendChild(registerLink);
-            }
+        });
 
-            // Só adiciona "Login" se não estiver na página de login
-            if (currentPage !== 'login.html') {
-                const loginLink = document.createElement('a');
-                loginLink.href = 'login.html';
-                loginLink.textContent = 'Login';
-                loginLink.classList.add('btn-primary-header');
-                navLinksContainer.appendChild(loginLink);
-            }
-
-            // Só adiciona "Buscar Pintores" se não estiver na página de busca
-            if (currentPage !== 'busca.html') {
-                const searchLink = document.createElement('a');
-                searchLink.href = 'busca.html';
-                searchLink.textContent = 'Buscar Pintores';
-                searchLink.classList.add('btn-primary-header'); // Adicionando estilo de botão
-                navLinksContainer.appendChild(searchLink);
-            }
+        navLinksContainer.appendChild(profileLink);
+        if (currentPage !== 'busca.html') {
+            const searchLink = document.createElement('a');
+            searchLink.href = 'busca.html';
+            searchLink.textContent = 'Buscar Pintores';
+            searchLink.classList.add('btn-primary-header');
+            navLinksContainer.appendChild(searchLink);
         }
-        // Após popular os links, garantir que o menu esteja fechado em telas grandes
-        // e, se for mobile e o menu estiver ativo, que continue ativo.
-        const hamburgerMenu = document.getElementById('hamburgerMenu');
-        if (hamburgerMenu && window.innerWidth > 768) { // Exemplo de breakpoint
-            navLinksContainer.classList.remove('menu-active');
-            hamburgerMenu.classList.remove('is-active');
+        navLinksContainer.appendChild(logoutButton);
+    } else {
+        if (currentPage !== 'cadastro.html') {
+            const registerLink = document.createElement('a');
+            registerLink.href = 'cadastro.html';
+            registerLink.textContent = 'Cadastrar';
+            registerLink.classList.add('btn-primary-header');
+            navLinksContainer.appendChild(registerLink);
         }
-    });
+
+        if (currentPage !== 'login.html') {
+            const loginLink = document.createElement('a');
+            loginLink.href = 'login.html';
+            loginLink.textContent = 'Login';
+            loginLink.classList.add('btn-primary-header');
+            navLinksContainer.appendChild(loginLink);
+        }
+
+        if (currentPage !== 'busca.html') {
+            const searchLink = document.createElement('a');
+            searchLink.href = 'busca.html';
+            searchLink.textContent = 'Buscar Pintores';
+            searchLink.classList.add('btn-primary-header');
+            navLinksContainer.appendChild(searchLink);
+        }
+    }
+    const hamburgerMenu = document.getElementById('hamburgerMenu');
+    if (hamburgerMenu && window.innerWidth > 768) {
+        navLinksContainer.classList.remove('menu-active');
+        hamburgerMenu.classList.remove('is-active');
+    }
 }
 
-// Chamar a função de configuração do menu ao carregar o DOM
-document.addEventListener('DOMContentLoaded', setupMenuToggle);
-
-
-// --- Lógica da Página de Cadastro (cadastro.html) ---
-const painterRegisterForm = document.getElementById('painterRegisterForm');
-const clientRegisterForm = document.getElementById('clientRegisterForm');
-
-if (painterRegisterForm || clientRegisterForm) {
-    // --- Lógica para alternar entre formulário de Pintor e Cliente ---
+/**
+ * Lógica para a página de cadastro.
+ */
+function setupRegistrationForms() {
+    const painterRegisterForm = document.getElementById('painterRegisterForm');
+    const clientRegisterForm = document.getElementById('clientRegisterForm');
     const btnPainter = document.getElementById('btnPainter');
     const btnClient = document.getElementById('btnClient');
-    
-    // Funções para mostrar e esconder formulários
+
     function showForm(formToShow, formToHide, activeBtn, inactiveBtn) {
         if (formToShow) formToShow.style.display = 'block';
         if (formToHide) formToHide.style.display = 'none';
@@ -319,76 +322,66 @@ if (painterRegisterForm || clientRegisterForm) {
         btnClient.addEventListener('click', () => {
             showForm(clientRegisterForm, painterRegisterForm, btnClient, btnPainter);
         });
-
-        // Mostra o formulário de pintor por padrão ao carregar a página
         showForm(painterRegisterForm, clientRegisterForm, btnPainter, btnClient);
     }
 
-    // --- Formatação e auto-preenchimento para campos de Pintor ---
-    const painterNameInput = document.getElementById('painterName');
-    const painterCpfInput = document.getElementById('painterCpf');
-    const painterPhoneInput = document.getElementById('painterPhone');
-    const painterCepInput = document.getElementById('painterCep');
-    const painterCityInput = document.getElementById('painterCity');
-    const painterStateInput = document.getElementById('painterState');
-    const painterBioInput = document.getElementById('painterBio');
-    const painterBioCounter = document.getElementById('painterBioCounter');
-    const painterBioProfanityError = document.getElementById('painterBioProfanityError');
-    const painterNumberInput = document.getElementById('painterNumber');
-    const painterNoNumberCheckbox = document.getElementById('painterNoNumber');
-
-
-    if (painterCpfInput) formatCpfInput(painterCpfInput);
-    if (painterPhoneInput) formatPhoneInput(painterPhoneInput);
-
-    // Toggle de senha para o formulário de pintor
-    setupPasswordToggle('painterPassword', 'togglePainterPassword');
-    setupPasswordToggle('painterConfirmPassword', 'togglePainterConfirmPassword');
-
-    if (painterCepInput && painterCityInput && painterStateInput) {
-        formatCepInput(painterCepInput); // Formata o CEP do pintor
-        painterCepInput.addEventListener('blur', () => fetchCepData(painterCepInput, painterCityInput, painterStateInput));
-        painterCepInput.addEventListener('input', () => { // Limpar campos se o CEP for alterado
-            if (painterCepInput.value.replace(/\D/g, '').length !== 8) {
-                painterCityInput.value = '';
-                painterStateInput.value = '';
-            }
-        });
-    }
-    
-    // Lógica do contador e profanidade da biografia do pintor
-    if (painterBioInput && painterBioCounter && painterBioProfanityError) {
-        painterBioInput.addEventListener('input', () => {
-            painterBioCounter.textContent = `${painterBioInput.value.length}/200`;
-            if (containsProfanity(painterBioInput.value)) {
-                painterBioProfanityError.style.display = 'block';
-                painterBioInput.setCustomValidity('Conteúdo inapropriado detectado.');
-            } else {
-                painterBioProfanityError.style.display = 'none';
-                painterBioInput.setCustomValidity('');
-            }
-        });
-        // Inicializa o contador ao carregar
-        painterBioCounter.textContent = `${painterBioInput.value.length}/200`;
-    }
-
-    // Lógica para o checkbox "Sem Número" do pintor
-    if (painterNoNumberCheckbox && painterNumberInput) {
-        painterNoNumberCheckbox.addEventListener('change', () => {
-            if (painterNoNumberCheckbox.checked) {
-                painterNumberInput.value = 'S/N';
-                painterNumberInput.setAttribute('readonly', 'readonly');
-                painterNumberInput.removeAttribute('required'); // Não é mais obrigatório
-            } else {
-                painterNumberInput.value = '';
-                painterNumberInput.removeAttribute('readonly');
-                painterNumberInput.setAttribute('required', 'required'); // Volta a ser obrigatório
-            }
-        });
-    }
-
-    // --- Lógica para o formulário de cadastro de Pintor ---
+    // Painter Form Logic
     if (painterRegisterForm) {
+        const painterCpfInput = document.getElementById('painterCpf');
+        const painterPhoneInput = document.getElementById('painterPhone');
+        const painterCepInput = document.getElementById('painterCep');
+        const painterCityInput = document.getElementById('painterCity');
+        const painterStateInput = document.getElementById('painterState');
+        const painterBioInput = document.getElementById('painterBio');
+        const painterBioCounter = document.getElementById('painterBioCounter');
+        const painterBioProfanityError = document.getElementById('painterBioProfanityError');
+        const painterNumberInput = document.getElementById('painterNumber');
+        const painterNoNumberCheckbox = document.getElementById('painterNoNumber');
+
+        if (painterCpfInput) formatCpfInput(painterCpfInput);
+        if (painterPhoneInput) formatPhoneInput(painterPhoneInput);
+        setupPasswordToggle('painterPassword', 'togglePainterPassword');
+        setupPasswordToggle('painterConfirmPassword', 'togglePainterConfirmPassword');
+
+        if (painterCepInput && painterCityInput && painterStateInput) {
+            formatCepInput(painterCepInput);
+            painterCepInput.addEventListener('blur', () => fetchCepData(painterCepInput, painterCityInput, painterStateInput));
+            painterCepInput.addEventListener('input', () => {
+                if (painterCepInput.value.replace(/\D/g, '').length !== 8) {
+                    painterCityInput.value = '';
+                    painterStateInput.value = '';
+                }
+            });
+        }
+        
+        if (painterBioInput && painterBioCounter && painterBioProfanityError) {
+            painterBioInput.addEventListener('input', () => {
+                painterBioCounter.textContent = `${painterBioInput.value.length}/200`;
+                if (containsProfanity(painterBioInput.value)) {
+                    painterBioProfanityError.style.display = 'block';
+                    painterBioInput.setCustomValidity('Conteúdo inapropriado detectado.');
+                } else {
+                    painterBioProfanityError.style.display = 'none';
+                    painterBioInput.setCustomValidity('');
+                }
+            });
+            painterBioCounter.textContent = `${painterBioInput.value.length}/200`;
+        }
+
+        if (painterNoNumberCheckbox && painterNumberInput) {
+            painterNoNumberCheckbox.addEventListener('change', () => {
+                if (painterNoNumberCheckbox.checked) {
+                    painterNumberInput.value = 'S/N';
+                    painterNumberInput.setAttribute('readonly', 'readonly');
+                    painterNumberInput.removeAttribute('required');
+                } else {
+                    painterNumberInput.value = '';
+                    painterNumberInput.removeAttribute('readonly');
+                    painterNumberInput.setAttribute('required', 'required');
+                }
+            });
+        }
+
         painterRegisterForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -408,50 +401,28 @@ if (painterRegisterForm || clientRegisterForm) {
             const experienceUnit = document.querySelector('input[name="painterExperienceUnit"]:checked')?.value;
             const bio = document.getElementById('painterBio').value.trim();
 
-            // Validações
-            if (password !== confirmPassword) {
-                showMessage("As senhas não coincidem.", true);
-                return;
-            }
-            if (cpf.length !== 11) {
-                showMessage("CPF inválido. Por favor, digite 11 dígitos.", true);
-                return;
-            }
-            if (phone.length < 10 || phone.length > 11) { // 10 ou 11 dígitos para telefone
-                showMessage("Telefone inválido. Verifique o DDD e o número.", true);
-                return;
-            }
-            if (!city || !state || city === 'CEP não encontrado' || city === 'Erro ao buscar CEP') {
-                showMessage("CEP inválido ou não preenchido. Por favor, verifique.", true);
-                return;
-            }
-            if (containsProfanity(bio)) {
-                showMessage("Biografia contém palavras inapropriadas. Por favor, revise.", true);
-                return;
-            }
-            if (painterNoNumberCheckbox && !painterNoNumberCheckbox.checked && !number) {
-                 showMessage("Por favor, preencha o número do endereço ou marque 'Sem Número'.", true);
-                 return;
-            }
+            if (password !== confirmPassword) { showMessage("As senhas não coincidem.", true); return; }
+            if (cpf.length !== 11) { showMessage("CPF inválido. Por favor, digite 11 dígitos.", true); return; }
+            if (phone.length < 10 || phone.length > 11) { showMessage("Telefone inválido. Verifique o DDD e o número.", true); return; }
+            if (!city || !state || city === 'CEP não encontrado' || city === 'Erro ao buscar CEP') { showMessage("CEP inválido ou não preenchido. Por favor, verifique.", true); return; }
+            if (containsProfanity(bio)) { showMessage("Biografia contém palavras inapropriadas. Por favor, revise.", true); return; }
+            if (painterNoNumberCheckbox && !painterNoNumberCheckbox.checked && !number) { showMessage("Por favor, preencha o número do endereço ou marque 'Sem Número'.", true); return; }
 
             try {
-                // *** VERIFICAÇÃO DE CPF CRUZADA (Pintores e Usuários) ***
-                const qCpfPintores = query(collection(db, "pintores"), where("cpf", "==", cpf));
-                const querySnapshotCpfPintores = await getDocs(qCpfPintores);
-
-                const qCpfUsuarios = query(collection(db, "usuarios"), where("cpf", "==", cpf));
-                const querySnapshotCpfUsuarios = await getDocs(qCpfUsuarios);
-
-                if (!querySnapshotCpfPintores.empty || !querySnapshotCpfUsuarios.empty) {
-                    showMessage("Este CPF já está cadastrado em nossa plataforma (como pintor ou cliente).", true);
+                // Verificar CPF na coleção `cpf_registry`
+                const cpfRegistryRef = doc(db, "artifacts", appId, "public", "data", "cpf_registry", cpf);
+                const cpfSnap = await getDoc(cpfRegistryRef);
+                if (cpfSnap.exists()) {
+                    showMessage("Este CPF já está cadastrado em nossa plataforma.", true);
                     return;
                 }
                 
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 
-                await setDoc(doc(db, "pintores", user.uid), {
-                    tipo: 'pintor', // Adicionar tipo para diferenciar no banco
+                // Salvar dados do pintor no Firestore
+                await setDoc(doc(db, "artifacts", appId, "public", "data", "pintores", user.uid), {
+                    tipo: 'pintor',
                     nome: name,
                     email: email,
                     cpf: cpf,
@@ -462,79 +433,74 @@ if (painterRegisterForm || clientRegisterForm) {
                     rua: street,
                     numero: number,
                     redeSocial: socialMedia,
-                    experiencia: `${experienceValue} ${experienceUnit}`, // Salva como "X Meses" ou "Y Anos"
+                    experiencia: `${experienceValue} ${experienceUnit}`,
                     biografia: bio,
                     dataCadastro: new Date(),
                 });
 
+                // Registrar CPF na coleção `cpf_registry`
+                await setDoc(cpfRegistryRef, {
+                    userId: user.uid,
+                    type: 'pintor',
+                    email: email,
+                    timestamp: new Date()
+                });
+
                 showMessage("Cadastro de pintor realizado com sucesso! Redirecionando para o login...", false);
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
+                setTimeout(() => { window.location.href = 'login.html'; }, 2000);
 
             } catch (error) {
                 const errorCode = error.code;
                 const errorMessage = error.message;
 
-                if (errorCode === 'auth/email-already-in-use') {
-                    showMessage("O email fornecido já está em uso por outra conta.", true);
-                } else if (errorCode === 'auth/weak-password') {
-                    showMessage("A senha é muito fraca. Ela deve ter pelo menos 6 caracteres.", true);
-                } else {
-                    showMessage("Erro no cadastro de pintor: " + errorMessage, true);
-                }
+                if (errorCode === 'auth/email-already-in-use') { showMessage("O email fornecido já está em uso por outra conta.", true); }
+                else if (errorCode === 'auth/weak-password') { showMessage("A senha é muito fraca. Ela deve ter pelo menos 6 caracteres.", true); }
+                else { showMessage("Erro no cadastro de pintor: " + errorMessage, true); }
                 console.error(error);
             }
         });
     }
 
-    // --- Formatação e auto-preenchimento para campos de Cliente ---
-    const clientNameInput = document.getElementById('clientName'); // Adicionado
-    const clientCpfInput = document.getElementById('clientCpf');
-    const clientPhoneInput = document.getElementById('clientPhone');
-    const clientCepInput = document.getElementById('clientCep');
-    const clientCityInput = document.getElementById('clientCity');
-    const clientStateInput = document.getElementById('clientState');
-    const clientNumberInput = document.getElementById('clientNumber');
-    const clientNoNumberCheckbox = document.getElementById('clientNoNumber');
-
-
-    if (clientCpfInput) formatCpfInput(clientCpfInput);
-    if (clientPhoneInput) formatPhoneInput(clientPhoneInput);
-
-    // Toggle de senha para o formulário de cliente
-    setupPasswordToggle('clientPassword', 'toggleClientPassword');
-    setupPasswordToggle('clientConfirmPassword', 'toggleClientConfirmPassword');
-
-    if (clientCepInput && clientCityInput && clientStateInput) {
-        formatCepInput(clientCepInput); // Formata o CEP do cliente
-        clientCepInput.addEventListener('blur', () => fetchCepData(clientCepInput, clientCityInput, clientStateInput));
-        clientCepInput.addEventListener('input', () => { // Limpar campos se o CEP for alterado
-            if (clientCepInput.value.replace(/\D/g, '').length !== 8) {
-                clientCityInput.value = '';
-                clientStateInput.value = '';
-            }
-        });
-    }
-
-    // Lógica para o checkbox "Sem Número" do cliente
-    if (clientNoNumberCheckbox && clientNumberInput) {
-        clientNoNumberCheckbox.addEventListener('change', () => {
-            if (clientNoNumberCheckbox.checked) {
-                clientNumberInput.value = 'S/N';
-                clientNumberInput.setAttribute('readonly', 'readonly');
-                clientNumberInput.removeAttribute('required'); // Não é mais obrigatório
-            } else {
-                clientNumberInput.value = '';
-                clientNumberInput.removeAttribute('readonly');
-                clientNumberInput.setAttribute('required', 'required'); // Volta a ser obrigatório
-            }
-        });
-    }
-
-
-    // --- Lógica para o formulário de cadastro de Cliente ---
+    // Client Form Logic
     if (clientRegisterForm) {
+        const clientCpfInput = document.getElementById('clientCpf');
+        const clientPhoneInput = document.getElementById('clientPhone');
+        const clientCepInput = document.getElementById('clientCep');
+        const clientCityInput = document.getElementById('clientCity');
+        const clientStateInput = document.getElementById('clientState');
+        const clientNumberInput = document.getElementById('clientNumber');
+        const clientNoNumberCheckbox = document.getElementById('clientNoNumber');
+
+        if (clientCpfInput) formatCpfInput(clientCpfInput);
+        if (clientPhoneInput) formatPhoneInput(clientPhoneInput);
+        setupPasswordToggle('clientPassword', 'toggleClientPassword');
+        setupPasswordToggle('clientConfirmPassword', 'toggleClientConfirmPassword');
+
+        if (clientCepInput && clientCityInput && clientStateInput) {
+            formatCepInput(clientCepInput);
+            clientCepInput.addEventListener('blur', () => fetchCepData(clientCepInput, clientCityInput, clientStateInput));
+            clientCepInput.addEventListener('input', () => {
+                if (clientCepInput.value.replace(/\D/g, '').length !== 8) {
+                    clientCityInput.value = '';
+                    clientStateInput.value = '';
+                }
+            });
+        }
+
+        if (clientNoNumberCheckbox && clientNumberInput) {
+            clientNoNumberCheckbox.addEventListener('change', () => {
+                if (clientNoNumberCheckbox.checked) {
+                    clientNumberInput.value = 'S/N';
+                    clientNumberInput.setAttribute('readonly', 'readonly');
+                    clientNumberInput.removeAttribute('required');
+                } else {
+                    clientNumberInput.value = '';
+                    clientNumberInput.removeAttribute('readonly');
+                    clientNumberInput.setAttribute('required', 'required');
+                }
+            });
+        }
+
         clientRegisterForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -550,53 +516,32 @@ if (painterRegisterForm || clientRegisterForm) {
             const street = document.getElementById('clientStreet').value.trim();
             const number = document.getElementById('clientNumber').value.trim();
 
-
-            // Validações
-            if (password !== confirmPassword) {
-                showMessage("As senhas não coincidem.", true);
-                return;
-            }
-            if (cpf.length !== 11) {
-                showMessage("CPF inválido. Por favor, digite 11 dígitos.", true);
-                return;
-            }
-            if (phone.length < 10 || phone.length > 11) { // 10 ou 11 dígitos para telefone
-                showMessage("Telefone inválido. Verifique o DDD e o número.", true);
-                return;
-            }
-            if (!city || !state || city === 'CEP não encontrado' || city === 'Erro ao buscar CEP') {
-                showMessage("CEP inválido ou não preenchido. Por favor, verifique.", true);
-                return;
-            }
-            if (clientNoNumberCheckbox && !clientNoNumberCheckbox.checked && !number) {
-                 showMessage("Por favor, preencha o número do endereço ou marque 'Sem Número'.", true);
-                 return;
-            }
+            if (password !== confirmPassword) { showMessage("As senhas não coincidem.", true); return; }
+            if (cpf.length !== 11) { showMessage("CPF inválido. Por favor, digite 11 dígitos.", true); return; }
+            if (phone.length < 10 || phone.length > 11) { showMessage("Telefone inválido. Verifique o DDD e o número.", true); return; }
+            if (!city || !state || city === 'CEP não encontrado' || city === 'Erro ao buscar CEP') { showMessage("CEP inválido ou não preenchido. Por favor, verifique.", true); return; }
+            if (clientNoNumberCheckbox && !clientNoNumberCheckbox.checked && !number) { showMessage("Por favor, preencha o número do endereço ou marque 'Sem Número'.", true); return; }
 
             try {
-                // *** VERIFICAÇÃO DE CPF CRUZADA (Pintores e Usuários) ***
-                const qCpfPintores = query(collection(db, "pintores"), where("cpf", "==", cpf));
-                const querySnapshotCpfPintores = await getDocs(qCpfPintores);
-
-                const qCpfUsuarios = query(collection(db, "usuarios"), where("cpf", "==", cpf));
-                const querySnapshotCpfUsuarios = await getDocs(qCpfUsuarios);
-
-                if (!querySnapshotCpfPintores.empty || !querySnapshotCpfUsuarios.empty) {
-                    showMessage("Este CPF já está cadastrado em nossa plataforma (como pintor ou cliente).", true);
+                // Verificar CPF na coleção `cpf_registry`
+                const cpfRegistryRef = doc(db, "artifacts", appId, "public", "data", "cpf_registry", cpf);
+                const cpfSnap = await getDoc(cpfRegistryRef);
+                if (cpfSnap.exists()) {
+                    showMessage("Este CPF já está cadastrado em nossa plataforma.", true);
                     return;
                 }
 
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 
-                // Salva na nova coleção 'usuarios'
-                await setDoc(doc(db, "usuarios", user.uid), {
-                    tipo: 'cliente', // Adicionar tipo para diferenciar no banco
+                // Salvar dados do cliente no Firestore (coleção privada do usuário)
+                await setDoc(doc(db, "artifacts", appId, "users", user.uid, "profile", user.uid), {
+                    tipo: 'cliente',
                     nome: name,
                     email: email,
                     cpf: cpf,
                     telefone: phone,
-                    cep: cep,
+                    cep: cep, // CEP também para cliente, se for necessário para o perfil privado
                     cidade: city,
                     estado: state,
                     rua: street,
@@ -604,22 +549,24 @@ if (painterRegisterForm || clientRegisterForm) {
                     dataCadastro: new Date(),
                 });
 
+                // Registrar CPF na coleção `cpf_registry`
+                await setDoc(cpfRegistryRef, {
+                    userId: user.uid,
+                    type: 'cliente',
+                    email: email,
+                    timestamp: new Date()
+                });
+
                 showMessage("Cadastro de cliente realizado com sucesso! Redirecionando para o login...", false);
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
+                setTimeout(() => { window.location.href = 'login.html'; }, 2000);
 
             } catch (error) {
                 const errorCode = error.code;
                 const errorMessage = error.message;
 
-                if (errorCode === 'auth/email-already-in-use') {
-                    showMessage("O email fornecido já está em uso por outra conta.", true);
-                } else if (errorCode === 'auth/weak-password') {
-                    showMessage("A senha é muito fraca. Ela deve ter pelo menos 6 caracteres.", true);
-                } else {
-                    showMessage("Erro no cadastro de cliente: " + errorMessage, true);
-                }
+                if (errorCode === 'auth/email-already-in-use') { showMessage("O email fornecido já está em uso por outra conta.", true); }
+                else if (errorCode === 'auth/weak-password') { showMessage("A senha é muito fraca. Ela deve ter pelo menos 6 caracteres.", true); }
+                else { showMessage("Erro no cadastro de cliente: " + errorMessage, true); }
                 console.error(error);
             }
         });
@@ -627,50 +574,49 @@ if (painterRegisterForm || clientRegisterForm) {
 }
 
 
-// --- Lógica da Página de Login (login.html) ---
-const loginForm = document.getElementById('loginForm');
-if (loginForm) {
-    // Chama a função para o botão de ver senha na página de login
-    setupPasswordToggle('password', 'togglePasswordLogin'); 
+/**
+ * Lógica para a página de login.
+ */
+function setupLoginPage() {
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        setupPasswordToggle('password', 'togglePasswordLogin');
 
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-        const email = loginForm['email'].value.trim();
-        const password = loginForm['password'].value;
+            const email = loginForm['email'].value.trim();
+            const password = loginForm['password'].value;
 
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
 
-            showMessage("Login realizado com sucesso! Bem-vindo(a), " + user.email, false);
-            // Redirecionar para a página de perfil após o login
-            window.location.href = 'perfil.html'; 
+                showMessage("Login realizado com sucesso! Bem-vindo(a), " + user.email, false);
+                window.location.href = 'perfil.html';
 
-        } catch (error) {
-            const errorCode = error.code;
-            const errorMessage = error.message;
+            } catch (error) {
+                const errorCode = error.code;
+                const errorMessage = error.message;
 
-            if (errorCode === 'auth/wrong-password') {
-                showMessage("Senha incorreta. Por favor, tente novamente.", true);
-            } else if (errorCode === 'auth/user-not-found') {
-                showMessage("Usuário não encontrado. Verifique o email ou cadastre-se.", true);
-            } else if (errorCode === 'auth/invalid-email') {
-                showMessage("O formato do email é inválido.", true);
-            } else {
-                showMessage("Erro no login: " + errorMessage, true);
+                if (errorCode === 'auth/wrong-password') { showMessage("Senha incorreta. Por favor, tente novamente.", true); }
+                else if (errorCode === 'auth/user-not-found' || errorCode === 'auth/invalid-credential') { showMessage("Usuário não encontrado ou credenciais inválidas. Verifique o email ou cadastre-se.", true); }
+                else if (errorCode === 'auth/invalid-email') { showMessage("O formato do email é inválido.", true); }
+                else { showMessage("Erro no login: " + errorMessage, true); }
+                console.error(error);
             }
-            console.error(error);
-        }
-    });
+        });
+    }
 }
 
-// --- Lógica da Página de Perfil (perfil.html) ---
-const profileForm = document.getElementById('profileForm');
-if (profileForm) {
-    const loadingMessage = document.getElementById('loadingMessage');
-    // Não precisamos de um logoutButton específico aqui, pois o do header já lida com isso.
+/**
+ * Lógica para a página de perfil.
+ */
+async function loadProfileData() {
+    const profileForm = document.getElementById('profileForm');
+    if (!profileForm || !isAuthReady || !currentUserId) return;
 
+    const loadingMessage = document.getElementById('loadingMessage');
     const nameInput = document.getElementById('name');
     const emailInput = document.getElementById('email');
     const cpfInput = document.getElementById('cpf');
@@ -681,7 +627,6 @@ if (profileForm) {
     const expMonthsRadio = document.getElementById('expMonths');
     const expYearsRadio = document.getElementById('expYears');
 
-    // Campos específicos de endereço para pintor (mesmos IDs do cadastro, mas no perfil)
     const cepInputPerfil = document.getElementById('cep'); 
     const cityInputPerfil = document.getElementById('city');
     const stateInputPerfil = document.getElementById('state');
@@ -689,209 +634,162 @@ if (profileForm) {
     const numberInputPerfil = document.getElementById('number');
     const noNumberCheckboxPerfil = document.getElementById('noNumber');
 
-    // Campo específico de localização para cliente
-    const clientLocationInput = document.getElementById('clientLocation'); // ID para o campo de cliente no perfil
+    const clientLocationInput = document.getElementById('clientLocation');
 
-    const profileBioCounter = document.getElementById('profileBioCounter'); // Contador da bio
-    const profileBioProfanityError = document.getElementById('profileBioProfanityError'); // Erro de profanidade
+    const profileBioCounter = document.getElementById('profileBioCounter');
+    const profileBioProfanityError = document.getElementById('profileBioProfanityError');
 
-    let currentUserUid = null;
-    let currentUserType = null; // Para saber se é pintor ou cliente
+    let currentUserType = null;
 
-    // Aplica formatações
-    if (cpfInput) formatCpfInput(cpfInput);
-    if (phoneInput) formatPhoneInput(phoneInput);
+    if (loadingMessage) loadingMessage.style.display = 'block';
+    if (profileForm) profileForm.style.display = 'none';
 
-    // Lógica para preencher cidade/estado automaticamente a partir do CEP (para perfil de pintor)
-    if (cepInputPerfil && cityInputPerfil && stateInputPerfil) {
-        formatCepInput(cepInputPerfil); // Formata o CEP
-        cepInputPerfil.addEventListener('blur', () => fetchCepData(cepInputPerfil, cityInputPerfil, stateInputPerfil));
-        cepInputPerfil.addEventListener('input', () => { // Limpar campos se o CEP for alterado
-            if (cepInputPerfil.value.replace(/\D/g, '').length !== 8) {
-                cityInputPerfil.value = '';
-                stateInputPerfil.value = '';
-            }
-        });
-    }
+    try {
+        let docRefPainter = doc(db, "artifacts", appId, "public", "data", "pintores", currentUserId);
+        let docSnapPainter = await getDoc(docRefPainter);
+        
+        let docRefClient = doc(db, "artifacts", appId, "users", currentUserId, "profile", currentUserId);
+        let docSnapClient = await getDoc(docRefClient);
 
-    // Lógica para o checkbox "Sem Número" (para perfil de pintor)
-    if (noNumberCheckboxPerfil && numberInputPerfil) {
-        noNumberCheckboxPerfil.addEventListener('change', () => {
-            if (noNumberCheckboxPerfil.checked) {
-                numberInputPerfil.value = 'S/N';
-                numberInputPerfil.setAttribute('readonly', 'readonly');
-                numberInputPerfil.removeAttribute('required');
-            } else {
-                numberInputPerfil.value = '';
-                numberInputPerfil.removeAttribute('readonly');
-                numberInputPerfil.setAttribute('required', 'required');
-            }
-        });
-    }
-
-    // Contador de caracteres da biografia e filtro de profanidade
-    if (bioTextarea && profileBioCounter && profileBioProfanityError) {
-        bioTextarea.addEventListener('input', () => {
-            const currentLength = bioTextarea.value.length;
-            profileBioCounter.textContent = `${currentLength}/200`;
-            if (currentLength > 200) {
-                bioTextarea.value = bioTextarea.value.substring(0, 200);
-                profileBioCounter.textContent = `200/200`;
-            }
-            if (containsProfanity(bioTextarea.value)) {
-                profileBioProfanityError.style.display = 'block';
-                bioTextarea.setCustomValidity('Conteúdo inapropriado detectado.');
-            } else {
-                profileBioProfanityError.style.display = 'none';
-                bioTextarea.setCustomValidity('');
-            }
-        });
-        // Inicializa o contador ao carregar a página
-        profileBioCounter.textContent = `${bioTextarea.value.length}/200`;
-    }
-
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            currentUserUid = user.uid;
-            if (loadingMessage) loadingMessage.style.display = 'block';
-            if (profileForm) profileForm.style.display = 'none';
-
-            try {
-                // Tenta buscar como pintor
-                let docRef = doc(db, "pintores", currentUserUid);
-                let docSnap = await getDoc(docRef);
-                
-                if (docSnap.exists()) {
-                    currentUserType = 'pintor';
-                } else {
-                    // Se não é pintor, tenta buscar como cliente
-                    docRef = doc(db, "usuarios", currentUserUid);
-                    docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        currentUserType = 'cliente';
-                    }
+        if (docSnapPainter.exists()) {
+            currentUserType = 'pintor';
+            const userData = docSnapPainter.data();
+            
+            if (nameInput) nameInput.value = userData.nome || ''; 
+            if (emailInput) emailInput.value = userData.email || '';
+            if (cpfInput) formatCpfInput(cpfInput); cpfInput.value = userData.cpf || '';
+            if (phoneInput) formatPhoneInput(phoneInput); phoneInput.value = userData.telefone || '';
+            
+            if (cepInputPerfil) formatCepInput(cepInputPerfil); cepInputPerfil.value = userData.cep || '';
+            if (cityInputPerfil) cityInputPerfil.value = userData.cidade || '';
+            if (stateInputPerfil) stateInputPerfil.value = userData.estado || '';
+            if (streetInputPerfil) streetInputPerfil.value = userData.rua || '';
+            if (numberInputPerfil) {
+                numberInputPerfil.value = userData.numero || '';
+                if (userData.numero === 'S/N' && noNumberCheckboxPerfil) {
+                    noNumberCheckboxPerfil.checked = true;
+                    numberInputPerfil.setAttribute('readonly', 'readonly');
                 }
-
-                if (docSnap.exists()) {
-                    const userData = docSnap.data();
-
-                    if (nameInput) nameInput.value = userData.nome || ''; 
-                    if (emailInput) emailInput.value = userData.email || '';
-                    if (cpfInput) cpfInput.value = userData.cpf || '';
-                    if (phoneInput) {
-                        phoneInput.value = userData.telefone || ''; // Preenche o telefone
-                        formatPhoneInput(phoneInput); // Aplica a formatação no carregamento
-                    }
-                    
-                    if (currentUserType === 'pintor') {
-                        // Preencher campos específicos de pintor
-                        if (cepInputPerfil) cepInputPerfil.value = userData.cep || '';
-                        if (cityInputPerfil) cityInputPerfil.value = userData.cidade || '';
-                        if (stateInputPerfil) stateInputPerfil.value = userData.estado || '';
-                        if (streetInputPerfil) streetInputPerfil.value = userData.rua || '';
-                        if (numberInputPerfil) {
-                            numberInputPerfil.value = userData.numero || '';
-                            if (userData.numero === 'S/N' && noNumberCheckboxPerfil) {
-                                noNumberCheckboxPerfil.checked = true;
-                                numberInputPerfil.setAttribute('readonly', 'readonly');
-                            }
-                        }
-                        if (socialMediaInput) socialMediaInput.value = userData.redeSocial || '';
-                        if (bioTextarea) bioTextarea.value = userData.biografia || '';
-
-                        // Preencher experiência
-                        if (experienceValueInput && expMonthsRadio && expYearsRadio && userData.experiencia) {
-                            const [value, unit] = userData.experiencia.split(' ');
-                            experienceValueInput.value = value;
-                            if (unit === 'Meses') {
-                                expMonthsRadio.checked = true;
-                            } else if (unit === 'Anos') {
-                                expYearsRadio.checked = true;
-                            }
-                        }
-                        // Mostrar campos de pintor e esconder de cliente
-                        document.getElementById('painterProfileFields').style.display = 'block';
-                        document.getElementById('clientProfileFields').style.display = 'none';
-                    } else if (currentUserType === 'cliente') {
-                        // Preencher campos específicos de cliente
-                        if (clientLocationInput) {
-                             // Se o cliente tem campos de endereço separados (cep, cidade, estado, rua, numero)
-                             // ou um campo de localização genérico. Assumindo 'localizacao' para o cliente.
-                             // Se você quiser que o cliente também tenha cep, cidade, estado, etc.,
-                             // você precisaria de mais IDs de input no HTML do perfil de cliente.
-                             // No momento, o perfil de cliente só tem 'clientLocation'.
-                             clientLocationInput.value = userData.localizacao || ''; 
-                        }
-                        // Mostrar campos de cliente e esconder de pintor
-                        document.getElementById('painterProfileFields').style.display = 'none';
-                        document.getElementById('clientProfileFields').style.display = 'block';
-                    }
-
-                } else {
-                    showMessage("Nenhum dado de perfil encontrado. Por favor, preencha suas informações.", true);
-                    if (emailInput) emailInput.value = user.email || '';
-                }
-                if (profileForm) profileForm.style.display = 'block';
-            } catch (error) {
-                console.error("Erro ao carregar dados do perfil:", error);
-                showMessage("Erro ao carregar seu perfil. Tente novamente.", true);
-                if (emailInput) emailInput.value = user.email || '';
-                if (profileForm) profileForm.style.display = 'block';
-            } finally {
-                if (loadingMessage) loadingMessage.style.display = 'none';
             }
+            if (socialMediaInput) socialMediaInput.value = userData.redeSocial || '';
+            if (bioTextarea) bioTextarea.value = userData.biografia || '';
+
+            if (experienceValueInput && expMonthsRadio && expYearsRadio && userData.experiencia) {
+                const [value, unit] = userData.experiencia.split(' ');
+                experienceValueInput.value = value;
+                if (unit === 'Meses') {
+                    expMonthsRadio.checked = true;
+                } else if (unit === 'Anos') {
+                    expYearsRadio.checked = true;
+                }
+            }
+            document.getElementById('painterProfileFields').style.display = 'block';
+            document.getElementById('clientProfileFields').style.display = 'none';
+
+            // Re-bind CEP data fetch for painter profile
+            if (cepInputPerfil && cityInputPerfil && stateInputPerfil) {
+                cepInputPerfil.addEventListener('blur', () => fetchCepData(cepInputPerfil, cityInputPerfil, stateInputPerfil));
+                cepInputPerfil.addEventListener('input', () => {
+                    if (cepInputPerfil.value.replace(/\D/g, '').length !== 8) {
+                        cityInputPerfil.value = '';
+                        stateInputPerfil.value = '';
+                    }
+                });
+            }
+            // Lógica para o checkbox "Sem Número" (para perfil de pintor)
+            if (noNumberCheckboxPerfil && numberInputPerfil) {
+                noNumberCheckboxPerfil.addEventListener('change', () => {
+                    if (noNumberCheckboxPerfil.checked) {
+                        numberInputPerfil.value = 'S/N';
+                        numberInputPerfil.setAttribute('readonly', 'readonly');
+                        numberInputPerfil.removeAttribute('required');
+                    } else {
+                        numberInputPerfil.value = '';
+                        numberInputPerfil.removeAttribute('readonly');
+                        numberInputPerfil.setAttribute('required', 'required');
+                    }
+                });
+            }
+
+
+        } else if (docSnapClient.exists()) {
+            currentUserType = 'cliente';
+            const userData = docSnapClient.data();
+
+            if (nameInput) nameInput.value = userData.nome || '';
+            if (emailInput) emailInput.value = userData.email || '';
+            if (cpfInput) formatCpfInput(cpfInput); cpfInput.value = userData.cpf || '';
+            if (phoneInput) formatPhoneInput(phoneInput); phoneInput.value = userData.telefone || '';
+
+            if (clientLocationInput) clientLocationInput.value = userData.localizacao || ''; 
+
+            document.getElementById('painterProfileFields').style.display = 'none';
+            document.getElementById('clientProfileFields').style.display = 'block';
         } else {
-            showMessage("Você precisa estar logado para acessar esta página.", true);
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 2000);
+            showMessage("Nenhum dado de perfil encontrado. Por favor, preencha suas informações.", true);
+            if (emailInput) emailInput.value = auth.currentUser.email || '';
         }
-    });
+        if (profileForm) profileForm.style.display = 'block';
+
+        // Contador de caracteres da biografia e filtro de profanidade
+        if (bioTextarea && profileBioCounter && profileBioProfanityError && currentUserType === 'pintor') {
+            bioTextarea.addEventListener('input', () => {
+                const currentLength = bioTextarea.value.length;
+                profileBioCounter.textContent = `${currentLength}/200`;
+                if (currentLength > 200) {
+                    bioTextarea.value = bioTextarea.value.substring(0, 200);
+                    profileBioCounter.textContent = `200/200`;
+                }
+                if (containsProfanity(bioTextarea.value)) {
+                    profileBioProfanityError.style.display = 'block';
+                    bioTextarea.setCustomValidity('Conteúdo inapropriado detectado.');
+                } else {
+                    profileBioProfanityError.style.display = 'none';
+                    bioTextarea.setCustomValidity('');
+                }
+            });
+            profileBioCounter.textContent = `${bioTextarea.value.length}/200`;
+        } else if (profileBioCounter) {
+            profileBioCounter.style.display = 'none'; // Esconde se não for pintor
+        }
+
+
+    } catch (error) {
+        console.error("Erro ao carregar dados do perfil:", error);
+        showMessage("Erro ao carregar seu perfil. Tente novamente.", true);
+        if (emailInput) emailInput.value = auth.currentUser.email || '';
+        if (profileForm) profileForm.style.display = 'block';
+    } finally {
+        if (loadingMessage) loadingMessage.style.display = 'none';
+    }
 
     profileForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        if (!currentUserUid || !currentUserType) {
+        if (!currentUserId || !currentUserType) {
             showMessage("Nenhum usuário logado ou tipo de usuário desconhecido. Por favor, faça login.", true);
             return;
         }
 
-        const collectionToUpdate = currentUserType === 'pintor' ? 'pintores' : 'usuarios';
-        const docRef = doc(db, collectionToUpdate, currentUserUid);
+        const collectionPath = currentUserType === 'pintor' ? `artifacts/${appId}/public/data/pintores` : `artifacts/${appId}/users/${currentUserId}/profile`;
+        const docRef = doc(db, collectionPath, currentUserId);
 
         const cpf = cpfInput ? cpfInput.value.trim().replace(/\D/g, '') : '';
         const phone = phoneInput ? phoneInput.value.trim().replace(/\D/g, '') : '';
 
-        // Validações básicas (comuns a ambos)
-        if (cpf.length !== 11) {
-            showMessage("CPF inválido. Por favor, digite 11 dígitos.", true);
-            return;
-        }
-        if (phone.length < 10 || phone.length > 11) {
-            showMessage("Telefone inválido. Verifique o DDD e o número.", true);
-            return;
-        }
+        if (cpf.length !== 11) { showMessage("CPF inválido. Por favor, digite 11 dígitos.", true); return; }
+        if (phone.length < 10 || phone.length > 11) { showMessage("Telefone inválido. Verifique o DDD e o número.", true); return; }
 
         try {
             // Checar se o CPF está sendo alterado E se o novo CPF já existe (na mesma coleção)
             const docSnap = await getDoc(docRef);
             const currentCpfInDb = docSnap.exists() ? docSnap.data().cpf : null;
 
-            if (cpf !== currentCpfInDb) { // Só verifica duplicidade se o CPF foi alterado
-                // *** VERIFICAÇÃO DE CPF CRUZADA AO ATUALIZAR PERFIL ***
-                const qCpfPintores = query(collection(db, "pintores"), where("cpf", "==", cpf));
-                const querySnapshotCpfPintores = await getDocs(qCpfPintores);
+            if (cpf !== currentCpfInDb) { 
+                const cpfRegistryRef = doc(db, "artifacts", appId, "public", "data", "cpf_registry", cpf);
+                const cpfSnap = await getDoc(cpfRegistryRef);
 
-                const qCpfUsuarios = query(collection(db, "usuarios"), where("cpf", "==", cpf));
-                const querySnapshotCpfUsuarios = await getDocs(qCpfUsuarios);
-
-                // Check if CPF exists in EITHER collection and belongs to a *different* user
-                // (e.g., if a painter changes their CPF, ensure it's not already taken by a client,
-                // and if a client changes, ensure it's not taken by a painter)
-                const isCpfTakenByOtherPainter = !querySnapshotCpfPintores.empty && querySnapshotCpfPintores.docs[0].id !== currentUserUid;
-                const isCpfTakenByOtherClient = !querySnapshotCpfUsuarios.empty && querySnapshotCpfUsuarios.docs[0].id !== currentUserUid;
-
-                if (isCpfTakenByOtherPainter || isCpfTakenByOtherClient) {
+                if (cpfSnap.exists() && cpfSnap.data().userId !== currentUserId) {
                     showMessage("Este CPF já está sendo usado por outro usuário em nossa plataforma.", true);
                     return;
                 }
@@ -905,17 +803,12 @@ if (profileForm) {
 
             if (currentUserType === 'pintor') {
                 const bio = bioTextarea ? bioTextarea.value.trim() : '';
-                if (containsProfanity(bio)) {
-                    showMessage("Biografia contém palavras inapropriadas. Por favor, revise.", true);
-                    return;
-                }
-                // Captura o valor da unidade de experiência selecionada
+                if (containsProfanity(bio)) { showMessage("Biografia contém palavras inapropriadas. Por favor, revise.", true); return; }
+                
                 let selectedExperienceUnit = '';
-                const experienceUnitRadios = document.querySelectorAll('input[name="experienceUnit"]'); // Ajustado para pegar os rádios do perfil
+                const experienceUnitRadios = document.querySelectorAll('input[name="experienceUnit"]');
                 experienceUnitRadios.forEach(radio => {
-                    if (radio.checked) {
-                        selectedExperienceUnit = radio.value;
-                    }
+                    if (radio.checked) { selectedExperienceUnit = radio.value; }
                 });
 
                 updatedData = {
@@ -937,131 +830,162 @@ if (profileForm) {
             }
 
             await updateDoc(docRef, updatedData);
+            
+            // Atualizar o registro de CPF se o CPF foi alterado
+            if (cpf !== currentCpfInDb) {
+                const oldCpfRegistryRef = doc(db, "artifacts", appId, "public", "data", "cpf_registry", currentCpfInDb);
+                await setDoc(oldCpfRegistryRef, {
+                    userId: currentUserId,
+                    type: currentUserType,
+                    email: auth.currentUser.email,
+                    timestamp: new Date()
+                });
+            }
+
             showMessage("Perfil atualizado com sucesso!", false);
         } catch (error) {
             console.error("Erro ao salvar perfil:", error);
             showMessage("Erro ao salvar suas alterações. Tente novamente.", true);
         }
     });
-
-    // --- Lógica de Logout do Perfil (se houver um botão específico aqui, embora o do header seja preferível) ---
-    // Removido o botão de logout duplicado, já que o header agora gerencia isso globalmente.
 }
 
 
-// --- Lógica da Página de Busca (busca.html) ---
-const searchInput = document.getElementById('searchInput'); 
-const searchButton = document.getElementById('searchButton');
-const paintersResults = document.getElementById('paintersResults');
-const noResultsMessage = document.getElementById('noResultsMessage');
-const searchByCepRadio = document.getElementById('searchByCep');
-const searchByCityRadio = document.getElementById('searchByCity');
+/**
+ * Lógica para a página de busca (busca.html)
+ */
+function setupSearchPage() {
+    const searchInput = document.getElementById('searchInput'); 
+    const searchButton = document.getElementById('searchButton');
+    const paintersResults = document.getElementById('paintersResults');
+    const noResultsMessage = document.getElementById('noResultsMessage');
+    const searchByCepRadio = document.getElementById('searchByCep');
+    const searchByCityRadio = document.getElementById('searchByCity');
 
-// Inicializa a formatação do CEP se a opção CEP estiver selecionada no carregamento da página
-if (searchByCepRadio && searchInput && searchByCepRadio.checked) {
-    formatCepInput(searchInput);
-}
+    // Inicializa a formatação do CEP se a opção CEP estiver selecionada no carregamento da página
+    if (searchByCepRadio && searchInput && searchByCepRadio.checked) {
+        formatCepInput(searchInput);
+    }
 
-// Event listeners para alternar o tipo de busca (CEP ou Cidade)
-if (searchByCepRadio) {
-    searchByCepRadio.addEventListener('change', () => {
-        if (searchInput) {
-            searchInput.value = ''; // Limpa o campo ao trocar
-            searchInput.placeholder = 'Digite o CEP (ex: 12345-678)';
-            searchInput.maxLength = 9;
-            searchInput.removeEventListener('input', handleCityInput); // Remove listener antigo de cidade
-            searchInput.addEventListener('input', formatCepInput); // Adiciona listener de CEP
-        }
-    });
-}
+    // Event listeners para alternar o tipo de busca (CEP ou Cidade)
+    if (searchByCepRadio) {
+        searchByCepRadio.addEventListener('change', () => {
+            if (searchInput) {
+                searchInput.value = ''; // Limpa o campo ao trocar
+                searchInput.placeholder = 'Digite o CEP (ex: 12345-678)';
+                searchInput.maxLength = 9;
+                searchInput.removeEventListener('input', handleCityInput); // Remove listener antigo de cidade
+                searchInput.addEventListener('input', formatCepInput); // Adiciona listener de CEP
+            }
+        });
+    }
 
-if (searchByCityRadio) {
-    searchByCityRadio.addEventListener('change', () => {
-        if (searchInput) {
-            searchInput.value = ''; // Limpa o campo ao trocar
-            searchInput.placeholder = 'Digite a Cidade (ex: São Paulo)'; 
-            searchInput.maxLength = 50; 
-            searchInput.removeEventListener('input', formatCepInput); // Remove listener antigo de CEP
-            searchInput.addEventListener('input', handleCityInput); // Adiciona listener de cidade
-        }
-    });
-}
+    if (searchByCityRadio) {
+        searchByCityRadio.addEventListener('change', () => {
+            if (searchInput) {
+                searchInput.value = ''; // Limpa o campo ao trocar
+                searchInput.placeholder = 'Digite a Cidade (ex: São Paulo)'; 
+                searchInput.maxLength = 50; 
+                searchInput.removeEventListener('input', formatCepInput); // Remove listener antigo de CEP
+                searchInput.addEventListener('input', handleCityInput); // Adiciona listener de cidade
+            }
+        });
+    }
 
-// Funções de manipulação de input para busca (removido formatCepInput, usei direto o formatCepInput global)
-function handleCityInput(e) {
-    // Nenhuma formatação automática complexa para cidade, apenas tratamento de texto simples.
-}
+    function handleCityInput(e) { /* Nenhuma formatação automática complexa para cidade */ }
 
-// Adiciona o listener de CEP inicialmente ao carregar a página de busca (se a opção estiver marcada)
-if (searchInput && searchByCepRadio && searchByCepRadio.checked) {
-    searchInput.addEventListener('input', formatCepInput); // Usa a função global
-}
+    // Adiciona o listener de CEP inicialmente ao carregar a página de busca (se a opção estiver marcada)
+    if (searchInput && searchByCepRadio && searchByCepRadio.checked) {
+        searchInput.addEventListener('input', formatCepInput);
+    }
 
 
-if (searchButton) {
-    searchButton.addEventListener('click', async () => {
-        const searchTerm = searchInput ? searchInput.value.trim() : '';
-        const currentSearchType = document.querySelector('input[name="searchType"]:checked')?.value;
+    if (searchButton) {
+        searchButton.addEventListener('click', async () => {
+            const searchTerm = searchInput ? searchInput.value.trim() : '';
+            const currentSearchType = document.querySelector('input[name="searchType"]:checked')?.value;
 
-        if (paintersResults) paintersResults.innerHTML = '';
-        if (noResultsMessage) noResultsMessage.style.display = 'none';
-        showMessage('', false); // Limpa mensagens de feedback anteriores
+            if (paintersResults) paintersResults.innerHTML = '';
+            if (noResultsMessage) noResultsMessage.style.display = 'none';
+            showMessage('', false); // Limpa mensagens de feedback anteriores
 
-        if (!searchTerm) {
-            showMessage('Por favor, digite um termo para buscar.', true);
+            if (!searchTerm) {
+                showMessage('Por favor, digite um termo para buscar.', true);
+                return;
+            }
+
+            try {
+                let paintersToRender = [];
+
+                if (currentSearchType === 'cep') {
+                    if (searchTerm.replace(/\D/g, '').length !== 8) {
+                        showMessage('Por favor, digite um CEP válido (8 dígitos numéricos).', true);
+                        return;
+                    }
+                    const q = query(collection(db, "artifacts", appId, "public", "data", "pintores"), where("cep", "==", searchTerm));
+                    const querySnapshot = await getDocs(q);
+                    paintersToRender = querySnapshot.docs.map(doc => doc.data());
+
+                } else if (currentSearchType === 'city') {
+                    const cityQuery = query(collection(db, "artifacts", appId, "public", "data", "pintores"), where("cidade", "==", searchTerm));
+                    const citySnapshot = await getDocs(cityQuery);
+                    paintersToRender = citySnapshot.docs.map(doc => doc.data());
+                }
+
+                if (paintersToRender.length === 0) {
+                    if (noResultsMessage) noResultsMessage.style.display = 'block';
+                } else {
+                    renderPainters(paintersToRender);
+                }
+            } catch (error) {
+                console.error("Erro ao buscar pintores:", error);
+                showMessage("Ocorreu um erro ao buscar pintores. Tente novamente mais tarde.", true);
+            }
+        });
+    }
+
+    /**
+     * Renderiza os cartões dos pintores na área de resultados.
+     * @param {Array<Object>} painters - Um array de objetos de pintores a serem exibidos.
+     */
+    function renderPainters(painters) {
+        if (painters.length === 0) {
+            if (noResultsMessage) noResultsMessage.style.display = 'block';
             return;
         }
 
-        try {
-            let paintersToRender = [];
-
-            if (currentSearchType === 'cep') {
-                if (searchTerm.replace(/\D/g, '').length !== 8) {
-                    showMessage('Por favor, digite um CEP válido (8 dígitos numéricos).', true);
-                    return;
-                }
-                const q = query(collection(db, "pintores"), where("cep", "==", searchTerm));
-                const querySnapshot = await getDocs(q);
-                paintersToRender = querySnapshot.docs.map(doc => doc.data());
-
-            } else if (currentSearchType === 'city') {
-                const cityQuery = query(collection(db, "pintores"), where("cidade", "==", searchTerm));
-                const citySnapshot = await getDocs(cityQuery);
-                paintersToRender = citySnapshot.docs.map(doc => doc.data());
-            }
-
-            if (paintersToRender.length === 0) {
-                if (noResultsMessage) noResultsMessage.style.display = 'block';
-            } else {
-                renderPainters(paintersToRender);
-            }
-        } catch (error) {
-            console.error("Erro ao buscar pintores:", error);
-            showMessage("Ocorreu um erro ao buscar pintores. Tente novamente mais tarde.", true);
-        }
-    });
+        painters.forEach((painter) => {
+            const painterCard = `
+                <div class="painter-card">
+                    <h3>${painter.nome || 'Pintor Parceiro'}</h3>
+                    <p><strong>Telefone:</strong> ${painter.telefone || 'Não informado'}</p>
+                    <p><strong>Experiência:</strong> ${painter.experiencia || 'Não informado'}</p>
+                    ${painter.redeSocial ? `<p><strong>Rede Social:</strong> <a href="${painter.redeSocial}" target="_blank">${painter.redeSocial}</a></p>` : ''}
+                    <p class="bio"><strong>Bio:</strong> ${painter.biografia || 'Nenhuma biografia disponível.'}</p>
+                </div>
+            `;
+            if (paintersResults) paintersResults.innerHTML += painterCard;
+        });
+    }
 }
 
-/**
- * Renderiza os cartões dos pintores na área de resultados.
- * @param {Array<Object>} painters - Um array de objetos de pintores a serem exibidos.
- */
-function renderPainters(painters) {
-    if (painters.length === 0) {
-        if (noResultsMessage) noResultsMessage.style.display = 'block';
-        return;
+// Inicializar as lógicas específicas da página apenas quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', () => {
+    // Configura o menu hamburger (sempre presente)
+    setupMenuToggle(); 
+
+    // Lógica para a página de cadastro
+    if (document.getElementById('painterRegisterForm') || document.getElementById('clientRegisterForm')) {
+        setupRegistrationForms();
     }
 
-    painters.forEach((painter) => {
-        const painterCard = `
-            <div class="painter-card">
-                <h3>${painter.nome || 'Pintor Parceiro'}</h3>
-                <p><strong>Telefone:</strong> ${painter.telefone || 'Não informado'}</p>
-                <p><strong>Experiência:</strong> ${painter.experiencia || 'Não informado'}</p>
-                ${painter.redeSocial ? `<p><strong>Rede Social:</strong> <a href="${painter.redeSocial}" target="_blank">${painter.redeSocial}</a></p>` : ''}
-                <p class="bio"><strong>Bio:</strong> ${painter.biografia || 'Nenhuma biografia disponível.'}</p>
-            </div>
-        `;
-        if (paintersResults) paintersResults.innerHTML += painterCard;
-    });
-}
+    // Lógica para a página de login
+    if (document.getElementById('loginForm')) {
+        setupLoginPage();
+    }
+
+    // Lógica para a página de busca
+    if (document.getElementById('searchInput')) {
+        setupSearchPage();
+    }
+});
