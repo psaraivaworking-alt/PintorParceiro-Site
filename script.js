@@ -199,6 +199,20 @@ function setupPasswordToggle(passwordInputId, toggleButtonId) {
     }
 }
 
+/**
+ * Configura o botão de alternância do menu hamburger para responsividade.
+ */
+function setupMenuToggle() {
+    const hamburgerMenu = document.getElementById('hamburgerMenu');
+    const navLinks = document.querySelector('.nav-links'); // Seleciona o container nav-links
+
+    if (hamburgerMenu && navLinks) {
+        hamburgerMenu.addEventListener('click', () => {
+            navLinks.classList.toggle('menu-active');
+            hamburgerMenu.classList.toggle('is-active'); // Para animar o ícone, se houver CSS
+        });
+    }
+}
 
 // --- Lógica do Header Dinâmico (para todas as páginas que usam o script.js) ---
 const navLinksContainer = document.querySelector('.nav-links');
@@ -267,8 +281,18 @@ if (navLinksContainer) {
                 navLinksContainer.appendChild(searchLink);
             }
         }
+        // Após popular os links, garantir que o menu esteja fechado em telas grandes
+        // e, se for mobile e o menu estiver ativo, que continue ativo.
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+        if (hamburgerMenu && window.innerWidth > 768) { // Exemplo de breakpoint
+            navLinksContainer.classList.remove('menu-active');
+            hamburgerMenu.classList.remove('is-active');
+        }
     });
 }
+
+// Chamar a função de configuração do menu ao carregar o DOM
+document.addEventListener('DOMContentLoaded', setupMenuToggle);
 
 
 // --- Lógica da Página de Cadastro (cadastro.html) ---
@@ -295,9 +319,13 @@ if (painterRegisterForm || clientRegisterForm) {
         btnClient.addEventListener('click', () => {
             showForm(clientRegisterForm, painterRegisterForm, btnClient, btnPainter);
         });
+
+        // Mostra o formulário de pintor por padrão ao carregar a página
+        showForm(painterRegisterForm, clientRegisterForm, btnPainter, btnClient);
     }
 
     // --- Formatação e auto-preenchimento para campos de Pintor ---
+    const painterNameInput = document.getElementById('painterName');
     const painterCpfInput = document.getElementById('painterCpf');
     const painterPhoneInput = document.getElementById('painterPhone');
     const painterCepInput = document.getElementById('painterCep');
@@ -406,13 +434,16 @@ if (painterRegisterForm || clientRegisterForm) {
                  return;
             }
 
-
             try {
-                // Verificar se o CPF já existe no Firestore (para pintores)
-                const qCpf = query(collection(db, "pintores"), where("cpf", "==", cpf));
-                const querySnapshotCpf = await getDocs(qCpf);
-                if (!querySnapshotCpf.empty) {
-                    showMessage("Este CPF já está cadastrado como pintor.", true);
+                // *** VERIFICAÇÃO DE CPF CRUZADA (Pintores e Usuários) ***
+                const qCpfPintores = query(collection(db, "pintores"), where("cpf", "==", cpf));
+                const querySnapshotCpfPintores = await getDocs(qCpfPintores);
+
+                const qCpfUsuarios = query(collection(db, "usuarios"), where("cpf", "==", cpf));
+                const querySnapshotCpfUsuarios = await getDocs(qCpfUsuarios);
+
+                if (!querySnapshotCpfPintores.empty || !querySnapshotCpfUsuarios.empty) {
+                    showMessage("Este CPF já está cadastrado em nossa plataforma (como pintor ou cliente).", true);
                     return;
                 }
                 
@@ -458,6 +489,7 @@ if (painterRegisterForm || clientRegisterForm) {
     }
 
     // --- Formatação e auto-preenchimento para campos de Cliente ---
+    const clientNameInput = document.getElementById('clientName'); // Adicionado
     const clientCpfInput = document.getElementById('clientCpf');
     const clientPhoneInput = document.getElementById('clientPhone');
     const clientCepInput = document.getElementById('clientCep');
@@ -542,11 +574,15 @@ if (painterRegisterForm || clientRegisterForm) {
             }
 
             try {
-                // Verificar se o CPF já existe no Firestore (para usuários)
-                const qCpf = query(collection(db, "usuarios"), where("cpf", "==", cpf));
-                const querySnapshotCpf = await getDocs(qCpf);
-                if (!querySnapshotCpf.empty) {
-                    showMessage("Este CPF já está cadastrado como cliente.", true);
+                // *** VERIFICAÇÃO DE CPF CRUZADA (Pintores e Usuários) ***
+                const qCpfPintores = query(collection(db, "pintores"), where("cpf", "==", cpf));
+                const querySnapshotCpfPintores = await getDocs(qCpfPintores);
+
+                const qCpfUsuarios = query(collection(db, "usuarios"), where("cpf", "==", cpf));
+                const querySnapshotCpfUsuarios = await getDocs(qCpfUsuarios);
+
+                if (!querySnapshotCpfPintores.empty || !querySnapshotCpfUsuarios.empty) {
+                    showMessage("Este CPF já está cadastrado em nossa plataforma (como pintor ou cliente).", true);
                     return;
                 }
 
@@ -654,7 +690,7 @@ if (profileForm) {
     const noNumberCheckboxPerfil = document.getElementById('noNumber');
 
     // Campo específico de localização para cliente
-    const clientLocationInput = document.getElementById('clientLocation');
+    const clientLocationInput = document.getElementById('clientLocation'); // ID para o campo de cliente no perfil
 
     const profileBioCounter = document.getElementById('profileBioCounter'); // Contador da bio
     const profileBioProfanityError = document.getElementById('profileBioProfanityError'); // Erro de profanidade
@@ -742,7 +778,10 @@ if (profileForm) {
                     if (nameInput) nameInput.value = userData.nome || ''; 
                     if (emailInput) emailInput.value = userData.email || '';
                     if (cpfInput) cpfInput.value = userData.cpf || '';
-                    if (phoneInput) formatPhoneInput(phoneInput); phoneInput.value = userData.telefone || ''; // Aplica format no carregamento
+                    if (phoneInput) {
+                        phoneInput.value = userData.telefone || ''; // Preenche o telefone
+                        formatPhoneInput(phoneInput); // Aplica a formatação no carregamento
+                    }
                     
                     if (currentUserType === 'pintor') {
                         // Preencher campos específicos de pintor
@@ -775,7 +814,14 @@ if (profileForm) {
                         document.getElementById('clientProfileFields').style.display = 'none';
                     } else if (currentUserType === 'cliente') {
                         // Preencher campos específicos de cliente
-                        if (clientLocationInput) clientLocationInput.value = userData.localizacao || ''; // Certifique-se de que o ID esteja correto
+                        if (clientLocationInput) {
+                             // Se o cliente tem campos de endereço separados (cep, cidade, estado, rua, numero)
+                             // ou um campo de localização genérico. Assumindo 'localizacao' para o cliente.
+                             // Se você quiser que o cliente também tenha cep, cidade, estado, etc.,
+                             // você precisaria de mais IDs de input no HTML do perfil de cliente.
+                             // No momento, o perfil de cliente só tem 'clientLocation'.
+                             clientLocationInput.value = userData.localizacao || ''; 
+                        }
                         // Mostrar campos de cliente e esconder de pintor
                         document.getElementById('painterProfileFields').style.display = 'none';
                         document.getElementById('clientProfileFields').style.display = 'block';
@@ -831,12 +877,22 @@ if (profileForm) {
             const docSnap = await getDoc(docRef);
             const currentCpfInDb = docSnap.exists() ? docSnap.data().cpf : null;
 
-            if (cpf !== currentCpfInDb) { 
-                const q = query(collection(db, collectionToUpdate), where("cpf", "==", cpf));
-                const querySnapshot = await getDocs(q);
+            if (cpf !== currentCpfInDb) { // Só verifica duplicidade se o CPF foi alterado
+                // *** VERIFICAÇÃO DE CPF CRUZADA AO ATUALIZAR PERFIL ***
+                const qCpfPintores = query(collection(db, "pintores"), where("cpf", "==", cpf));
+                const querySnapshotCpfPintores = await getDocs(qCpfPintores);
 
-                if (!querySnapshot.empty && querySnapshot.docs[0].id !== currentUserUid) {
-                    showMessage("Este CPF já está sendo usado por outro usuário.", true);
+                const qCpfUsuarios = query(collection(db, "usuarios"), where("cpf", "==", cpf));
+                const querySnapshotCpfUsuarios = await getDocs(qCpfUsuarios);
+
+                // Check if CPF exists in EITHER collection and belongs to a *different* user
+                // (e.g., if a painter changes their CPF, ensure it's not already taken by a client,
+                // and if a client changes, ensure it's not taken by a painter)
+                const isCpfTakenByOtherPainter = !querySnapshotCpfPintores.empty && querySnapshotCpfPintores.docs[0].id !== currentUserUid;
+                const isCpfTakenByOtherClient = !querySnapshotCpfUsuarios.empty && querySnapshotCpfUsuarios.docs[0].id !== currentUserUid;
+
+                if (isCpfTakenByOtherPainter || isCpfTakenByOtherClient) {
+                    showMessage("Este CPF já está sendo usado por outro usuário em nossa plataforma.", true);
                     return;
                 }
             }
@@ -855,7 +911,7 @@ if (profileForm) {
                 }
                 // Captura o valor da unidade de experiência selecionada
                 let selectedExperienceUnit = '';
-                const experienceUnitRadios = document.querySelectorAll('input[name="painterExperienceUnit"]'); // Ajustado para pegar os rádios do perfil
+                const experienceUnitRadios = document.querySelectorAll('input[name="experienceUnit"]'); // Ajustado para pegar os rádios do perfil
                 experienceUnitRadios.forEach(radio => {
                     if (radio.checked) {
                         selectedExperienceUnit = radio.value;
