@@ -6,8 +6,6 @@
     <title>Meu Perfil - Plataforma de Pintura</title>
     <link rel="stylesheet" href="style.css">
     
-    <script src="https://unpkg.com/imask@6.0.7/dist/imask.min.js"></script>
-
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -17,67 +15,20 @@
 <body>
 
     <div class="profile-container">
-        <div id="profile-view">
-            <h1>Meu Perfil</h1>
-            <div class="profile-info" id="profile-info">
-                <p><strong>Nome:</strong> <span id="user-name"></span></p>
-                <p><strong>E-mail:</strong> <span id="user-email"></span></p>
-                <p><strong>Tipo de Conta:</strong> <span id="user-type"></span></p>
-                <p><strong>CPF:</strong> <span id="user-cpf"></span></p>
-                <p><strong>Telefone:</strong> <span id="user-phone"></span></p>
-                </div>
-            <button id="edit-profile-button">Editar Perfil</button>
-            <button id="logout-button">Sair da Conta</button>
-        </div>
-
-        <div id="edit-form-container" class="hidden">
-            <h1>Editar Perfil</h1>
-            <div id="error-message-edit" class="error-message"></div>
+        <h1>Meu Perfil</h1>
+        <div class="profile-info">
+            <p><strong>Nome:</strong> <span id="user-name"></span></p>
+            <p><strong>E-mail:</strong> <span id="user-email"></span></p>
+            <p><strong>Telefone:</strong> <span id="user-phone"></span></p>
             
-            <form id="edit-profile-form" class="edit-form">
-                <div class="form-section">
-                    <input type="text" id="edit-nome-completo" placeholder="Nome Completo" required disabled>
-                    <input type="email" id="edit-email" placeholder="E-mail" required disabled>
-                    <input type="text" id="edit-cpf" placeholder="CPF" required disabled>
-                    <input type="tel" id="edit-telefone" placeholder="Telefone" required>
-                    <input type="text" id="edit-cep" placeholder="CEP" required>
-                    <input type="text" id="edit-cidade" placeholder="Cidade" required>
-                    <input type="text" id="edit-estado" placeholder="Estado" required>
-                    <input type="text" id="edit-rua" placeholder="Rua" required>
-                    <div class="input-sem-numero">
-                        <input type="text" id="edit-numero" placeholder="Número">
-                        <label>
-                            <input type="checkbox" id="edit-sem-numero">
-                            Sem número
-                        </label>
-                    </div>
-                </div>
-
-                <div id="edit-pintor-fields" class="form-section hidden">
-                    <input type="url" id="edit-rede-social" placeholder="Link da Rede Social (ex: Instagram)">
-                    <div class="input-group">
-                        <input type="number" id="edit-experiencia" placeholder="Tempo de Experiência" min="0">
-                        <select id="edit-unidade-experiencia">
-                            <option value="meses">meses</option>
-                            <option value="anos">anos</option>
-                        </select>
-                    </div>
-                    <textarea id="edit-biografia" placeholder="Fale um pouco sobre você (até 200 caracteres)" maxlength="200"></textarea>
-                    <p class="contador-bio" id="edit-contador-biografia">0/200</p>
-                </div>
-
-                <div class="form-section">
-                    <label for="edit-tipo-usuario">Mudar Tipo de Conta:</label>
-                    <select id="edit-tipo-usuario">
-                        <option value="cliente">Cliente</option>
-                        <option value="pintor">Pintor</option>
-                    </select>
-                </div>
-                
-                <button type="submit">Salvar Alterações</button>
-                <button type="button" id="cancel-edit-button">Cancelar</button>
-            </form>
+            <div id="pintor-fields" class="hidden">
+                <p><strong>Biografia:</strong> <span id="user-bio"></span></p>
+                <p><strong>Experiência:</strong> <span id="user-experience"></span></p>
+            </div>
+            
         </div>
+        <button id="logout-button">Sair da Conta</button>
     </div>
+
 </body>
 </html>
