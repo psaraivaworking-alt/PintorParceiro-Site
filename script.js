@@ -21,6 +21,8 @@ const formPintor = document.getElementById('form-pintor');
 const formCliente = document.getElementById('form-cliente');
 const contadorBio = document.getElementById('contador-biografia-pintor');
 const biografiaPintor = document.getElementById('biografia-pintor');
+const errorMessagePintor = document.getElementById('error-message-pintor');
+const errorMessageCliente = document.getElementById('error-message-cliente');
 
 // Referências aos inputs
 const inputCpfPintor = document.getElementById('cpf-pintor');
@@ -37,28 +39,39 @@ const inputEstadoCliente = document.getElementById('estado-cliente');
 
 // --- Funções de Lógica Geral ---
 
+// Exibe a mensagem de erro na tela
+function showError(message, formType) {
+    const errorMessageElement = formType === 'pintor' ? errorMessagePintor : errorMessageCliente;
+    errorMessageElement.textContent = message;
+    errorMessageElement.style.display = 'block';
+}
+
+// Oculta a mensagem de erro
+function hideError(formType) {
+    const errorMessageElement = formType === 'pintor' ? errorMessagePintor : errorMessageCliente;
+    errorMessageElement.textContent = '';
+    errorMessageElement.style.display = 'none';
+}
+
 // Alterna entre formulários de Pintor e Cliente
 function alternarFormulario(tipo) {
-    console.log(`Tentando alternar para o formulário de ${tipo}.`);
+    hideError('pintor');
+    hideError('cliente');
     if (tipo === 'pintor') {
         formPintor.classList.remove('hidden');
         formCliente.classList.add('hidden');
         btnPintor.classList.add('active');
         btnCliente.classList.remove('active');
-        console.log("Formulário de Pintor exibido.");
     } else {
         formCliente.classList.remove('hidden');
         formPintor.classList.add('hidden');
         btnCliente.classList.add('active');
         btnPintor.classList.remove('active');
-        console.log("Formulário de Cliente exibido.");
     }
 }
 
 // Máscaras de input com IMask.js
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOM totalmente carregado. Aplicando máscaras.");
-    
     new IMask(inputCpfPintor, { mask: '000.000.000-00' });
     new IMask(inputTelefonePintor, { mask: '(00) 00000-0000' });
     new IMask(inputCepPintor, { mask: '00000-000' });
@@ -77,8 +90,6 @@ async function buscarCep(cep, cidadeInput, estadoInput) {
         return;
     }
     
-    console.log(`Buscando CEP: ${cepLimpo}`);
-    
     try {
         const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
         const data = await response.json();
@@ -86,11 +97,9 @@ async function buscarCep(cep, cidadeInput, estadoInput) {
         if (!data.erro) {
             cidadeInput.value = data.localidade;
             estadoInput.value = data.uf;
-            console.log(`Endereço encontrado: ${data.localidade}, ${data.uf}`);
         } else {
             cidadeInput.value = '';
             estadoInput.value = '';
-            console.error('Erro: CEP não encontrado.');
         }
     } catch (error) {
         console.error('Erro ao buscar CEP:', error);
@@ -99,15 +108,12 @@ async function buscarCep(cep, cidadeInput, estadoInput) {
 
 // --- Event Listeners ---
 
-// Alternar entre os botões
 btnPintor.addEventListener('click', () => alternarFormulario('pintor'));
 btnCliente.addEventListener('click', () => alternarFormulario('cliente'));
 
-// Busca de CEP ao sair do campo
 inputCepPintor.addEventListener('blur', (e) => buscarCep(e.target.value, inputCidadePintor, inputEstadoPintor));
 inputCepCliente.addEventListener('blur', (e) => buscarCep(e.target.value, inputCidadeCliente, inputEstadoCliente));
 
-// Contador de caracteres da biografia
 if (biografiaPintor) {
     biografiaPintor.addEventListener('input', (e) => {
         const charCount = e.target.value.length;
@@ -118,7 +124,7 @@ if (biografiaPintor) {
 // Lógica de envio do formulário de Pintor
 formPintor.addEventListener('submit', async (e) => {
     e.preventDefault();
-    console.log("Tentativa de cadastro de pintor iniciada.");
+    hideError('pintor');
 
     const dados = {
         nomeCompleto: document.getElementById('nome-pintor').value,
@@ -141,58 +147,48 @@ formPintor.addEventListener('submit', async (e) => {
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     
-    console.log("Dados do formulário de pintor coletados:", dados);
-
     if (dados.senha !== dados.confirmarSenha) {
-        alert('As senhas não coincidem!');
+        showError('As senhas não coincidem!', 'pintor');
         return false;
     }
 
     try {
-        console.log("Verificando se o CPF já está cadastrado.");
         const cpfDoc = await db.collection('cpf_registry').doc(dados.cpf).get();
         if (cpfDoc.exists) {
-            alert('Este CPF já está cadastrado na plataforma.');
+            showError('Este CPF já está cadastrado na plataforma.', 'pintor');
             return;
         }
 
-        console.log("CPF único. Criando usuário no Firebase Authentication...");
         const userCredential = await auth.createUserWithEmailAndPassword(dados.email, dados.senha);
         const userId = userCredential.user.uid;
-        console.log(`Usuário criado com sucesso no Auth. UID: ${userId}`);
 
-        console.log("Salvando dados do pintor no Firestore...");
         await db.collection('pintores').doc(userId).set({
             ...dados,
             senha: null,
             confirmarSenha: null
         });
-        console.log("Dados do pintor salvos no Firestore.");
 
-        console.log("Registrando CPF na coleção 'cpf_registry'...");
         await db.collection('cpf_registry').doc(dados.cpf).set({
             userId: userId,
             userType: 'pintor'
         });
-        console.log("CPF registrado com sucesso.");
 
-        alert('Cadastro de pintor realizado com sucesso!');
         window.location.href = 'login.html';
 
     } catch (error) {
-        console.error("Um erro ocorreu durante o cadastro:", error);
         if (error.code === 'auth/email-already-in-use') {
-            alert('Este e-mail já está em uso. Por favor, use outro.');
+            showError('Este e-mail já está em uso. Por favor, use outro.', 'pintor');
         } else {
-            alert('Erro no cadastro: ' + error.message);
+            showError('Erro no cadastro: ' + error.message, 'pintor');
         }
+        console.error("Erro no cadastro:", error);
     }
 });
 
 // Lógica de envio do formulário de Cliente
 formCliente.addEventListener('submit', async (e) => {
     e.preventDefault();
-    console.log("Tentativa de cadastro de cliente iniciada.");
+    hideError('cliente');
 
     const dados = {
         nomeCompleto: document.getElementById('nome-cliente').value,
@@ -211,50 +207,40 @@ formCliente.addEventListener('submit', async (e) => {
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     
-    console.log("Dados do formulário de cliente coletados:", dados);
-
     if (dados.senha !== dados.confirmarSenha) {
-        alert('As senhas não coincidem!');
+        showError('As senhas não coincidem!', 'cliente');
         return false;
     }
 
     try {
-        console.log("Verificando se o CPF já está cadastrado.");
         const cpfDoc = await db.collection('cpf_registry').doc(dados.cpf).get();
         if (cpfDoc.exists) {
-            alert('Este CPF já está cadastrado na plataforma.');
+            showError('Este CPF já está cadastrado na plataforma.', 'cliente');
             return;
         }
 
-        console.log("CPF único. Criando usuário no Firebase Authentication...");
         const userCredential = await auth.createUserWithEmailAndPassword(dados.email, dados.senha);
         const userId = userCredential.user.uid;
-        console.log(`Usuário criado com sucesso no Auth. UID: ${userId}`);
 
-        console.log("Salvando dados do cliente no Firestore...");
         await db.collection('clientes').doc(userId).set({
             ...dados,
             senha: null,
             confirmarSenha: null
         });
-        console.log("Dados do cliente salvos no Firestore.");
 
-        console.log("Registrando CPF na coleção 'cpf_registry'...");
         await db.collection('cpf_registry').doc(dados.cpf).set({
             userId: userId,
             userType: 'cliente'
         });
-        console.log("CPF registrado com sucesso.");
 
-        alert('Cadastro de cliente realizado com sucesso!');
         window.location.href = 'login.html';
 
     } catch (error) {
-        console.error("Um erro ocorreu durante o cadastro:", error);
         if (error.code === 'auth/email-already-in-use') {
-            alert('Este e-mail já está em uso. Por favor, use outro.');
+            showError('Este e-mail já está em uso. Por favor, use outro.', 'cliente');
         } else {
-            alert('Erro no cadastro: ' + error.message);
+            showError('Erro no cadastro: ' + error.message, 'cliente');
         }
+        console.error("Erro no cadastro:", error);
     }
 });
