@@ -364,6 +364,7 @@ if (loginForm) {
 // ----------------------------------------------------
 // 5. LÓGICA DO PERFIL (EXECUTADA APENAS EM perfil.html)
 // ----------------------------------------------------
+// script.js - Seção 5 - LÓGICA DO PERFIL
 const profileContainer = document.querySelector('.profile-container');
 
 if (profileContainer) {
@@ -375,41 +376,48 @@ if (profileContainer) {
     const userExperienceSpan = document.getElementById('user-experience');
     const logoutButton = document.getElementById('logout-button');
 
+    console.log("Iniciando verificação de autenticação...");
+
     auth.onAuthStateChanged(async (user) => {
         if (user) {
-            console.log("Usuário autenticado:", user.uid);
+            console.log("Status: Usuário autenticado. UID:", user.uid);
             
             try {
+                console.log("Status: Buscando tipo de usuário no 'cpf_registry'...");
                 const cpfQuery = await db.collection('cpf_registry').where('userId', '==', user.uid).limit(1).get();
+
                 if (!cpfQuery.empty) {
                     const userType = cpfQuery.docs[0].data().userType;
+                    console.log("Status: Tipo de usuário encontrado:", userType);
                     
+                    console.log(`Status: Buscando dados na coleção '${userType}s'...`);
                     const userDoc = await db.collection(userType + 's').doc(user.uid).get();
+
                     if (userDoc.exists) {
                         const userData = userDoc.data();
-                        console.log("Dados do usuário encontrados:", userData);
+                        console.log("Status: Dados do usuário encontrados com sucesso!", userData);
                         
-                        userNameSpan.textContent = userData.nomeCompleto;
-                        userEmailSpan.textContent = userData.email;
-                        userPhoneSpan.textContent = userData.telefone;
+                        userNameSpan.textContent = userData.nomeCompleto || 'Não informado';
+                        userEmailSpan.textContent = userData.email || 'Não informado';
+                        userPhoneSpan.textContent = userData.telefone || 'Não informado';
 
                         if (userType === 'pintor') {
                             pintorFieldsDiv.classList.remove('hidden');
                             userBioSpan.textContent = userData.biografia || 'Não informado';
                             userExperienceSpan.textContent = `${userData.tempoExperiencia} ${userData.unidadeExperiencia}` || 'Não informado';
                         }
-
+                        
                     } else {
-                        console.log("Documento do usuário não encontrado na coleção:", userType);
+                        console.error("ERRO: Documento do usuário não encontrado na coleção:", userType);
                     }
                 } else {
-                    console.log("Entrada de CPF não encontrada para o usuário.");
+                    console.error("ERRO: Entrada de CPF não encontrada para o usuário. Verifique se o documento 'cpf_registry' existe.");
                 }
             } catch (error) {
-                console.error("Erro ao buscar dados do usuário:", error);
+                console.error("ERRO ao buscar dados do usuário:", error);
             }
         } else {
-            console.log("Nenhum usuário logado. Redirecionando...");
+            console.log("Status: Nenhum usuário logado. Redirecionando para login.html...");
             window.location.href = 'login.html';
         }
     });
