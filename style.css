@@ -177,6 +177,18 @@ button[type="submit"]:hover {
     text-decoration: underline;
 }
 
+/* Mensagem de Erro */
+.error-message {
+    color: #d9534f;
+    background-color: #f2dede;
+    border: 1px solid #ebccd1;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 20px;
+    display: none; /* Inicia oculto */
+    text-align: center;
+}
+
 /* Responsividade para Telas Menores */
 @media (max-width: 768px) {
     .cadastro-container {
