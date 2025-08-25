@@ -39,16 +39,19 @@ const inputEstadoCliente = document.getElementById('estado-cliente');
 
 // Alterna entre formulários de Pintor e Cliente
 function alternarFormulario(tipo) {
+    console.log(`Tentando alternar para o formulário de ${tipo}.`);
     if (tipo === 'pintor') {
         formPintor.classList.remove('hidden');
         formCliente.classList.add('hidden');
         btnPintor.classList.add('active');
         btnCliente.classList.remove('active');
+        console.log("Formulário de Pintor exibido.");
     } else {
         formCliente.classList.remove('hidden');
         formPintor.classList.add('hidden');
         btnCliente.classList.add('active');
         btnPintor.classList.remove('active');
+        console.log("Formulário de Cliente exibido.");
     }
 }
 
@@ -115,6 +118,7 @@ if (biografiaPintor) {
 // Lógica de envio do formulário de Pintor
 formPintor.addEventListener('submit', async (e) => {
     e.preventDefault();
+    console.log("Tentativa de cadastro de pintor iniciada.");
 
     const dados = {
         nomeCompleto: document.getElementById('nome-pintor').value,
@@ -136,6 +140,8 @@ formPintor.addEventListener('submit', async (e) => {
         tipoUsuario: 'pintor',
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
+    
+    console.log("Dados do formulário de pintor coletados:", dados);
 
     if (dados.senha !== dados.confirmarSenha) {
         alert('As senhas não coincidem!');
@@ -143,35 +149,42 @@ formPintor.addEventListener('submit', async (e) => {
     }
 
     try {
+        console.log("Verificando se o CPF já está cadastrado.");
         const cpfDoc = await db.collection('cpf_registry').doc(dados.cpf).get();
         if (cpfDoc.exists) {
             alert('Este CPF já está cadastrado na plataforma.');
             return;
         }
 
+        console.log("CPF único. Criando usuário no Firebase Authentication...");
         const userCredential = await auth.createUserWithEmailAndPassword(dados.email, dados.senha);
         const userId = userCredential.user.uid;
+        console.log(`Usuário criado com sucesso no Auth. UID: ${userId}`);
 
+        console.log("Salvando dados do pintor no Firestore...");
         await db.collection('pintores').doc(userId).set({
             ...dados,
             senha: null,
             confirmarSenha: null
         });
+        console.log("Dados do pintor salvos no Firestore.");
 
+        console.log("Registrando CPF na coleção 'cpf_registry'...");
         await db.collection('cpf_registry').doc(dados.cpf).set({
             userId: userId,
             userType: 'pintor'
         });
+        console.log("CPF registrado com sucesso.");
 
         alert('Cadastro de pintor realizado com sucesso!');
         window.location.href = 'login.html';
 
     } catch (error) {
+        console.error("Um erro ocorreu durante o cadastro:", error);
         if (error.code === 'auth/email-already-in-use') {
             alert('Este e-mail já está em uso. Por favor, use outro.');
         } else {
             alert('Erro no cadastro: ' + error.message);
-            console.error("Erro no cadastro:", error);
         }
     }
 });
@@ -179,6 +192,7 @@ formPintor.addEventListener('submit', async (e) => {
 // Lógica de envio do formulário de Cliente
 formCliente.addEventListener('submit', async (e) => {
     e.preventDefault();
+    console.log("Tentativa de cadastro de cliente iniciada.");
 
     const dados = {
         nomeCompleto: document.getElementById('nome-cliente').value,
@@ -197,41 +211,50 @@ formCliente.addEventListener('submit', async (e) => {
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     
+    console.log("Dados do formulário de cliente coletados:", dados);
+
     if (dados.senha !== dados.confirmarSenha) {
         alert('As senhas não coincidem!');
         return false;
     }
 
     try {
+        console.log("Verificando se o CPF já está cadastrado.");
         const cpfDoc = await db.collection('cpf_registry').doc(dados.cpf).get();
         if (cpfDoc.exists) {
             alert('Este CPF já está cadastrado na plataforma.');
             return;
         }
 
+        console.log("CPF único. Criando usuário no Firebase Authentication...");
         const userCredential = await auth.createUserWithEmailAndPassword(dados.email, dados.senha);
         const userId = userCredential.user.uid;
+        console.log(`Usuário criado com sucesso no Auth. UID: ${userId}`);
 
+        console.log("Salvando dados do cliente no Firestore...");
         await db.collection('clientes').doc(userId).set({
             ...dados,
             senha: null,
             confirmarSenha: null
         });
+        console.log("Dados do cliente salvos no Firestore.");
 
+        console.log("Registrando CPF na coleção 'cpf_registry'...");
         await db.collection('cpf_registry').doc(dados.cpf).set({
             userId: userId,
             userType: 'cliente'
         });
+        console.log("CPF registrado com sucesso.");
 
         alert('Cadastro de cliente realizado com sucesso!');
         window.location.href = 'login.html';
 
     } catch (error) {
+        console.error("Um erro ocorreu durante o cadastro:", error);
         if (error.code === 'auth/email-already-in-use') {
             alert('Este e-mail já está em uso. Por favor, use outro.');
         } else {
             alert('Erro no cadastro: ' + error.message);
-            console.error("Erro no cadastro:", error);
         }
     }
 });
