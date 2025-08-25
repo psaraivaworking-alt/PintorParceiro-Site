@@ -9,6 +9,8 @@ const firebaseConfig = {
   appId: "1:994883381349:web:b802e44d49d6f6f163fe8c"
 };
 
+
+
 // Inicializa o Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -24,18 +26,28 @@ const biografiaPintor = document.getElementById('biografia-pintor');
 const errorMessagePintor = document.getElementById('error-message-pintor');
 const errorMessageCliente = document.getElementById('error-message-cliente');
 
-// Referências aos inputs
+// Referências aos inputs e checkboxes
 const inputCpfPintor = document.getElementById('cpf-pintor');
 const inputTelefonePintor = document.getElementById('telefone-pintor');
 const inputCepPintor = document.getElementById('cep-pintor');
 const inputCidadePintor = document.getElementById('cidade-pintor');
 const inputEstadoPintor = document.getElementById('estado-pintor');
+const inputNumeroPintor = document.getElementById('numero-pintor');
+const checkboxSemNumeroPintor = document.getElementById('sem-numero-pintor');
+const togglePasswordPintor = document.querySelectorAll('.toggle-password-pintor');
+const senhaPintor = document.getElementById('senha-pintor');
+const confirmarSenhaPintor = document.getElementById('confirmar-senha-pintor');
 
 const inputCpfCliente = document.getElementById('cpf-cliente');
 const inputTelefoneCliente = document.getElementById('telefone-cliente');
 const inputCepCliente = document.getElementById('cep-cliente');
 const inputCidadeCliente = document.getElementById('cidade-cliente');
 const inputEstadoCliente = document.getElementById('estado-cliente');
+const inputNumeroCliente = document.getElementById('numero-cliente');
+const checkboxSemNumeroCliente = document.getElementById('sem-numero-cliente');
+const togglePasswordCliente = document.querySelectorAll('.toggle-password-cliente');
+const senhaCliente = document.getElementById('senha-cliente');
+const confirmarSenhaCliente = document.getElementById('confirmar-senha-cliente');
 
 // --- Funções de Lógica Geral ---
 
@@ -114,6 +126,50 @@ btnCliente.addEventListener('click', () => alternarFormulario('cliente'));
 inputCepPintor.addEventListener('blur', (e) => buscarCep(e.target.value, inputCidadePintor, inputEstadoPintor));
 inputCepCliente.addEventListener('blur', (e) => buscarCep(e.target.value, inputCidadeCliente, inputEstadoCliente));
 
+// Lógica para o campo "sem número" do pintor
+checkboxSemNumeroPintor.addEventListener('change', (e) => {
+    if (e.target.checked) {
+        inputNumeroPintor.value = '';
+        inputNumeroPintor.disabled = true;
+        inputNumeroPintor.placeholder = 'N/A';
+    } else {
+        inputNumeroPintor.disabled = false;
+        inputNumeroPintor.placeholder = 'Número';
+    }
+});
+
+// Lógica para o campo "sem número" do cliente
+checkboxSemNumeroCliente.addEventListener('change', (e) => {
+    if (e.target.checked) {
+        inputNumeroCliente.value = '';
+        inputNumeroCliente.disabled = true;
+        inputNumeroCliente.placeholder = 'N/A';
+    } else {
+        inputNumeroCliente.disabled = false;
+        inputNumeroCliente.placeholder = 'Número';
+    }
+});
+
+// Lógica para mostrar/esconder senha do pintor
+togglePasswordPintor.forEach(toggle => {
+    toggle.addEventListener('click', () => {
+        const passwordInput = toggle.previousElementSibling;
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        // Opcional: Mudar a imagem do ícone, caso tenha 2 versões
+        // toggle.querySelector('.eye-icon').src = type === 'password' ? 'eye-icon.png' : 'eye-slash-icon.png';
+    });
+});
+
+// Lógica para mostrar/esconder senha do cliente
+togglePasswordCliente.forEach(toggle => {
+    toggle.addEventListener('click', () => {
+        const passwordInput = toggle.previousElementSibling;
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+    });
+});
+
 if (biografiaPintor) {
     biografiaPintor.addEventListener('input', (e) => {
         const charCount = e.target.value.length;
@@ -137,8 +193,8 @@ formPintor.addEventListener('submit', async (e) => {
         cidade: inputCidadePintor.value,
         estado: inputEstadoPintor.value,
         rua: document.getElementById('rua-pintor').value,
-        numero: document.getElementById('numero-pintor').value,
-        semNumero: document.getElementById('sem-numero-pintor').checked,
+        numero: inputNumeroPintor.disabled ? 'N/A' : inputNumeroPintor.value,
+        semNumero: checkboxSemNumeroPintor.checked,
         linkRedeSocial: document.getElementById('rede-social-pintor').value,
         tempoExperiencia: parseInt(document.getElementById('experiencia-pintor').value),
         unidadeExperiencia: document.getElementById('unidade-experiencia-pintor').value,
@@ -201,8 +257,8 @@ formCliente.addEventListener('submit', async (e) => {
         cidade: inputCidadeCliente.value,
         estado: inputEstadoCliente.value,
         rua: document.getElementById('rua-cliente').value,
-        numero: document.getElementById('numero-cliente').value,
-        semNumero: document.getElementById('sem-numero-cliente').checked,
+        numero: inputNumeroCliente.disabled ? 'N/A' : inputNumeroCliente.value,
+        semNumero: checkboxSemNumeroCliente.checked,
         tipoUsuario: 'cliente',
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
