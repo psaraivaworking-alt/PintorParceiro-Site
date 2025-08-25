@@ -189,6 +189,30 @@ button[type="submit"]:hover {
     text-align: center;
 }
 
+/* Estilo para o campo de senha com ícone */
+.password-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 40px; /* Espaço para o ícone */
+}
+
+.toggle-password-pintor, .toggle-password-cliente {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.eye-icon {
+    width: 24px;
+    height: 24px;
+}
+
 /* Responsividade para Telas Menores */
 @media (max-width: 768px) {
     .cadastro-container {
