@@ -10,7 +10,6 @@ const firebaseConfig = {
 };
 
 
-
 // Inicializa o Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -34,9 +33,6 @@ const inputCidadePintor = document.getElementById('cidade-pintor');
 const inputEstadoPintor = document.getElementById('estado-pintor');
 const inputNumeroPintor = document.getElementById('numero-pintor');
 const checkboxSemNumeroPintor = document.getElementById('sem-numero-pintor');
-const togglePasswordPintor = document.querySelectorAll('.toggle-password-pintor');
-const senhaPintor = document.getElementById('senha-pintor');
-const confirmarSenhaPintor = document.getElementById('confirmar-senha-pintor');
 
 const inputCpfCliente = document.getElementById('cpf-cliente');
 const inputTelefoneCliente = document.getElementById('telefone-cliente');
@@ -45,9 +41,10 @@ const inputCidadeCliente = document.getElementById('cidade-cliente');
 const inputEstadoCliente = document.getElementById('estado-cliente');
 const inputNumeroCliente = document.getElementById('numero-cliente');
 const checkboxSemNumeroCliente = document.getElementById('sem-numero-cliente');
-const togglePasswordCliente = document.querySelectorAll('.toggle-password-cliente');
-const senhaCliente = document.getElementById('senha-cliente');
-const confirmarSenhaCliente = document.getElementById('confirmar-senha-cliente');
+
+// Referências aos novos botões de ver senha
+const togglePasswordPintorBtn = document.getElementById('toggle-password-pintor');
+const togglePasswordClienteBtn = document.getElementById('toggle-password-cliente');
 
 // --- Funções de Lógica Geral ---
 
@@ -87,7 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
     new IMask(inputCpfPintor, { mask: '000.000.000-00' });
     new IMask(inputTelefonePintor, { mask: '(00) 00000-0000' });
     new IMask(inputCepPintor, { mask: '00000-000' });
-
     new IMask(inputCpfCliente, { mask: '000.000.000-00' });
     new IMask(inputTelefoneCliente, { mask: '(00) 00000-0000' });
     new IMask(inputCepCliente, { mask: '00000-000' });
@@ -150,24 +146,24 @@ checkboxSemNumeroCliente.addEventListener('change', (e) => {
     }
 });
 
-// Lógica para mostrar/esconder senha do pintor
-togglePasswordPintor.forEach(toggle => {
-    toggle.addEventListener('click', () => {
-        const passwordInput = toggle.previousElementSibling;
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-        // Opcional: Mudar a imagem do ícone, caso tenha 2 versões
-        // toggle.querySelector('.eye-icon').src = type === 'password' ? 'eye-icon.png' : 'eye-slash-icon.png';
-    });
+// Lógica para mostrar/esconder senha do pintor com um botão único
+togglePasswordPintorBtn.addEventListener('click', () => {
+    const senha = document.getElementById('senha-pintor');
+    const confirmarSenha = document.getElementById('confirmar-senha-pintor');
+    const isPassword = senha.type === 'password';
+    senha.type = isPassword ? 'text' : 'password';
+    confirmarSenha.type = isPassword ? 'text' : 'password';
+    togglePasswordPintorBtn.textContent = isPassword ? 'Ocultar Senha' : 'Mostrar Senha';
 });
 
-// Lógica para mostrar/esconder senha do cliente
-togglePasswordCliente.forEach(toggle => {
-    toggle.addEventListener('click', () => {
-        const passwordInput = toggle.previousElementSibling;
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-    });
+// Lógica para mostrar/esconder senha do cliente com um botão único
+togglePasswordClienteBtn.addEventListener('click', () => {
+    const senha = document.getElementById('senha-cliente');
+    const confirmarSenha = document.getElementById('confirmar-senha-cliente');
+    const isPassword = senha.type === 'password';
+    senha.type = isPassword ? 'text' : 'password';
+    confirmarSenha.type = isPassword ? 'text' : 'password';
+    togglePasswordClienteBtn.textContent = isPassword ? 'Ocultar Senha' : 'Mostrar Senha';
 });
 
 if (biografiaPintor) {
