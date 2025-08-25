@@ -356,3 +356,227 @@ if (loginForm) {
         }
     });
 }
+// script.js (ADICIONE ESTE CÓDIGO NO FINAL DO SEU ARQUIVO)
+
+// ----------------------------------------------------
+// 6. LÓGICA DE EDIÇÃO DE PERFIL
+// ----------------------------------------------------
+
+// Referências aos elementos do DOM da edição
+const profileView = document.getElementById('profile-view');
+const editFormContainer = document.getElementById('edit-form-container');
+const editProfileButton = document.getElementById('edit-profile-button');
+const cancelEditButton = document.getElementById('cancel-edit-button');
+const editProfileForm = document.getElementById('edit-profile-form');
+const editPintorFields = document.getElementById('edit-pintor-fields');
+const editTipoUsuario = document.getElementById('edit-tipo-usuario');
+const editBio = document.getElementById('edit-biografia');
+const editBioCounter = document.getElementById('edit-contador-biografia');
+const editErrorMessage = document.getElementById('error-message-edit');
+const editCepInput = document.getElementById('edit-cep');
+const editCidadeInput = document.getElementById('edit-cidade');
+const editEstadoInput = document.getElementById('edit-estado');
+const editNumeroInput = document.getElementById('edit-numero');
+const editSemNumeroCheckbox = document.getElementById('edit-sem-numero');
+
+// Variável para guardar o tipo de usuário original
+let currentUserType = '';
+let currentUserId = '';
+
+// Função para popular o formulário de edição
+function populateEditForm(userData) {
+    document.getElementById('edit-nome-completo').value = userData.nomeCompleto;
+    document.getElementById('edit-email').value = userData.email;
+    document.getElementById('edit-cpf').value = userData.cpf;
+    document.getElementById('edit-telefone').value = userData.telefone;
+    document.getElementById('edit-cep').value = userData.cep;
+    document.getElementById('edit-cidade').value = userData.cidade;
+    document.getElementById('edit-estado').value = userData.estado;
+    document.getElementById('edit-rua').value = userData.rua;
+    document.getElementById('edit-numero').value = userData.numero === 'N/A' ? '' : userData.numero;
+    document.getElementById('edit-sem-numero').checked = userData.semNumero;
+    
+    if (userData.tipoUsuario === 'pintor') {
+        document.getElementById('edit-rede-social').value = userData.linkRedeSocial || '';
+        document.getElementById('edit-experiencia').value = userData.tempoExperiencia || '';
+        document.getElementById('edit-unidade-experiencia').value = userData.unidadeExperiencia || 'anos';
+        document.getElementById('edit-biografia').value = userData.biografia || '';
+        editBioCounter.textContent = `${(userData.biografia || '').length}/200`;
+    }
+
+    editTipoUsuario.value = userData.tipoUsuario;
+}
+
+// Alterna a visibilidade do formulário de pintor
+function togglePintorFields() {
+    if (editTipoUsuario.value === 'pintor') {
+        editPintorFields.classList.remove('hidden');
+    } else {
+        editPintorFields.classList.add('hidden');
+    }
+}
+
+// Lógica de mascaras de input
+if (editCepInput) {
+    new IMask(editCepInput, { mask: '00000-000' });
+    editCepInput.addEventListener('blur', async (e) => {
+        const cepLimpo = e.target.value.replace(/\D/g, '');
+        if (cepLimpo.length === 8) {
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+                const data = await response.json();
+                if (!data.erro) {
+                    editCidadeInput.value = data.localidade;
+                    editEstadoInput.value = data.uf;
+                }
+            } catch (error) {
+                console.error('Erro ao buscar CEP:', error);
+            }
+        }
+    });
+}
+
+// Mostra/esconde o formulário de edição
+if (editProfileButton && cancelEditButton) {
+    editProfileButton.addEventListener('click', () => {
+        profileView.classList.add('hidden');
+        editFormContainer.classList.remove('hidden');
+    });
+
+    cancelEditButton.addEventListener('click', () => {
+        editFormContainer.classList.add('hidden');
+        profileView.classList.remove('hidden');
+    });
+}
+
+// Atualiza o contador de caracteres
+if (editBio) {
+    editBio.addEventListener('input', (e) => {
+        editBioCounter.textContent = `${e.target.value.length}/200`;
+    });
+}
+
+// Altera os campos visíveis ao mudar o tipo de usuário no formulário
+if (editTipoUsuario) {
+    editTipoUsuario.addEventListener('change', togglePintorFields);
+}
+
+// Lógica de submissão do formulário de edição
+if (editProfileForm) {
+    editProfileForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideError(editErrorMessage);
+
+        const newType = editTipoUsuario.value;
+        const dadosComuns = {
+            nomeCompleto: document.getElementById('edit-nome-completo').value,
+            email: document.getElementById('edit-email').value,
+            cpf: document.getElementById('edit-cpf').value,
+            telefone: document.getElementById('edit-telefone').value.replace(/\D/g, ''),
+            cep: document.getElementById('edit-cep').value.replace(/\D/g, ''),
+            cidade: document.getElementById('edit-cidade').value,
+            estado: document.getElementById('edit-estado').value,
+            rua: document.getElementById('edit-rua').value,
+            numero: editSemNumeroCheckbox.checked ? 'N/A' : editNumeroInput.value,
+            semNumero: editSemNumeroCheckbox.checked,
+            tipoUsuario: newType
+        };
+
+        const dadosPintor = {
+            linkRedeSocial: document.getElementById('edit-rede-social').value,
+            tempoExperiencia: parseInt(document.getElementById('edit-experiencia').value) || 0,
+            unidadeExperiencia: document.getElementById('edit-unidade-experiencia').value,
+            biografia: document.getElementById('edit-biografia').value
+        };
+
+        const dadosCompletos = { ...dadosComuns };
+        if (newType === 'pintor') {
+            Object.assign(dadosCompletos, dadosPintor);
+        }
+
+        try {
+            // Se o tipo de usuário mudou
+            if (newType !== currentUserType) {
+                // 1. Apaga os dados da coleção antiga
+                await db.collection(currentUserType + 's').doc(currentUserId).delete();
+                
+                // 2. Adiciona os dados na nova coleção
+                await db.collection(newType + 's').doc(currentUserId).set(dadosCompletos);
+
+                // 3. Atualiza o tipo de usuário no registro de CPF
+                await db.collection('cpf_registry').doc(dadosComuns.cpf).update({
+                    userType: newType
+                });
+
+            } else { // Se o tipo de usuário não mudou, apenas atualiza
+                await db.collection(newType + 's').doc(currentUserId).update(dadosCompletos);
+            }
+            
+            alert('Perfil atualizado com sucesso!');
+            window.location.reload(); // Recarrega a página para ver as mudanças
+        } catch (error) {
+            showError("Erro ao salvar as alterações: " + error.message, editErrorMessage);
+            console.error("Erro ao salvar alterações:", error);
+        }
+    });
+}
+
+// Lógica de verificação de autenticação e preenchimento de perfil
+if (profileContainer) {
+    const userNameSpan = document.getElementById('user-name');
+    const userEmailSpan = document.getElementById('user-email');
+    const userTypeSpan = document.getElementById('user-type');
+    const userCpfSpan = document.getElementById('user-cpf');
+    const userPhoneSpan = document.getElementById('user-phone');
+    const logoutButton = document.getElementById('logout-button');
+
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            currentUserId = user.uid;
+            
+            const cpfQuery = await db.collection('cpf_registry').where('userId', '==', user.uid).limit(1).get();
+            if (!cpfQuery.empty) {
+                currentUserType = cpfQuery.docs[0].data().userType;
+                
+                const userDoc = await db.collection(currentUserType + 's').doc(user.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    
+                    // Preenche a visualização do perfil
+                    userNameSpan.textContent = userData.nomeCompleto;
+                    userEmailSpan.textContent = userData.email;
+                    userTypeSpan.textContent = userData.tipoUsuario;
+                    userCpfSpan.textContent = userData.cpf;
+                    userPhoneSpan.textContent = userData.telefone;
+                    
+                    // Se for um pintor, mostra os campos adicionais
+                    if (userData.tipoUsuario === 'pintor') {
+                        const pintorInfoHtml = `
+                            <p><strong>Rede Social:</strong> <a href="${userData.linkRedeSocial}" target="_blank">${userData.linkRedeSocial}</a></p>
+                            <p><strong>Experiência:</strong> ${userData.tempoExperiencia} ${userData.unidadeExperiencia}</p>
+                            <p><strong>Biografia:</strong> ${userData.biografia}</p>
+                        `;
+                        document.getElementById('profile-info').innerHTML += pintorInfoHtml;
+                    }
+                    
+                    // Preenche o formulário de edição
+                    populateEditForm(userData);
+                    togglePintorFields();
+                }
+            } else {
+                console.error("Tipo de usuário não encontrado.");
+            }
+        } else {
+            window.location.href = 'login.html';
+        }
+    });
+
+    logoutButton.addEventListener('click', async () => {
+        try {
+            await auth.signOut();
+            window.location.href = 'login.html';
+        } catch (error) {
+            console.error("Erro ao fazer logout:", error);
+        }
+    });
+}
