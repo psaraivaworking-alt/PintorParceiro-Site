@@ -1,19 +1,15 @@
-// Configuração do Firebase
-// SUBSTITUA PELAS SUAS PRÓPRIAS CONFIGURAÇÕES DO FIREBASE
-
 // script.js - CÓDIGO UNIFICADO PARA TODAS AS PÁGINAS
 
 // ----------------------------------------------------
-// 1. CONFIGURAÇÃO DO FIREBASE (ÚNICO PONTO DE CONFIGURAÇÃO)
+// 1. CONFIGURAÇÃO DO FIREBASE
 // ----------------------------------------------------
-
 const firebaseConfig = {
-  apiKey: "AIzaSyCmuGFCKnZ-qBVUpDxs6moJis19lx8nvXw",
-  authDomain: "pintordata.firebaseapp.com",
-  projectId: "pintordata",
-  storageBucket: "pintordata.firebasestorage.app",
-  messagingSenderId: "994883381349",
-  appId: "1:994883381349:web:b802e44d49d6f6f163fe8c"
+    apiKey: "AIzaSyCmuGFCKnZ-qBVUpDxs6moJis19lx8nvXw",
+    authDomain: "pintordata.firebaseapp.com",
+    projectId: "pintordata",
+    storageBucket: "pintordata.firebasestorage.app",
+    messagingSenderId: "994883381349",
+    appId: "1:994883381349:web:b802e44d49d6f6f163fe8c"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -37,6 +33,30 @@ function hideError(element) {
     }
 }
 
+async function buscarCep(cep, cidadeInput, estadoInput) {
+    const cepLimpo = cep.replace(/\D/g, '');
+    if (cepLimpo.length !== 8) {
+        cidadeInput.value = '';
+        estadoInput.value = '';
+        return;
+    }
+    
+    try {
+        const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+        const data = await response.json();
+        
+        if (!data.erro) {
+            cidadeInput.value = data.localidade;
+            estadoInput.value = data.uf;
+        } else {
+            cidadeInput.value = '';
+            estadoInput.value = '';
+        }
+    } catch (error) {
+        console.error('Erro ao buscar CEP:', error);
+    }
+}
+
 // ----------------------------------------------------
 // 3. LÓGICA DE CADASTRO (EXECUTADA APENAS EM cadastro.html)
 // ----------------------------------------------------
@@ -51,7 +71,6 @@ if (formPintor && formCliente) {
     const errorMessagePintor = document.getElementById('error-message-pintor');
     const errorMessageCliente = document.getElementById('error-message-cliente');
 
-    // Referências aos inputs e checkboxes
     const inputCpfPintor = document.getElementById('cpf-pintor');
     const inputTelefonePintor = document.getElementById('telefone-pintor');
     const inputCepPintor = document.getElementById('cep-pintor');
@@ -87,37 +106,15 @@ if (formPintor && formCliente) {
         }
     }
 
-    async function buscarCep(cep, cidadeInput, estadoInput) {
-        const cepLimpo = cep.replace(/\D/g, '');
-        if (cepLimpo.length !== 8) {
-            cidadeInput.value = '';
-            estadoInput.value = '';
-            return;
-        }
-        
-        try {
-            const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-            const data = await response.json();
-            
-            if (!data.erro) {
-                cidadeInput.value = data.localidade;
-                estadoInput.value = data.uf;
-            } else {
-                cidadeInput.value = '';
-                estadoInput.value = '';
-            }
-        } catch (error) {
-            console.error('Erro ao buscar CEP:', error);
-        }
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-        new IMask(inputCpfPintor, { mask: '000.000.000-00' });
-        new IMask(inputTelefonePintor, { mask: '(00) 00000-0000' });
-        new IMask(inputCepPintor, { mask: '00000-000' });
-        new IMask(inputCpfCliente, { mask: '000.000.000-00' });
-        new IMask(inputTelefoneCliente, { mask: '(00) 00000-0000' });
-        new IMask(inputCepCliente, { mask: '00000-000' });
+        if (typeof IMask !== 'undefined') {
+            new IMask(inputCpfPintor, { mask: '000.000.000-00' });
+            new IMask(inputTelefonePintor, { mask: '(00) 00000-0000' });
+            new IMask(inputCepPintor, { mask: '00000-000' });
+            new IMask(inputCpfCliente, { mask: '000.000.000-00' });
+            new IMask(inputTelefoneCliente, { mask: '(00) 00000-0000' });
+            new IMask(inputCepCliente, { mask: '00000-000' });
+        }
     });
 
     btnPintor.addEventListener('click', () => alternarFormulario('pintor'));
@@ -188,10 +185,10 @@ if (formPintor && formCliente) {
             cidade: inputCidadePintor.value,
             estado: inputEstadoPintor.value,
             rua: document.getElementById('rua-pintor').value,
-            numero: inputNumeroPintor.disabled ? 'N/A' : inputNumeroPintor.value,
+            numero: checkboxSemNumeroPintor.checked ? 'N/A' : inputNumeroPintor.value,
             semNumero: checkboxSemNumeroPintor.checked,
             linkRedeSocial: document.getElementById('rede-social-pintor').value,
-            tempoExperiencia: parseInt(document.getElementById('experiencia-pintor').value),
+            tempoExperiencia: parseInt(document.getElementById('experiencia-pintor').value) || 0,
             unidadeExperiencia: document.getElementById('unidade-experiencia-pintor').value,
             biografia: biografiaPintor.value,
             tipoUsuario: 'pintor',
@@ -251,7 +248,7 @@ if (formPintor && formCliente) {
             cidade: inputCidadeCliente.value,
             estado: inputEstadoCliente.value,
             rua: document.getElementById('rua-cliente').value,
-            numero: inputNumeroCliente.disabled ? 'N/A' : inputNumeroCliente.value,
+            numero: checkboxSemNumeroCliente.checked ? 'N/A' : inputNumeroCliente.value,
             semNumero: checkboxSemNumeroCliente.checked,
             tipoUsuario: 'cliente',
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -356,173 +353,29 @@ if (loginForm) {
         }
     });
 }
-// script.js (ADICIONE ESTE CÓDIGO NO FINAL DO SEU ARQUIVO)
 
 // ----------------------------------------------------
-// 6. LÓGICA DE EDIÇÃO DE PERFIL
+// 5. LÓGICA DO PERFIL (EXECUTADA APENAS EM perfil.html)
 // ----------------------------------------------------
+const profileContainer = document.querySelector('.profile-container');
 
-// Referências aos elementos do DOM da edição
-const profileView = document.getElementById('profile-view');
-const editFormContainer = document.getElementById('edit-form-container');
-const editProfileButton = document.getElementById('edit-profile-button');
-const cancelEditButton = document.getElementById('cancel-edit-button');
-const editProfileForm = document.getElementById('edit-profile-form');
-const editPintorFields = document.getElementById('edit-pintor-fields');
-const editTipoUsuario = document.getElementById('edit-tipo-usuario');
-const editBio = document.getElementById('edit-biografia');
-const editBioCounter = document.getElementById('edit-contador-biografia');
-const editErrorMessage = document.getElementById('error-message-edit');
-const editCepInput = document.getElementById('edit-cep');
-const editCidadeInput = document.getElementById('edit-cidade');
-const editEstadoInput = document.getElementById('edit-estado');
-const editNumeroInput = document.getElementById('edit-numero');
-const editSemNumeroCheckbox = document.getElementById('edit-sem-numero');
-
-// Variável para guardar o tipo de usuário original
-let currentUserType = '';
-let currentUserId = '';
-
-// Função para popular o formulário de edição
-function populateEditForm(userData) {
-    document.getElementById('edit-nome-completo').value = userData.nomeCompleto;
-    document.getElementById('edit-email').value = userData.email;
-    document.getElementById('edit-cpf').value = userData.cpf;
-    document.getElementById('edit-telefone').value = userData.telefone;
-    document.getElementById('edit-cep').value = userData.cep;
-    document.getElementById('edit-cidade').value = userData.cidade;
-    document.getElementById('edit-estado').value = userData.estado;
-    document.getElementById('edit-rua').value = userData.rua;
-    document.getElementById('edit-numero').value = userData.numero === 'N/A' ? '' : userData.numero;
-    document.getElementById('edit-sem-numero').checked = userData.semNumero;
-    
-    if (userData.tipoUsuario === 'pintor') {
-        document.getElementById('edit-rede-social').value = userData.linkRedeSocial || '';
-        document.getElementById('edit-experiencia').value = userData.tempoExperiencia || '';
-        document.getElementById('edit-unidade-experiencia').value = userData.unidadeExperiencia || 'anos';
-        document.getElementById('edit-biografia').value = userData.biografia || '';
-        editBioCounter.textContent = `${(userData.biografia || '').length}/200`;
-    }
-
-    editTipoUsuario.value = userData.tipoUsuario;
-}
-
-// Alterna a visibilidade do formulário de pintor
-function togglePintorFields() {
-    if (editTipoUsuario.value === 'pintor') {
-        editPintorFields.classList.remove('hidden');
-    } else {
-        editPintorFields.classList.add('hidden');
-    }
-}
-
-// Lógica de mascaras de input
-if (editCepInput) {
-    new IMask(editCepInput, { mask: '00000-000' });
-    editCepInput.addEventListener('blur', async (e) => {
-        const cepLimpo = e.target.value.replace(/\D/g, '');
-        if (cepLimpo.length === 8) {
-            try {
-                const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-                const data = await response.json();
-                if (!data.erro) {
-                    editCidadeInput.value = data.localidade;
-                    editEstadoInput.value = data.uf;
-                }
-            } catch (error) {
-                console.error('Erro ao buscar CEP:', error);
-            }
-        }
-    });
-}
-
-// Mostra/esconde o formulário de edição
-if (editProfileButton && cancelEditButton) {
-    editProfileButton.addEventListener('click', () => {
-        profileView.classList.add('hidden');
-        editFormContainer.classList.remove('hidden');
-    });
-
-    cancelEditButton.addEventListener('click', () => {
-        editFormContainer.classList.add('hidden');
-        profileView.classList.remove('hidden');
-    });
-}
-
-// Atualiza o contador de caracteres
-if (editBio) {
-    editBio.addEventListener('input', (e) => {
-        editBioCounter.textContent = `${e.target.value.length}/200`;
-    });
-}
-
-// Altera os campos visíveis ao mudar o tipo de usuário no formulário
-if (editTipoUsuario) {
-    editTipoUsuario.addEventListener('change', togglePintorFields);
-}
-
-// Lógica de submissão do formulário de edição
-if (editProfileForm) {
-    editProfileForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        hideError(editErrorMessage);
-
-        const newType = editTipoUsuario.value;
-        const dadosComuns = {
-            nomeCompleto: document.getElementById('edit-nome-completo').value,
-            email: document.getElementById('edit-email').value,
-            cpf: document.getElementById('edit-cpf').value,
-            telefone: document.getElementById('edit-telefone').value.replace(/\D/g, ''),
-            cep: document.getElementById('edit-cep').value.replace(/\D/g, ''),
-            cidade: document.getElementById('edit-cidade').value,
-            estado: document.getElementById('edit-estado').value,
-            rua: document.getElementById('edit-rua').value,
-            numero: editSemNumeroCheckbox.checked ? 'N/A' : editNumeroInput.value,
-            semNumero: editSemNumeroCheckbox.checked,
-            tipoUsuario: newType
-        };
-
-        const dadosPintor = {
-            linkRedeSocial: document.getElementById('edit-rede-social').value,
-            tempoExperiencia: parseInt(document.getElementById('edit-experiencia').value) || 0,
-            unidadeExperiencia: document.getElementById('edit-unidade-experiencia').value,
-            biografia: document.getElementById('edit-biografia').value
-        };
-
-        const dadosCompletos = { ...dadosComuns };
-        if (newType === 'pintor') {
-            Object.assign(dadosCompletos, dadosPintor);
-        }
-
-        try {
-            // Se o tipo de usuário mudou
-            if (newType !== currentUserType) {
-                // 1. Apaga os dados da coleção antiga
-                await db.collection(currentUserType + 's').doc(currentUserId).delete();
-                
-                // 2. Adiciona os dados na nova coleção
-                await db.collection(newType + 's').doc(currentUserId).set(dadosCompletos);
-
-                // 3. Atualiza o tipo de usuário no registro de CPF
-                await db.collection('cpf_registry').doc(dadosComuns.cpf).update({
-                    userType: newType
-                });
-
-            } else { // Se o tipo de usuário não mudou, apenas atualiza
-                await db.collection(newType + 's').doc(currentUserId).update(dadosCompletos);
-            }
-            
-            alert('Perfil atualizado com sucesso!');
-            window.location.reload(); // Recarrega a página para ver as mudanças
-        } catch (error) {
-            showError("Erro ao salvar as alterações: " + error.message, editErrorMessage);
-            console.error("Erro ao salvar alterações:", error);
-        }
-    });
-}
-
-// Lógica de verificação de autenticação e preenchimento de perfil
 if (profileContainer) {
+    const profileView = document.getElementById('profile-view');
+    const editFormContainer = document.getElementById('edit-form-container');
+    const editProfileButton = document.getElementById('edit-profile-button');
+    const cancelEditButton = document.getElementById('cancel-edit-button');
+    const editProfileForm = document.getElementById('edit-profile-form');
+    const editPintorFields = document.getElementById('edit-pintor-fields');
+    const editTipoUsuario = document.getElementById('edit-tipo-usuario');
+    const editBio = document.getElementById('edit-biografia');
+    const editBioCounter = document.getElementById('edit-contador-biografia');
+    const editErrorMessage = document.getElementById('error-message-edit');
+    const editCepInput = document.getElementById('edit-cep');
+    const editCidadeInput = document.getElementById('edit-cidade');
+    const editEstadoInput = document.getElementById('edit-estado');
+    const editNumeroInput = document.getElementById('edit-numero');
+    const editSemNumeroCheckbox = document.getElementById('edit-sem-numero');
+    
     const userNameSpan = document.getElementById('user-name');
     const userEmailSpan = document.getElementById('user-email');
     const userTypeSpan = document.getElementById('user-type');
@@ -530,8 +383,156 @@ if (profileContainer) {
     const userPhoneSpan = document.getElementById('user-phone');
     const logoutButton = document.getElementById('logout-button');
 
+    let currentUserType = '';
+    let currentUserId = '';
+
+    function populateEditForm(userData) {
+        document.getElementById('edit-nome-completo').value = userData.nomeCompleto || '';
+        document.getElementById('edit-email').value = userData.email || '';
+        document.getElementById('edit-cpf').value = userData.cpf || '';
+        document.getElementById('edit-telefone').value = userData.telefone || '';
+        document.getElementById('edit-cep').value = userData.cep || '';
+        document.getElementById('edit-cidade').value = userData.cidade || '';
+        document.getElementById('edit-estado').value = userData.estado || '';
+        document.getElementById('edit-rua').value = userData.rua || '';
+        document.getElementById('edit-numero').value = userData.numero === 'N/A' ? '' : (userData.numero || '');
+        document.getElementById('edit-sem-numero').checked = userData.semNumero || false;
+        
+        if (userData.tipoUsuario === 'pintor') {
+            document.getElementById('edit-rede-social').value = userData.linkRedeSocial || '';
+            document.getElementById('edit-experiencia').value = userData.tempoExperiencia || '';
+            document.getElementById('edit-unidade-experiencia').value = userData.unidadeExperiencia || 'anos';
+            document.getElementById('edit-biografia').value = userData.biografia || '';
+            editBioCounter.textContent = `${(userData.biografia || '').length}/200`;
+        }
+
+        editTipoUsuario.value = userData.tipoUsuario || 'cliente';
+    }
+
+    function togglePintorFields() {
+        if (editTipoUsuario.value === 'pintor') {
+            editPintorFields.classList.remove('hidden');
+        } else {
+            editPintorFields.classList.add('hidden');
+        }
+    }
+
+    // Inicializa as máscaras apenas se os elementos existirem
+    if (typeof IMask !== 'undefined') {
+        if (editCepInput) {
+            new IMask(editCepInput, { mask: '00000-000' });
+            new IMask(document.getElementById('edit-telefone'), { mask: '(00) 00000-0000' });
+        }
+    }
+
+    if (editCepInput) {
+        editCepInput.addEventListener('blur', async (e) => {
+            const cepLimpo = e.target.value.replace(/\D/g, '');
+            if (cepLimpo.length === 8) {
+                try {
+                    const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+                    const data = await response.json();
+                    if (!data.erro) {
+                        editCidadeInput.value = data.localidade;
+                        editEstadoInput.value = data.uf;
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar CEP:', error);
+                }
+            }
+        });
+    }
+
+    if (editSemNumeroCheckbox) {
+        editSemNumeroCheckbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                editNumeroInput.value = '';
+                editNumeroInput.disabled = true;
+                editNumeroInput.placeholder = 'N/A';
+            } else {
+                editNumeroInput.disabled = false;
+                editNumeroInput.placeholder = 'Número';
+            }
+        });
+    }
+
+    if (editProfileButton && cancelEditButton) {
+        editProfileButton.addEventListener('click', () => {
+            profileView.classList.add('hidden');
+            editFormContainer.classList.remove('hidden');
+        });
+
+        cancelEditButton.addEventListener('click', () => {
+            editFormContainer.classList.add('hidden');
+            profileView.classList.remove('hidden');
+        });
+    }
+
+    if (editBio) {
+        editBio.addEventListener('input', (e) => {
+            editBioCounter.textContent = `${e.target.value.length}/200`;
+        });
+    }
+
+    if (editTipoUsuario) {
+        editTipoUsuario.addEventListener('change', togglePintorFields);
+    }
+
+    if (editProfileForm) {
+        editProfileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError(editErrorMessage);
+
+            const newType = editTipoUsuario.value;
+            const dadosComuns = {
+                nomeCompleto: document.getElementById('edit-nome-completo').value,
+                email: document.getElementById('edit-email').value,
+                cpf: document.getElementById('edit-cpf').value,
+                telefone: document.getElementById('edit-telefone').value.replace(/\D/g, ''),
+                cep: document.getElementById('edit-cep').value.replace(/\D/g, ''),
+                cidade: document.getElementById('edit-cidade').value,
+                estado: document.getElementById('edit-estado').value,
+                rua: document.getElementById('edit-rua').value,
+                numero: editSemNumeroCheckbox.checked ? 'N/A' : editNumeroInput.value,
+                semNumero: editSemNumeroCheckbox.checked,
+                tipoUsuario: newType
+            };
+
+            const dadosPintor = {
+                linkRedeSocial: document.getElementById('edit-rede-social').value,
+                tempoExperiencia: parseInt(document.getElementById('edit-experiencia').value) || 0,
+                unidadeExperiencia: document.getElementById('edit-unidade-experiencia').value,
+                biografia: document.getElementById('edit-biografia').value
+            };
+
+            const dadosCompletos = { ...dadosComuns };
+            if (newType === 'pintor') {
+                Object.assign(dadosCompletos, dadosPintor);
+            }
+
+            try {
+                if (newType !== currentUserType) {
+                    await db.collection(currentUserType + 's').doc(currentUserId).delete();
+                    await db.collection(newType + 's').doc(currentUserId).set(dadosCompletos);
+                    await db.collection('cpf_registry').doc(dadosComuns.cpf).update({
+                        userType: newType
+                    });
+                } else {
+                    await db.collection(newType + 's').doc(currentUserId).update(dadosCompletos);
+                }
+                
+                alert('Perfil atualizado com sucesso!');
+                window.location.reload();
+            } catch (error) {
+                showError("Erro ao salvar as alterações: " + error.message, editErrorMessage);
+                console.error("Erro ao salvar alterações:", error);
+            }
+        });
+    }
+
     auth.onAuthStateChanged(async (user) => {
         if (user) {
+            console.log("Usuário autenticado:", user.uid);
             currentUserId = user.uid;
             
             const cpfQuery = await db.collection('cpf_registry').where('userId', '==', user.uid).limit(1).get();
@@ -541,15 +542,14 @@ if (profileContainer) {
                 const userDoc = await db.collection(currentUserType + 's').doc(user.uid).get();
                 if (userDoc.exists) {
                     const userData = userDoc.data();
+                    console.log("Dados do usuário encontrados:", userData);
                     
-                    // Preenche a visualização do perfil
                     userNameSpan.textContent = userData.nomeCompleto;
                     userEmailSpan.textContent = userData.email;
                     userTypeSpan.textContent = userData.tipoUsuario;
                     userCpfSpan.textContent = userData.cpf;
                     userPhoneSpan.textContent = userData.telefone;
                     
-                    // Se for um pintor, mostra os campos adicionais
                     if (userData.tipoUsuario === 'pintor') {
                         const pintorInfoHtml = `
                             <p><strong>Rede Social:</strong> <a href="${userData.linkRedeSocial}" target="_blank">${userData.linkRedeSocial}</a></p>
@@ -559,24 +559,29 @@ if (profileContainer) {
                         document.getElementById('profile-info').innerHTML += pintorInfoHtml;
                     }
                     
-                    // Preenche o formulário de edição
                     populateEditForm(userData);
                     togglePintorFields();
+                    console.log("Perfil preenchido com sucesso.");
+                } else {
+                    console.log("Documento do usuário não encontrado na coleção:", currentUserType);
                 }
             } else {
-                console.error("Tipo de usuário não encontrado.");
+                console.log("Entrada de CPF não encontrada para o usuário.");
             }
         } else {
+            console.log("Nenhum usuário logado. Redirecionando...");
             window.location.href = 'login.html';
         }
     });
 
-    logoutButton.addEventListener('click', async () => {
-        try {
-            await auth.signOut();
-            window.location.href = 'login.html';
-        } catch (error) {
-            console.error("Erro ao fazer logout:", error);
-        }
-    });
+    if (logoutButton) {
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await auth.signOut();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error("Erro ao fazer logout:", error);
+            }
+        });
+    }
 }
