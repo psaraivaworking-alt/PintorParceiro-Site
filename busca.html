@@ -3,46 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Busca de Pintores - PintorData</title>
+    <title>Buscar Pintor - Pintor Parceiro Veloz</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/imask@6.0.7/dist/imask.js"></script>
+    <script src="https://unpkg.com/imask"></script>
 </head>
 <body>
-    <header class="header">
-        <div class="logo">PintorData</div>
-        <nav class="nav-principal">
-            <a href="index.html" class="btn-secundario">Início</a>
-            <a href="login.html" class="btn-principal">Entrar</a>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="index.html">Pintor Parceiro Veloz</a>
+            </div>
+            <ul class="nav-links">
+                <li class="active"><a href="busca.html">Buscar Pintor</a></li>
+                <li><a href="cadastro.html">Cadastro</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="perfil.html" id="nav-perfil" class="hidden">Meu Perfil</a></li>
+            </ul>
         </nav>
     </header>
 
-    <main class="container">
-        <section class="busca-container">
-            <h1>Encontre um Pintor Perto de Você</h1>
-            <form id="form-busca">
-                <div class="form-group">
-                    <label for="cep-busca">Digite seu CEP</label>
-                    <input type="text" id="cep-busca" name="cep" required>
+    <main class="form-container">
+        <h2>Encontre o Pintor na sua Região</h2>
+        <form id="form-busca">
+            <p class="error-message" id="error-message-busca"></p>
+            <input type="text" id="cep-busca" placeholder="Digite seu CEP para buscar na sua cidade" required>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="tipo-busca" value="cidade" checked> Buscar por Cidade
+                </label>
+                <label>
+                    <input type="radio" name="tipo-busca" value="cep"> Buscar por CEP
+                </label>
+            </div>
+            <button type="submit">Buscar Pintores</button>
+        </form>
+        
+        <div class="resultados-container">
+            <h3>Resultados da Busca</h3>
+            <p class="no-results" id="no-results" style="display: none;">Nenhum pintor encontrado nesta região. Tente uma nova busca.</p>
+            <div id="resultados-busca">
                 </div>
-                <div class="form-group tipo-busca">
-                    <input type="radio" id="busca-local" name="tipo-busca" value="cep" checked>
-                    <label for="busca-local">CEP Local</label>
-                    <input type="radio" id="busca-cidade" name="tipo-busca" value="cidade">
-                    <label for="busca-cidade">Toda a Cidade</label>
-                </div>
-                <button type="submit" class="btn-principal">Buscar</button>
-                <div class="error-message" id="error-message-busca"></div>
-            </form>
-
-            <section class="resultados-busca" id="resultados-busca">
-                <h2>Resultados da Busca</h2>
-                <div class="no-results" id="no-results" style="display: none;">
-                    Nenhum pintor encontrado para esta localidade.
-                </div>
-                </section>
-        </section>
+        </div>
     </main>
-    
-    <script type="module" src="script.js"></script>
+
+    <footer>
+        <p>&copy; 2024 Pintor Parceiro Veloz. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="script.js" type="module"></script>
 </body>
 </html>
