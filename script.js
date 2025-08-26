@@ -7,14 +7,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebas
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-// SUAS CREDENCIAIS AQUI
+// SUAS NOVAS CREDENCIAIS AQUI
 const firebaseConfig = {
-  apiKey: "AIzaSyCmuGFCKnZ-qBVUpDxs6moJis19lx8nvXw",
-  authDomain: "pintordata.firebaseapp.com",
-  projectId: "pintordata",
-  storageBucket: "pintordata.firebasestorage.app",
-  messagingSenderId: "994883381349",
-  appId: "1:994883381349:web:b802e44d49d6f6f163fe8c"
+  apiKey: "AIzaSyAp0l5SjZa04EXDOK8tijYYspv4HOm003U",
+  authDomain: "pintordata-b279b.firebaseapp.com",
+  projectId: "pintordata-b279b",
+  storageBucket: "pintordata-b279b.firebasestorage.app",
+  messagingSenderId: "637329209702",
+  appId: "1:637329209702:web:ff2dec46880b1ae79430a7"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -38,7 +38,6 @@ function hideError(element) {
     }
 }
 
-// Função para buscar dados de endereço a partir de um CEP
 async function buscarCep(cep, cidadeInput, estadoInput) {
     const cepLimpo = cep.replace(/\D/g, '');
     if (cepLimpo.length !== 8) {
@@ -52,8 +51,14 @@ async function buscarCep(cep, cidadeInput, estadoInput) {
         const data = await response.json();
         
         if (!data.erro) {
-            if (cidadeInput) cidadeInput.value = data.localidade;
-            if (estadoInput) estadoInput.value = data.uf;
+            if (cidadeInput) {
+                cidadeInput.value = data.localidade;
+                cidadeInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            if (estadoInput) {
+                estadoInput.value = data.uf;
+                estadoInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
             return { cidade: data.localidade, estado: data.uf };
         } else {
             if (cidadeInput) cidadeInput.value = '';
@@ -70,15 +75,11 @@ async function buscarCep(cep, cidadeInput, estadoInput) {
 // 3. LÓGICA DE CADASTRO (EXECUTADA APENAS EM cadastro.html)
 // ----------------------------------------------------
 const formPintor = document.getElementById('form-pintor');
-const formCliente = document.getElementById('form-cliente');
 
-if (formPintor && formCliente) {
-    const btnPintor = document.getElementById('btn-pintor');
-    const btnCliente = document.getElementById('btn-cliente');
+if (formPintor) {
     const contadorBio = document.getElementById('contador-biografia-pintor');
     const biografiaPintor = document.getElementById('biografia-pintor');
     const errorMessagePintor = document.getElementById('error-message-pintor');
-    const errorMessageCliente = document.getElementById('error-message-cliente');
 
     const inputCpfPintor = document.getElementById('cpf-pintor');
     const inputTelefonePintor = document.getElementById('telefone-pintor');
@@ -87,49 +88,16 @@ if (formPintor && formCliente) {
     const inputEstadoPintor = document.getElementById('estado-pintor');
     const inputNumeroPintor = document.getElementById('numero-pintor');
     const checkboxSemNumeroPintor = document.getElementById('sem-numero-pintor');
-
-    const inputCpfCliente = document.getElementById('cpf-cliente');
-    const inputTelefoneCliente = document.getElementById('telefone-cliente');
-    const inputCepCliente = document.getElementById('cep-cliente');
-    const inputCidadeCliente = document.getElementById('cidade-cliente');
-    const inputEstadoCliente = document.getElementById('estado-cliente');
-    const inputNumeroCliente = document.getElementById('numero-cliente');
-    const checkboxSemNumeroCliente = document.getElementById('sem-numero-cliente');
     
-    // Altera entre os formulários de pintor e cliente
-    function alternarFormulario(tipo) {
-        hideError(errorMessagePintor);
-        hideError(errorMessageCliente);
-        if (tipo === 'pintor') {
-            formPintor.classList.remove('hidden');
-            formCliente.classList.add('hidden');
-            btnPintor.classList.add('active');
-            btnCliente.classList.remove('active');
-        } else {
-            formCliente.classList.remove('hidden');
-            formPintor.classList.add('hidden');
-            btnCliente.classList.add('active');
-            btnPintor.classList.remove('active');
-        }
-    }
-
     // Aplica máscaras aos campos de entrada
     if (typeof IMask !== 'undefined') {
         new IMask(inputCpfPintor, { mask: '000.000.000-00' });
         new IMask(inputTelefonePintor, { mask: '(00) 00000-0000' });
         new IMask(inputCepPintor, { mask: '00000-000' });
-        new IMask(inputCpfCliente, { mask: '000.000.000-00' });
-        new IMask(inputTelefoneCliente, { mask: '(00) 00000-0000' });
-        new IMask(inputCepCliente, { mask: '00000-000' });
     }
     
-    // Adiciona eventos de clique para os botões de tipo de usuário
-    btnPintor.addEventListener('click', () => alternarFormulario('pintor'));
-    btnCliente.addEventListener('click', () => alternarFormulario('cliente'));
-
     // Adiciona evento para buscar o endereço pelo CEP
     inputCepPintor.addEventListener('blur', (e) => buscarCep(e.target.value, inputCidadePintor, inputEstadoPintor));
-    inputCepCliente.addEventListener('blur', (e) => buscarCep(e.target.value, inputCidadeCliente, inputEstadoCliente));
 
     // Lógica para o campo "sem número"
     checkboxSemNumeroPintor.addEventListener('change', (e) => {
@@ -140,17 +108,6 @@ if (formPintor && formCliente) {
         } else {
             inputNumeroPintor.disabled = false;
             inputNumeroPintor.placeholder = 'Número';
-        }
-    });
-
-    checkboxSemNumeroCliente.addEventListener('change', (e) => {
-        if (e.target.checked) {
-            inputNumeroCliente.value = '';
-            inputNumeroCliente.disabled = true;
-            inputNumeroCliente.placeholder = 'N/A';
-        } else {
-            inputNumeroCliente.disabled = false;
-            inputNumeroCliente.placeholder = 'Número';
         }
     });
 
@@ -184,7 +141,6 @@ if (formPintor && formCliente) {
             tempoExperiencia: parseInt(document.getElementById('experiencia-pintor').value) || 0,
             unidadeExperiencia: document.getElementById('unidade-experiencia-pintor').value,
             biografia: biografiaPintor.value,
-            tipoUsuario: 'pintor',
             createdAt: serverTimestamp()
         };
         
@@ -203,11 +159,6 @@ if (formPintor && formCliente) {
                 confirmarSenha: null
             });
 
-            await setDoc(doc(db, 'cpf_registry', userId), {
-                userId: userId,
-                userType: 'pintor'
-            });
-
             alert('Cadastro realizado com sucesso! Você será redirecionado para a página de login.');
             window.location.href = 'login.html';
         } catch (error) {
@@ -215,60 +166,6 @@ if (formPintor && formCliente) {
                 showError('Este e-mail já está em uso. Por favor, use outro.', errorMessagePintor);
             } else {
                 showError('Erro no cadastro: ' + error.message, errorMessagePintor);
-            }
-            console.error("Erro no cadastro:", error);
-        }
-    });
-
-    // Lógica de submissão do formulário do cliente
-    formCliente.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        hideError(errorMessageCliente);
-
-        const dados = {
-            nomeCompleto: document.getElementById('nome-cliente').value,
-            email: document.getElementById('email-cliente').value,
-            senha: document.getElementById('senha-cliente').value,
-            confirmarSenha: document.getElementById('confirmar-senha-cliente').value,
-            cpf: inputCpfCliente.value.replace(/\D/g, ''),
-            telefone: inputTelefoneCliente.value.replace(/\D/g, ''),
-            cep: inputCepCliente.value.replace(/\D/g, ''),
-            cidade: inputCidadeCliente.value,
-            estado: inputEstadoCliente.value,
-            rua: document.getElementById('rua-cliente').value,
-            numero: checkboxSemNumeroCliente.checked ? 'N/A' : inputNumeroCliente.value,
-            semNumero: checkboxSemNumeroCliente.checked,
-            tipoUsuario: 'cliente',
-            createdAt: serverTimestamp()
-        };
-        
-        if (dados.senha !== dados.confirmarSenha) {
-            showError('As senhas não coincidem!', errorMessageCliente);
-            return false;
-        }
-
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, dados.email, dados.senha);
-            const userId = userCredential.user.uid;
-
-            await setDoc(doc(db, 'clientes', userId), {
-                ...dados,
-                senha: null,
-                confirmarSenha: null
-            });
-
-            await setDoc(doc(db, 'cpf_registry', userId), {
-                userId: userId,
-                userType: 'cliente'
-            });
-
-            alert('Cadastro realizado com sucesso! Você será redirecionado para a página de login.');
-            window.location.href = 'login.html';
-        } catch (error) {
-            if (error.code === 'auth/email-already-in-use') {
-                showError('Este e-mail já está em uso. Por favor, use outro.', errorMessageCliente);
-            } else {
-                showError('Erro no cadastro: ' + error.message, errorMessageCliente);
             }
             console.error("Erro no cadastro:", error);
         }
@@ -284,9 +181,7 @@ if (loginForm) {
     const emailInput = document.getElementById('email-login');
     const senhaInput = document.getElementById('senha-login');
     const errorMessage = document.getElementById('error-message-login');
-    const forgotPasswordLink = document.getElementById('forgot-password-link');
 
-    // Lógica de submissão do formulário de login
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         hideError(errorMessage);
@@ -305,32 +200,6 @@ if (loginForm) {
             }
             showError(message, errorMessage);
             console.error("Erro no login:", error);
-        }
-    });
-
-    // Lógica para redefinir a senha
-    forgotPasswordLink.addEventListener('click', async (e) => {
-        e.preventDefault();
-        hideError(errorMessage);
-
-        const email = emailInput.value;
-        if (!email) {
-            showError('Por favor, digite seu e-mail para redefinir a senha.', errorMessage);
-            return;
-        }
-
-        try {
-            await auth.sendPasswordResetEmail(email);
-            alert('Um link para redefinir sua senha foi enviado para o seu e-mail.');
-        } catch (error) {
-            let message = 'Erro ao enviar o e-mail de redefinição de senha.';
-            if (error.code === 'auth/user-not-found') {
-                message = 'Nenhum usuário encontrado com este e-mail.';
-            } else if (error.code === 'auth/invalid-email') {
-                message = 'Formato de e-mail inválido.';
-            }
-            showError(message, errorMessage);
-            console.error("Erro na redefinição de senha:", error);
         }
     });
 }
@@ -384,18 +253,7 @@ onAuthStateChanged(auth, async (user) => {
         if (isPerfilPage) {
             const loadProfileData = async (user) => {
                 try {
-                    const cpfDoc = await getDoc(doc(db, 'cpf_registry', user.uid));
-                    if (!cpfDoc.exists()) {
-                        console.error("ERRO: Tipo de usuário não encontrado. Redirecionando para login.");
-                        await signOut(auth);
-                        window.location.href = 'login.html';
-                        return;
-                    }
-
-                    const currentUserType = cpfDoc.data().userType;
-                    const collectionName = currentUserType === 'pintor' ? 'pintores' : 'clientes';
-                    const userDoc = await getDoc(doc(db, collectionName, user.uid));
-
+                    const userDoc = await getDoc(doc(db, 'pintores', user.uid));
                     if (userDoc.exists()) {
                         const userData = userDoc.data();
                         
@@ -404,6 +262,8 @@ onAuthStateChanged(auth, async (user) => {
                         document.getElementById('user-email').textContent = userData.email || 'Não informado';
                         document.getElementById('user-phone').textContent = userData.telefone || 'Não informado';
                         document.getElementById('user-address').textContent = `${userData.rua || 'Não informado'}, ${userData.numero || ''} - ${userData.cidade || ''}, ${userData.estado || ''}`;
+                        document.getElementById('user-bio').textContent = userData.biografia || 'Não informado';
+                        document.getElementById('user-experience').textContent = `${userData.tempoExperiencia || '0'} ${userData.unidadeExperiencia || 'anos'}`;
                         
                         // Preenche os campos de edição
                         document.getElementById('edit-name').value = userData.nomeCompleto || '';
@@ -414,29 +274,14 @@ onAuthStateChanged(auth, async (user) => {
                         document.getElementById('edit-estado').value = userData.estado || '';
                         document.getElementById('edit-rua').value = userData.rua || '';
                         document.getElementById('edit-numero').value = userData.numero || '';
-                        
-                        // Mostra/oculta campos específicos do pintor
-                        const pintorFieldsView = document.querySelectorAll('#pintor-fields-view');
-                        const pintorFieldsEdit = document.querySelectorAll('#pintor-fields-edit');
-
-                        if (currentUserType === 'pintor') {
-                            pintorFieldsView.forEach(el => el.style.display = 'block');
-                            pintorFieldsEdit.forEach(el => el.style.display = 'block');
-                            document.getElementById('user-bio').textContent = userData.biografia || 'Não informado';
-                            document.getElementById('user-experience').textContent = `${userData.tempoExperiencia || '0'} ${userData.unidadeExperiencia || 'anos'}`;
-                            document.getElementById('edit-social').value = userData.linkRedeSocial || '';
-                            document.getElementById('edit-bio').value = userData.biografia || '';
-                            document.getElementById('edit-experience').value = userData.tempoExperiencia || '';
-                            document.getElementById('edit-unidade-exp').value = userData.unidadeExperiencia || 'anos';
-                        } else {
-                            pintorFieldsView.forEach(el => el.style.display = 'none');
-                            pintorFieldsEdit.forEach(el => el.style.display = 'none');
-                        }
+                        document.getElementById('edit-social').value = userData.linkRedeSocial || '';
+                        document.getElementById('edit-bio').value = userData.biografia || '';
+                        document.getElementById('edit-experience').value = userData.tempoExperiencia || '';
+                        document.getElementById('edit-unidade-exp').value = userData.unidadeExperiencia || 'anos';
                     } else {
-                        console.error("ERRO: Documento do usuário não encontrado no Firestore.");
+                        console.error("ERRO: Documento do usuário não encontrado no Firestore. Redirecionando para login.");
                         await signOut(auth);
                         window.location.href = 'login.html';
-                        return;
                     }
                 } catch (error) {
                     console.error("Erro ao carregar os dados do perfil:", error);
@@ -475,10 +320,6 @@ if (profileContainer) {
             return;
         }
 
-        const cpfDoc = await getDoc(doc(db, 'cpf_registry', user.uid));
-        const currentUserType = cpfDoc.data().userType;
-        const collectionName = currentUserType === 'pintor' ? 'pintores' : 'clientes';
-
         let newDados = {
             telefone: document.getElementById('edit-phone').value,
             cep: document.getElementById('edit-cep').value,
@@ -486,17 +327,14 @@ if (profileContainer) {
             estado: document.getElementById('edit-estado').value,
             rua: document.getElementById('edit-rua').value,
             numero: document.getElementById('edit-numero').value,
+            linkRedeSocial: document.getElementById('edit-social').value,
+            biografia: document.getElementById('edit-bio').value,
+            tempoExperiencia: parseInt(document.getElementById('edit-experience').value) || 0,
+            unidadeExperiencia: document.getElementById('edit-unidade-exp').value,
         };
 
-        if (currentUserType === 'pintor') {
-            newDados.linkRedeSocial = document.getElementById('edit-social').value;
-            newDados.biografia = document.getElementById('edit-bio').value;
-            newDados.tempoExperiencia = parseInt(document.getElementById('edit-experience').value) || 0;
-            newDados.unidadeExperiencia = document.getElementById('edit-unidade-exp').value;
-        }
-
         try {
-            await updateDoc(doc(db, collectionName, user.uid), newDados);
+            await updateDoc(doc(db, 'pintores', user.uid), newDados);
             
             alert("Seu perfil foi atualizado com sucesso!");
             location.reload();
@@ -525,11 +363,7 @@ if (profileContainer) {
                 await reauthenticateWithCredential(auth.currentUser, credential);
                 
                 const user = auth.currentUser;
-                const cpfDoc = await getDoc(doc(db, 'cpf_registry', user.uid));
-                const currentUserType = cpfDoc.data().userType;
-                const collectionName = currentUserType === 'pintor' ? 'pintores' : 'clientes';
-                
-                await deleteDoc(doc(db, collectionName, user.uid));
+                await deleteDoc(doc(db, 'pintores', user.uid));
                 await user.delete();
 
                 alert("Seu perfil foi excluído com sucesso. Você será redirecionado para a página inicial.");
@@ -558,11 +392,10 @@ if (formBusca) {
         new IMask(cepBuscaInput, { mask: '00000-000' });
     }
 
-    // Lógica de submissão do formulário de busca
     formBusca.addEventListener('submit', async (e) => {
         e.preventDefault();
         hideError(errorMessageBusca);
-        resultadosBuscaDiv.innerHTML = ''; // Limpa os resultados anteriores
+        resultadosBuscaDiv.innerHTML = '';
         noResultsDiv.style.display = 'none';
 
         const cep = cepBuscaInput.value.replace(/\D/g, '');
@@ -571,11 +404,10 @@ if (formBusca) {
         let q;
         let buscaValor;
 
-        // Determina o tipo de busca (por CEP ou por cidade)
         if (tipoBusca === 'cep') {
             buscaValor = cep;
             q = query(collection(db, 'pintores'), where('cep', '==', buscaValor));
-        } else { // 'cidade'
+        } else {
             const resultadoCep = await buscarCep(cep);
             if (!resultadoCep) {
                 showError('CEP não encontrado ou inválido.', errorMessageBusca);
@@ -594,7 +426,6 @@ if (formBusca) {
                     const pintor = doc.data();
                     const pintorCard = document.createElement('div');
                     pintorCard.classList.add('pintor-card');
-                    // Cria o card de resultados com as informações do pintor
                     pintorCard.innerHTML = `
                         <h3>${pintor.nomeCompleto}</h3>
                         <p><strong>Telefone:</strong> ${pintor.telefone}</p>
