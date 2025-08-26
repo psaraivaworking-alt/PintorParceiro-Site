@@ -96,12 +96,52 @@ h2 {
     color: #aaa;
 }
 
-.error-message {
-    color: #d32f2f;
-    font-weight: bold;
-    text-align: center;
-    display: none;
+/* Novo estilo para o grupo de senhas */
+.password-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* Menor gap dentro do grupo */
 }
+
+.toggle-password-btn {
+    background-color: #607d8b; /* Cor mais suave para o botão */
+    color: white;
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    align-self: flex-start; /* Alinha o botão à esquerda */
+    transition: background-color 0.3s;
+    width: fit-content; /* Ajusta a largura ao conteúdo */
+}
+
+.toggle-password-btn:hover {
+    background-color: #455a64;
+}
+
+/* Estilo para a mensagem de erro/sucesso abaixo do formulário */
+.form-message {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-top: 1.5rem;
+    font-weight: bold;
+    display: none; /* Por padrão, escondido */
+}
+
+.form-message.success {
+    background-color: #e8f5e9; /* Verde claro */
+    color: #2e7d32; /* Verde escuro */
+    border: 1px solid #c8e6c9;
+}
+
+.form-message.error {
+    background-color: #ffebee; /* Vermelho claro */
+    color: #d32f2f; /* Vermelho escuro */
+    border: 1px solid #ffcdd2;
+}
+
 
 button[type="submit"] {
     background-color: #1a237e;
