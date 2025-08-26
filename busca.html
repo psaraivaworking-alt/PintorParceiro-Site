@@ -1,56 +1,48 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buscar Pintores - Conecta Pintores</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts - Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-    </style>
+    <title>Busca de Pintores - PintorData</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/imask@6.0.7/dist/imask.js"></script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Encontre o Pintor Ideal</h1>
+<body>
+    <header class="header">
+        <div class="logo">PintorData</div>
+        <nav class="nav-principal">
+            <a href="index.html" class="btn-secundario">Início</a>
+            <a href="login.html" class="btn-principal">Entrar</a>
+        </nav>
+    </header>
 
-        <!-- Mensagem de feedback (sucesso/erro) -->
-        <div id="message-box" class="hidden p-3 mb-4 rounded-md text-sm" role="alert"></div>
-
-        <form id="search-form" class="space-y-4 mb-8 p-6 border border-gray-200 rounded-lg bg-gray-50">
-            <div>
-                <label for="search-cep" class="block text-sm font-medium text-gray-700 mb-1">CEP</label>
-                <input type="text" id="search-cep" name="search-cep" required
-                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" maxlength="9" placeholder="00000-000">
-            </div>
-            <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 items-center">
-                <p class="text-sm font-medium text-gray-700">Tipo de Busca:</p>
-                <div class="flex items-center space-x-2">
-                    <input type="radio" id="search-local-cep" name="search-type" value="local-cep" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300" checked>
-                    <label for="search-local-cep" class="text-sm font-medium text-gray-700">CEP Local</label>
+    <main class="container">
+        <section class="busca-container">
+            <h1>Encontre um Pintor Perto de Você</h1>
+            <form id="form-busca">
+                <div class="form-group">
+                    <label for="cep-busca">Digite seu CEP</label>
+                    <input type="text" id="cep-busca" name="cep" required>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <input type="radio" id="search-city" name="search-type" value="city" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
-                    <label for="search-city" class="text-sm font-medium text-gray-700">Toda a Cidade</label>
+                <div class="form-group tipo-busca">
+                    <input type="radio" id="busca-local" name="tipo-busca" value="cep" checked>
+                    <label for="busca-local">CEP Local</label>
+                    <input type="radio" id="busca-cidade" name="tipo-busca" value="cidade">
+                    <label for="busca-cidade">Toda a Cidade</label>
                 </div>
-                <button type="submit" id="btn-search-painters"
-                        class="ml-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-md shadow-sm transition duration-300 ease-in-out">
-                    Buscar Pintores
-                </button>
-            </div>
-        </form>
+                <button type="submit" class="btn-principal">Buscar</button>
+                <div class="error-message" id="error-message-busca"></div>
+            </form>
 
-        <div id="search-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Resultados da busca serão inseridos aqui -->
-            <p id="no-results-message" class="col-span-full text-center text-gray-600 hidden">Nenhum pintor encontrado para a sua busca.</p>
-        </div>
-    </div>
-
-    <!-- Link para o arquivo JavaScript externo único -->
+            <section class="resultados-busca" id="resultados-busca">
+                <h2>Resultados da Busca</h2>
+                <div class="no-results" id="no-results" style="display: none;">
+                    Nenhum pintor encontrado para esta localidade.
+                </div>
+                </section>
+        </section>
+    </main>
+    
     <script type="module" src="script.js"></script>
 </body>
 </html>
