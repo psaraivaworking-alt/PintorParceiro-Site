@@ -1,318 +1,331 @@
-/* Estilos Gerais do Corpo da Página */
+/* GERAL */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
     margin: 0;
-    padding: 20px;
-}
-
-/* Container Principal do Formulário */
-.cadastro-container {
-    background-color: #fff;
-    padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 600px;
-    box-sizing: border-box;
-}
-
-/* Título Principal */
-.cadastro-container h1 {
-    text-align: center;
+    padding: 0;
     color: #333;
-    margin-bottom: 20px;
 }
 
-/* Botões de Alternância de Perfil */
-.alternar-perfil {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 30px;
-    border-radius: 5px;
-    overflow: hidden;
-    border: 1px solid #ddd;
+.container {
+    max-width: 960px;
+    margin: 20px auto;
+    padding: 0 20px;
 }
 
-.alternar-perfil button {
-    flex: 1;
-    padding: 12px 20px;
-    border: none;
-    background-color: #f0f0f0;
-    color: #555;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.alternar-perfil button.active {
-    background-color: #007bff;
+.header {
+    background-color: #004d40;
     color: #fff;
-    font-weight: bold;
-}
-
-/* Formulário e Seções */
-.cadastro-form {
+    padding: 1rem 2rem;
     display: flex;
-    flex-direction: column;
-}
-
-.cadastro-form.hidden {
-    display: none;
-}
-
-.form-section {
-    margin-bottom: 25px;
-}
-
-.form-section h2 {
-    font-size: 1.2em;
-    color: #555;
-    margin-bottom: 15px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #eee;
-}
-
-/* Estilos dos Campos de Input e Textarea */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-input[type="url"],
-textarea,
-select {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-    font-size: 16px;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
-}
-
-/* Campos em Linha (para experiência/unidade) */
-.inline-fields {
-    display: flex;
-    gap: 10px;
-}
-
-.inline-fields input {
-    flex: 2;
-}
-
-.inline-fields select {
-    flex: 1;
-}
-
-/* Contador de Caracteres */
-#contador-biografia-pintor {
-    display: block;
-    text-align: right;
-    font-size: 0.8em;
-    color: #888;
-    margin-top: -10px;
-    margin-bottom: 15px;
-}
-
-/* Checkbox "Sem Número" */
-.checkbox-container {
-    display: flex;
+    justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.checkbox-container input[type="checkbox"] {
-    width: auto;
-    margin-right: 10px;
-}
-
-.checkbox-container label {
-    font-size: 16px;
-    color: #555;
-}
-
-/* Botão de Submissão */
-button[type="submit"] {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 15px;
-    border-radius: 5px;
-    font-size: 18px;
+.logo {
+    font-size: 1.5rem;
     font-weight: bold;
-    cursor: pointer;
+}
+
+.nav-principal a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 1rem;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
     transition: background-color 0.3s;
 }
 
-button[type="submit"]:hover {
-    background-color: #0056b3;
-}
-
-/* Link para Login */
-.link-login {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 14px;
-}
-
-.link-login a {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.link-login a:hover {
-    text-decoration: underline;
-}
-
-/* Mensagem de Erro */
-.error-message {
-    color: #d9534f;
-    background-color: #f2dede;
-    border: 1px solid #ebccd1;
-    border-radius: 4px;
-    padding: 10px;
-    margin-bottom: 20px;
-    display: none; /* Inicia oculto */
-    text-align: center;
-}
-
-/* Estilo para o novo botão de mostrar/ocultar senha */
-.toggle-password-btn {
-    background: none;
-    border: 1px solid #ccc;
-    padding: 8px 12px;
-    margin-top: -10px;
-    margin-bottom: 15px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 14px;
-    color: #555;
-    align-self: flex-start;
-    transition: background-color 0.2s;
-}
-
-.toggle-password-btn:hover {
-    background-color: #f0f0f0;
-}
-
-/* Responsividade para Telas Menores */
-@media (max-width: 768px) {
-    .cadastro-container {
-        padding: 20px;
-    }
-}
-
-/* Adicione este código ao final do seu arquivo style.css */
-
-.login-container {
+/* BOTÕES E LINKS */
+.btn-principal {
     background-color: #fff;
-    padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    box-sizing: border-box;
-    text-align: center;
-}
-
-.login-form {
-    display: flex;
-    flex-direction: column;
-}
-
-.forgot-password {
-    display: block;
-    text-align: right;
-    margin-bottom: 20px;
-    font-size: 14px;
-    color: #007bff;
+    color: #004d40;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
     text-decoration: none;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-.forgot-password:hover {
-    text-decoration: underline;
+.btn-principal:hover {
+    background-color: #e0e0e0;
 }
 
-.link-cadastro {
+.btn-secundario {
+    background-color: transparent;
+    color: #fff;
+    border: 2px solid #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.65rem 1.4rem;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-secundario:hover {
+    background-color: #fff;
+    color: #004d40;
+}
+
+.btn-aviso {
+    background-color: #d32f2f;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.btn-aviso:hover {
+    background-color: #c62828;
+}
+
+/* PÁGINA INICIAL (index.html) */
+.hero {
     text-align: center;
-    margin-top: 20px;
-    font-size: 14px;
+    padding: 4rem 0;
 }
 
-.link-cadastro a {
-    color: #007bff;
+.hero h1 {
+    font-size: 2.5rem;
+    color: #004d40;
+    margin-bottom: 1rem;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 2rem;
+}
+
+.hero-botoes {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+/* PÁGINAS DE FORMULÁRIO (cadastro.html, login.html) */
+.form-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+.form-card {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+}
+
+.form-card h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #004d40;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #555;
+}
+
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-field-50 {
+    flex: 1;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.checkbox-container label {
+    margin: 0;
+}
+
+.tipo-cadastro {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 1.5rem;
+}
+
+.tipo-cadastro .btn-principal {
+    background-color: #e0e0e0;
+    color: #555;
+    width: 48%;
+}
+
+.tipo-cadastro .btn-principal.active {
+    background-color: #004d40;
+    color: #fff;
+}
+
+.form-card button {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.form-link {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.form-link a {
+    color: #004d40;
     text-decoration: none;
     font-weight: bold;
 }
-
-.link-cadastro a:hover {
-    text-decoration: underline;
-}
-
-/* Adicione este código ao seu arquivo style.css */
 
 .hidden {
     display: none;
 }
 
-.edit-form {
-    text-align: left;
-}
-
-.edit-form input,
-.edit-form textarea,
-.edit-form select {
-    width: 100%;
-    box-sizing: border-box;
-    margin-bottom: 15px;
-}
-
-#edit-profile-button {
-    background-color: #28a745;
-    color: white;
-    padding: 12px 20px;
-    border: none;
+.error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 0.75rem;
     border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-right: 10px;
+    margin-top: 1rem;
+    display: none;
 }
 
-#edit-profile-button:hover {
-    background-color: #218838;
+/* PÁGINA DE PERFIL (perfil.html) */
+.profile-container {
+    padding: 2rem;
 }
 
-#cancel-edit-button {
-    background-color: #6c757d;
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
+.profile-card {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
 }
 
-#cancel-edit-button:hover {
-    background-color: #5a6268;
+.profile-card h1 {
+    color: #004d40;
+    margin-top: 0;
 }
 
-.contador-bio {
-    font-size: 12px;
+.profile-info-group {
+    margin-bottom: 1rem;
+}
+
+.profile-info-group label {
+    font-weight: bold;
+    display: block;
+    color: #555;
+}
+
+.profile-info-group span {
+    display: block;
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.form-actions button {
+    width: auto;
+}
+
+/* PÁGINA DE BUSCA (busca.html) */
+.busca-container {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#form-busca {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.tipo-busca {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.tipo-busca label {
+    font-weight: 400;
+}
+
+.resultados-busca h2 {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.pintor-card {
+    background-color: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-bottom: 1rem;
+    transition: transform 0.2s;
+}
+
+.pintor-card:hover {
+    transform: translateY(-5px);
+}
+
+.pintor-card h3 {
+    color: #004d40;
+    margin-top: 0;
+    font-size: 1.2rem;
+}
+
+.pintor-card p {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.no-results {
+    text-align: center;
     color: #888;
-    text-align: right;
-    margin-top: -10px;
-    margin-bottom: 15px;
+    padding: 2rem;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
 }
