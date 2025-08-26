@@ -5,7 +5,7 @@
 // ----------------------------------------------------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-functions.js";
 
 // SUAS CREDENCIAIS AQUI
@@ -198,6 +198,7 @@ if (formPintor && formCliente) {
             unidadeExperiencia: document.getElementById('unidade-experiencia-pintor').value,
             biografia: biografiaPintor.value,
             tipoUsuario: 'pintor',
+            createdAt: serverTimestamp()
         };
         
         if (dados.senha !== dados.confirmarSenha) {
@@ -250,6 +251,7 @@ if (formPintor && formCliente) {
             numero: checkboxSemNumeroCliente.checked ? 'N/A' : inputNumeroCliente.value,
             semNumero: checkboxSemNumeroCliente.checked,
             tipoUsuario: 'cliente',
+            createdAt: serverTimestamp()
         };
         
         if (dados.senha !== dados.confirmarSenha) {
