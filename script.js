@@ -3,10 +3,10 @@
 // ----------------------------------------------------
 // 1. CONFIGURAÇÃO DO FIREBASE
 // ----------------------------------------------------
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-functions.js";
 
 // SUAS CREDENCIAIS AQUI
 const firebaseConfig = {
@@ -198,7 +198,6 @@ if (formPintor && formCliente) {
             unidadeExperiencia: document.getElementById('unidade-experiencia-pintor').value,
             biografia: biografiaPintor.value,
             tipoUsuario: 'pintor',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         
         if (dados.senha !== dados.confirmarSenha) {
@@ -207,12 +206,6 @@ if (formPintor && formCliente) {
         }
 
         try {
-            const cpfDoc = await db.collection('cpf_registry').doc(dados.cpf).get();
-            if (cpfDoc.exists) {
-                showError('Este CPF já está cadastrado na plataforma.', errorMessagePintor);
-                return;
-            }
-
             const userCredential = await createUserWithEmailAndPassword(auth, dados.email, dados.senha);
             const userId = userCredential.user.uid;
 
@@ -257,7 +250,6 @@ if (formPintor && formCliente) {
             numero: checkboxSemNumeroCliente.checked ? 'N/A' : inputNumeroCliente.value,
             semNumero: checkboxSemNumeroCliente.checked,
             tipoUsuario: 'cliente',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         
         if (dados.senha !== dados.confirmarSenha) {
@@ -266,12 +258,6 @@ if (formPintor && formCliente) {
         }
 
         try {
-            const cpfDoc = await getDoc(doc(db, 'cpf_registry', dados.cpf));
-            if (cpfDoc.exists()) {
-                showError('Este CPF já está cadastrado na plataforma.', errorMessageCliente);
-                return;
-            }
-
             const userCredential = await createUserWithEmailAndPassword(auth, dados.email, dados.senha);
             const userId = userCredential.user.uid;
 
@@ -383,30 +369,24 @@ if (profileContainer) {
             const cpfDoc = await getDoc(doc(db, 'cpf_registry', user.uid));
             if (!cpfDoc.exists()) {
                 console.error("ERRO: Tipo de usuário não encontrado para o UID:", user.uid);
-                // Se não encontrar, redireciona para o login ou cadastro
                 window.location.href = 'login.html';
                 return;
             }
             currentUserType = cpfDoc.data().userType;
 
-            // Define o nome da coleção com base no tipo de usuário
             const collectionName = currentUserType === 'pintor' ? 'pintores' : 'clientes';
 
-            // Busca os dados do perfil na coleção correta
             const userDoc = await getDoc(doc(db, collectionName, user.uid));
             if (userDoc.exists()) {
                 const userData = userDoc.data();
 
-                // Preenche os campos de visualização
                 document.getElementById('user-name').textContent = userData.nomeCompleto || 'Não informado';
                 document.getElementById('user-email').textContent = userData.email || 'Não informado';
                 document.getElementById('user-phone').textContent = userData.telefone || 'Não informado';
 
-                // Preenche os campos de edição
                 document.getElementById('edit-name').value = userData.nomeCompleto || '';
                 document.getElementById('edit-phone').value = userData.telefone || '';
                 
-                // Campos específicos para pintores
                 const pintorFieldsView = document.getElementById('pintor-fields-view');
                 const pintorFieldsEdit = document.getElementById('pintor-fields-edit');
                 if (currentUserType === 'pintor') {
@@ -432,47 +412,34 @@ if (profileContainer) {
         }
     };
 
-    // Observador de estado de autenticação
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUserId = user.uid;
             console.log("Usuário autenticado:", currentUserId);
-            // Redireciona para o perfil, mas apenas se a página atual não for 'perfil.html'
-            if (window.location.pathname.split('/').pop() !== 'perfil.html') {
-                 // Essa lógica é importante se você tem um script único para todas as páginas
-                 // window.location.href = 'perfil.html';
-            } else {
-                 loadProfileData(user);
-            }
+            loadProfileData(user);
         } else {
-            // Se o usuário não estiver logado, redireciona para a página de login
             console.log("Nenhum usuário logado. Redirecionando para login.html");
             window.location.href = 'login.html';
         }
     });
 
-    // Botão para entrar no modo de edição
     editProfileButton.addEventListener('click', () => {
         profileView.classList.add('hidden');
         profileEdit.classList.remove('hidden');
     });
 
-    // Botão para cancelar a edição
     cancelEditButton.addEventListener('click', () => {
         profileEdit.classList.add('hidden');
         profileView.classList.remove('hidden');
-        // Opcional: recarregar os dados originais se a edição for cancelada
-        // loadProfileData(auth.currentUser);
+        loadProfileData(auth.currentUser);
     });
 
-    // Envio do formulário de edição
     editForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const newDados = {
             nomeCompleto: document.getElementById('edit-name').value,
             telefone: document.getElementById('edit-phone').value,
-            // Campos de pintor, se aplicável
             biografia: document.getElementById('edit-bio').value,
             tempoExperiencia: parseInt(document.getElementById('edit-experience').value) || 0,
             unidadeExperiencia: document.getElementById('edit-unidade-exp').value,
@@ -486,7 +453,6 @@ if (profileContainer) {
             console.log("Perfil atualizado com sucesso!");
             alert("Seu perfil foi atualizado com sucesso!");
             
-            // Retorna para o modo de visualização e recarrega os dados
             profileEdit.classList.add('hidden');
             profileView.classList.remove('hidden');
             loadProfileData(auth.currentUser);
@@ -497,7 +463,6 @@ if (profileContainer) {
         }
     });
 
-    // Botão para fazer logout
     logoutButton.addEventListener('click', async () => {
         try {
             await signOut(auth);
@@ -508,24 +473,15 @@ if (profileContainer) {
         }
     });
 
-    // Botão para excluir o perfil
     deleteProfileButton.addEventListener('click', async () => {
         if (confirm("ATENÇÃO: Você tem certeza que deseja excluir seu perfil? Esta ação é irreversível.")) {
             try {
-                // Para excluir a conta, o usuário precisa ser reautenticado
-                // Isso geralmente requer um popup de login ou um campo de senha
                 const credential = EmailAuthProvider.credential(auth.currentUser.email, prompt("Por favor, insira sua senha para confirmar:"));
                 await reauthenticateWithCredential(auth.currentUser, credential);
                 
-                // Exclui o documento no Firestore
                 const collectionName = currentUserType === 'pintor' ? 'pintores' : 'clientes';
                 await deleteDoc(doc(db, collectionName, currentUserId));
 
-                // Exclui o registro de CPF
-                // (Você precisaria buscar o CPF do usuário primeiro para usar doc(db, 'cpf_registry', userCpf))
-                // Por simplicidade, vamos pular a exclusão do registro de CPF neste exemplo, mas é uma boa prática
-                
-                // Exclui a conta do usuário no Firebase Auth
                 await auth.currentUser.delete();
 
                 alert("Seu perfil foi excluído com sucesso. Você será redirecionado para a página inicial.");
