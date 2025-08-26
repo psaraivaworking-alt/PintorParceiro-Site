@@ -4,17 +4,17 @@
 // 1. CONFIGURAÇÃO DO FIREBASE E IMPORTAÇÕES
 // ----------------------------------------------------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, reauthenticateWithCredential, EmailAuthProvider, updatePassword } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
 // SUAS CREDENCIAIS AQUI
 const firebaseConfig = {
-  apiKey: "AIzaSyBDNb5W_CxnPvyR6J7KSG0j6mTLgdTwZBs",
-  authDomain: "dadospintorparceiroveloz.firebaseapp.com",
-  projectId: "dadospintorparceiroveloz",
-  storageBucket: "dadospintorparceiroveloz.firebasestorage.app",
-  messagingSenderId: "688575061008",
-  appId: "1:688575061008:web:29fc2dbe6f5cab66893e95"
+    apiKey: "AIzaSyBDNb5W_CxnPvyR6J7KSG0j6mTLgdTwZBs",
+    authDomain: "dadospintorparceiroveloz.firebaseapp.com",
+    projectId: "dadospintorparceiroveloz",
+    storageBucket: "dadospintorparceiroveloz.firebasestorage.app",
+    messagingSenderId: "688575061008",
+    appId: "1:688575061008:web:29fc2dbe6f5cab66893e95"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -320,7 +320,6 @@ if (loginForm) {
         }
 
         try {
-            // Essa função envia um e-mail de redefinição para o endereço fornecido
             await auth.sendPasswordResetEmail(email);
             alert('Um link para redefinir sua senha foi enviado para o seu e-mail.');
         } catch (error) {
@@ -365,7 +364,15 @@ onAuthStateChanged(auth, async (user) => {
     const isLoginPage = window.location.pathname.endsWith('login.html');
     const isCadastroPage = window.location.pathname.endsWith('cadastro.html');
     const isPerfilPage = window.location.pathname.endsWith('perfil.html');
+    const navPerfil = document.getElementById('nav-perfil');
     
+    // Atualiza o link do menu de navegação
+    if (user) {
+        navPerfil.classList.remove('hidden');
+    } else {
+        navPerfil.classList.add('hidden');
+    }
+
     // Redireciona usuários logados das páginas de login/cadastro
     if (user) {
         if (isLoginPage || isCadastroPage) {
@@ -381,6 +388,7 @@ onAuthStateChanged(auth, async (user) => {
                     if (!cpfDoc.exists()) {
                         console.error("ERRO: Tipo de usuário não encontrado. Redirecionando para login.");
                         await signOut(auth);
+                        window.location.href = 'login.html';
                         return;
                     }
 
@@ -427,6 +435,7 @@ onAuthStateChanged(auth, async (user) => {
                     } else {
                         console.error("ERRO: Documento do usuário não encontrado no Firestore.");
                         await signOut(auth);
+                        window.location.href = 'login.html';
                         return;
                     }
                 } catch (error) {
