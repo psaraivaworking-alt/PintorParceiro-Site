@@ -19,7 +19,6 @@ const db = firebase.firestore();
 const navPerfil = document.getElementById('nav-perfil');
 
 // --- Função para exibir mensagens no formulário ---
-// (Esta função é genérica e pode ser usada em qualquer formulário)
 function displayFormMessage(formMessageElement, message, type) {
     formMessageElement.textContent = message;
     formMessageElement.className = 'form-message ' + type;
@@ -27,7 +26,6 @@ function displayFormMessage(formMessageElement, message, type) {
 }
 
 // --- Lógica de verificação do login na navegação ---
-// (Executa em todas as páginas para mostrar/esconder o botão "Meu Perfil")
 auth.onAuthStateChanged(user => {
     if (user) {
         navPerfil.classList.remove('hidden');
@@ -40,7 +38,7 @@ auth.onAuthStateChanged(user => {
 // Lógica Específica da Página de CADASTRO
 // ===============================================
 if (document.getElementById('form-pintor')) {
-    // Código de cadastro que já temos...
+    // ... (todo o código do formulário de cadastro, sem alterações) ...
     const formPintor = document.getElementById('form-pintor');
     const inputCep = document.getElementById('cep-pintor');
     const inputCidade = document.getElementById('cidade-pintor');
@@ -166,16 +164,18 @@ if (document.getElementById('form-pintor')) {
 // Lógica Específica da Página de LOGIN
 // ===============================================
 if (document.getElementById('form-login')) {
-    // Código de login que já temos...
     const formLogin = document.getElementById('form-login');
     const inputEmailLogin = document.getElementById('email-login');
     const inputSenhaLogin = document.getElementById('senha-login');
     const formMessageLogin = document.getElementById('form-message-login');
+    
+    // Novo: Seleciona o link de "Esqueci minha senha"
+    const forgotPasswordLink = document.getElementById('forgot-password-link');
 
+    // Lógica de envio do formulário de login
     formLogin.addEventListener('submit', async (e) => {
         e.preventDefault();
         displayFormMessage(formMessageLogin, '', '');
-
         const email = inputEmailLogin.value;
         const senha = inputSenhaLogin.value;
 
@@ -195,13 +195,36 @@ if (document.getElementById('form-login')) {
             displayFormMessage(formMessageLogin, mensagemDeErro, 'error');
         }
     });
+
+    // Novo: Lógica de recuperação de senha
+    forgotPasswordLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const email = inputEmailLogin.value;
+        if (!email) {
+            displayFormMessage(formMessageLogin, 'Por favor, digite seu e-mail acima para redefinir a senha.', 'error');
+            return;
+        }
+
+        try {
+            await auth.sendPasswordResetEmail(email);
+            displayFormMessage(formMessageLogin, 'Um link para redefinir sua senha foi enviado para o seu e-mail. Por favor, verifique sua caixa de entrada e a de spam.', 'success');
+        } catch (error) {
+            let mensagemDeErro = 'Erro ao enviar o e-mail de redefinição.';
+            if (error.code === 'auth/invalid-email') {
+                mensagemDeErro = 'O e-mail fornecido é inválido.';
+            } else if (error.code === 'auth/user-not-found') {
+                 mensagemDeErro = 'Nenhum usuário encontrado com este e-mail.';
+            }
+            displayFormMessage(formMessageLogin, mensagemDeErro, 'error');
+        }
+    });
 }
 
 // ===============================================
 // Lógica Específica da Página de PERFIL
 // ===============================================
 if (document.getElementById('form-perfil')) {
-    // Seleciona os elementos do formulário de perfil
+    // ... (todo o código do formulário de perfil, sem alterações) ...
     const formPerfil = document.getElementById('form-perfil');
     const inputNome = document.getElementById('nome-perfil');
     const inputEmail = document.getElementById('email-perfil');
@@ -221,7 +244,6 @@ if (document.getElementById('form-perfil')) {
     const formMessagePerfil = document.getElementById('form-message-perfil');
     const logoutBtn = document.getElementById('logout-btn');
 
-    // Funções de máscara e preenchimento de CEP para o formulário de perfil
     const cpfMask = new IMask(inputCpf, {
         mask: '000.000.000-00'
     });
@@ -232,13 +254,11 @@ if (document.getElementById('form-perfil')) {
         mask: '00000-000'
     });
     
-    // Lógica do contador de caracteres da biografia
     inputBiografia.addEventListener('input', () => {
         const caracteresDigitados = inputBiografia.value.length;
         contadorBiografia.textContent = caracteresDigitados;
     });
 
-    // Lógica do checkbox "Sem número"
     checkboxSemNumero.addEventListener('change', () => {
         if (checkboxSemNumero.checked) {
             inputNumero.value = '';
@@ -250,7 +270,6 @@ if (document.getElementById('form-perfil')) {
         }
     });
 
-    // Lógica de preenchimento de CEP
     inputCep.addEventListener('blur', async () => {
         const cep = inputCep.value.replace(/\D/g, '');
         if (cep.length === 8) {
@@ -273,7 +292,6 @@ if (document.getElementById('form-perfil')) {
         }
     });
 
-    // Função para carregar os dados do usuário
     const carregarDadosDoUsuario = async (user) => {
         try {
             const doc = await db.collection("pintores").doc(user.uid).get();
@@ -295,7 +313,6 @@ if (document.getElementById('form-perfil')) {
                 inputBiografia.value = dadosPintor.biografia || '';
                 contadorBiografia.textContent = inputBiografia.value.length;
                 
-                // Força a atualização do estado do checkbox
                 checkboxSemNumero.dispatchEvent(new Event('change'));
             } else {
                 displayFormMessage(formMessagePerfil, 'Dados do perfil não encontrados.', 'error');
@@ -305,18 +322,14 @@ if (document.getElementById('form-perfil')) {
         }
     };
 
-    // Lógica para verificar o login ao carregar a página
     auth.onAuthStateChanged(user => {
         if (user) {
-            // Usuário logado, carrega os dados do perfil
             carregarDadosDoUsuario(user);
         } else {
-            // Nenhum usuário logado, redireciona para o login
             window.location.href = 'login.html';
         }
     });
 
-    // Lógica de atualização do perfil no Firestore
     formPerfil.addEventListener('submit', async (e) => {
         e.preventDefault();
         const user = auth.currentUser;
@@ -341,16 +354,13 @@ if (document.getElementById('form-perfil')) {
                 experienciaUnidade: selectUnidadeExperiencia.value,
                 biografia: inputBiografia.value
             };
-
             await db.collection("pintores").doc(user.uid).update(dadosAtualizados);
             displayFormMessage(formMessagePerfil, 'Perfil atualizado com sucesso!', 'success');
-
         } catch (error) {
             displayFormMessage(formMessagePerfil, 'Erro ao salvar alterações. Tente novamente.', 'error');
         }
     });
 
-    // Lógica do botão de Logout
     logoutBtn.addEventListener('click', async () => {
         try {
             await auth.signOut();
