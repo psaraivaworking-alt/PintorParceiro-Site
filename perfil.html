@@ -1,114 +1,120 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil</title>
+    <title>Meu Perfil - PintorData</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/imask@6.0.7/dist/imask.js"></script>
 </head>
 <body>
-    <div class="profile-container">
-        <div id="profile-view">
-            <h2>Meu Perfil</h2>
-            <div class="profile-info-item">
-                <span class="label">Nome:</span>
-                <span id="user-name">Carregando...</span>
-            </div>
-            <div class="profile-info-item">
-                <span class="label">E-mail:</span>
-                <span id="user-email">Carregando...</span>
-            </div>
-            <div class="profile-info-item">
-                <span class="label">Telefone:</span>
-                <span id="user-phone">Carregando...</span>
-            </div>
-            <div class="profile-info-item">
-                <span class="label">Endereço:</span>
-                <span id="user-address">Carregando...</span>
-            </div>
-            <div class="profile-info-item" id="pintor-fields-view">
-                <span class="label">Biografia:</span>
-                <span id="user-bio">Carregando...</span>
-            </div>
-            <div class="profile-info-item" id="pintor-fields-view-experience">
-                <span class="label">Experiência:</span>
-                <span id="user-experience">Carregando...</span>
-            </div>
-            <div class="profile-info-item">
-                <span class="label">Rede Social:</span>
-                <a id="user-social-link" href="#" target="_blank">Não informado</a>
-            </div>
-            
-            <button id="edit-profile-button">Editar Perfil</button>
-            <button id="logout-button">Sair</button>
-            <button id="delete-profile-button">Excluir Perfil</button>
-        </div>
+    <header class="header">
+        <div class="logo">PintorData</div>
+        <nav class="nav-principal">
+            <button id="edit-profile-button" class="btn-principal">Editar Perfil</button>
+            <button id="logout-button" class="btn-secundario">Sair</button>
+        </nav>
+    </header>
 
-        <div id="profile-edit" class="hidden">
-            <h2>Editar Perfil</h2>
+    <main class="container profile-container">
+        <section id="profile-view">
+            <h1>Meu Perfil</h1>
+            <div class="profile-card">
+                <div class="profile-info-group">
+                    <label>Nome:</label>
+                    <span id="user-name"></span>
+                </div>
+                <div class="profile-info-group">
+                    <label>E-mail:</label>
+                    <span id="user-email"></span>
+                </div>
+                <div class="profile-info-group">
+                    <label>Telefone:</label>
+                    <span id="user-phone"></span>
+                </div>
+                <div class="profile-info-group">
+                    <label>Endereço:</label>
+                    <span id="user-address"></span>
+                </div>
+                <div class="profile-info-group pintor-fields" id="pintor-fields-view">
+                    <label>Experiência:</label>
+                    <span id="user-experience"></span>
+                </div>
+                <div class="profile-info-group pintor-fields" id="pintor-fields-view">
+                    <label>Biografia:</label>
+                    <span id="user-bio"></span>
+                </div>
+            </div>
+            <button id="delete-profile-button" class="btn-aviso">Excluir Perfil</button>
+        </section>
+
+        <section id="profile-edit" class="hidden">
+            <h1>Editar Perfil</h1>
             <form id="edit-form">
                 <div class="form-group">
-                    <label for="edit-name">Nome Completo:</label>
-                    <input type="text" id="edit-name" name="edit-name" disabled>
+                    <label for="edit-name">Nome Completo</label>
+                    <input type="text" id="edit-name" name="nome" readonly>
                 </div>
                 <div class="form-group">
-                    <label for="edit-email">E-mail:</label>
-                    <input type="email" id="edit-email" name="edit-email" disabled>
+                    <label for="edit-email">E-mail</label>
+                    <input type="email" id="edit-email" name="email" readonly>
                 </div>
                 <div class="form-group">
-                    <label for="edit-phone">Telefone:</label>
-                    <input type="tel" id="edit-phone" name="edit-phone">
+                    <label for="edit-phone">Telefone</label>
+                    <input type="tel" id="edit-phone" name="telefone">
                 </div>
                 <div class="form-group">
-                    <label for="edit-cep">CEP:</label>
-                    <input type="text" id="edit-cep" name="edit-cep">
+                    <label for="edit-cep">CEP</label>
+                    <input type="text" id="edit-cep" name="cep">
                 </div>
-                <div class="form-group">
-                    <label for="edit-cidade">Cidade:</label>
-                    <input type="text" id="edit-cidade" name="edit-cidade" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="edit-estado">Estado:</label>
-                    <input type="text" id="edit-estado" name="edit-estado" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="edit-rua">Rua:</label>
-                    <input type="text" id="edit-rua" name="edit-rua">
-                </div>
-                <div class="form-group">
-                    <label for="edit-numero">Número:</label>
-                    <input type="text" id="edit-numero" name="edit-numero">
-                </div>
-                <div class="form-group">
-                    <label for="edit-social">Link Rede Social:</label>
-                    <input type="url" id="edit-social" name="edit-social">
-                </div>
-                
-                <div id="pintor-fields-edit">
-                    <div class="form-group">
-                        <label for="edit-bio">Biografia:</label>
-                        <textarea id="edit-bio" name="edit-bio" maxlength="200"></textarea>
+                <div class="form-group form-row">
+                    <div class="form-field-50">
+                        <label for="edit-cidade">Cidade</label>
+                        <input type="text" id="edit-cidade" name="cidade" readonly>
                     </div>
-                    <div class="form-group">
-                        <label for="edit-experience">Anos de Experiência:</label>
-                        <input type="number" id="edit-experience" name="edit-experience">
+                    <div class="form-field-50">
+                        <label for="edit-estado">Estado</label>
+                        <input type="text" id="edit-estado" name="estado" readonly>
                     </div>
-                    <div class="form-group">
-                        <label for="edit-unidade-exp">Unidade:</label>
-                        <select id="edit-unidade-exp" name="edit-unidade-exp">
-                            <option value="anos">Anos</option>
+                </div>
+                <div class="form-group">
+                    <label for="edit-rua">Rua</label>
+                    <input type="text" id="edit-rua" name="rua">
+                </div>
+                <div class="form-group">
+                    <label for="edit-numero">Número</label>
+                    <input type="text" id="edit-numero" name="numero">
+                </div>
+                <div class="form-group pintor-fields" id="pintor-fields-edit">
+                    <label for="edit-social">Link Rede Social</label>
+                    <input type="url" id="edit-social" name="rede-social">
+                </div>
+                <div class="form-group form-row pintor-fields" id="pintor-fields-edit">
+                    <div class="form-field-50">
+                        <label for="edit-experience">Tempo de Experiência</label>
+                        <input type="number" id="edit-experience" name="experiencia">
+                    </div>
+                    <div class="form-field-50">
+                        <label for="edit-unidade-exp">Unidade</label>
+                        <select id="edit-unidade-exp" name="unidade-experiencia">
                             <option value="meses">Meses</option>
+                            <option value="anos">Anos</option>
                         </select>
                     </div>
                 </div>
-
-                <button type="submit">Salvar Alterações</button>
-                <button type="button" id="cancel-edit-button">Cancelar</button>
+                <div class="form-group pintor-fields" id="pintor-fields-edit">
+                    <label for="edit-bio">Biografia</label>
+                    <textarea id="edit-bio" name="biografia" maxlength="200"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-principal">Salvar Alterações</button>
+                    <button type="button" id="cancel-edit-button" class="btn-secundario">Cancelar</button>
+                </div>
             </form>
-        </div>
-    </div>
+        </section>
+    </main>
 
-    <script src="https://unpkg.com/imask"></script>
     <script type="module" src="script.js"></script>
 </body>
 </html>
