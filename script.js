@@ -4,7 +4,7 @@
 // 1. CONFIGURAÇÃO DO FIREBASE
 // ----------------------------------------------------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, reauthenticateWithCredential, EmailAuthProvider, updatePassword } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-functions.js";
 
@@ -112,7 +112,6 @@ if (formPintor && formCliente) {
         }
     }
 
-    // Carrega as máscaras apenas se a biblioteca IMask estiver disponível
     if (typeof IMask !== 'undefined') {
         new IMask(inputCpfPintor, { mask: '000.000.000-00' });
         new IMask(inputTelefonePintor, { mask: '(00) 00000-0000' });
@@ -128,6 +127,7 @@ if (formPintor && formCliente) {
     btnPintor.addEventListener('click', () => alternarFormulario('pintor'));
     btnCliente.addEventListener('click', () => alternarFormulario('cliente'));
 
+    // Adicionado o evento para o CEP
     inputCepPintor.addEventListener('blur', (e) => buscarCep(e.target.value, inputCidadePintor, inputEstadoPintor));
     inputCepCliente.addEventListener('blur', (e) => buscarCep(e.target.value, inputCidadeCliente, inputEstadoCliente));
 
@@ -180,10 +180,8 @@ if (formPintor && formCliente) {
 
     formPintor.addEventListener('submit', async (e) => {
         e.preventDefault();
-        console.log("-> Tentativa de cadastro de pintor.");
         hideError(errorMessagePintor);
 
-        // Validação de campos
         const camposObrigatorios = [
             'nome-pintor', 'email-pintor', 'senha-pintor', 'confirmar-senha-pintor',
             'cpf-pintor', 'telefone-pintor', 'cep-pintor', 'cidade-pintor',
@@ -191,7 +189,6 @@ if (formPintor && formCliente) {
             'biografia-pintor'
         ];
         
-        // Adiciona o campo 'numero' se o 'sem numero' não estiver marcado
         if (!checkboxSemNumeroPintor.checked) {
             camposObrigatorios.push('numero-pintor');
         }
@@ -199,7 +196,6 @@ if (formPintor && formCliente) {
         const camposVazios = camposObrigatorios.filter(id => !document.getElementById(id).value);
 
         if (camposVazios.length > 0) {
-            console.log("-> Campos vazios detectados:", camposVazios);
             showError('Por favor, preencha todos os campos obrigatórios.', errorMessagePintor);
             return;
         }
@@ -226,55 +222,48 @@ if (formPintor && formCliente) {
         };
         
         if (dados.senha !== dados.confirmarSenha) {
-            console.log("-> As senhas não coincidem.");
             showError('As senhas não coincidem!', errorMessagePintor);
             return false;
         }
 
         try {
-            console.log("-> Tentando criar usuário no Firebase Auth...");
             const userCredential = await createUserWithEmailAndPassword(auth, dados.email, dados.senha);
             const userId = userCredential.user.uid;
-            console.log("-> Usuário criado com sucesso no Auth! UID:", userId);
 
-            console.log("-> Tentando salvar dados do perfil do pintor no Firestore...");
             await setDoc(doc(db, 'pintores', userId), {
                 ...dados,
                 senha: null,
                 confirmarSenha: null
             });
-            console.log("-> Dados do pintor salvos em /pintores/" + userId);
 
-            console.log("-> Tentando salvar tipo de usuário em /cpf_registry/" + userId);
             await setDoc(doc(db, 'cpf_registry', userId), {
                 userId: userId,
                 userType: 'pintor'
             });
-            console.log("-> Tipo de usuário salvo com sucesso! O cadastro foi concluído.");
+
+            alert('Cadastro realizado com sucesso! Você será redirecionado para a página de login.');
+            window.location.href = 'login.html';
 
         } catch (error) {
-            console.error("-> Erro durante o cadastro:", error);
             if (error.code === 'auth/email-already-in-use') {
                 showError('Este e-mail já está em uso. Por favor, use outro.', errorMessagePintor);
             } else {
                 showError('Erro no cadastro: ' + error.message, errorMessagePintor);
             }
+            console.error("Erro no cadastro:", error);
         }
     });
 
     formCliente.addEventListener('submit', async (e) => {
         e.preventDefault();
-        console.log("-> Tentativa de cadastro de cliente.");
         hideError(errorMessageCliente);
 
-        // Validação de campos
         const camposObrigatorios = [
             'nome-cliente', 'email-cliente', 'senha-cliente', 'confirmar-senha-cliente',
             'cpf-cliente', 'telefone-cliente', 'cep-cliente', 'cidade-cliente',
             'estado-cliente', 'rua-cliente'
         ];
 
-        // Adiciona o campo 'numero' se o 'sem numero' não estiver marcado
         if (!checkboxSemNumeroCliente.checked) {
             camposObrigatorios.push('numero-cliente');
         }
@@ -282,7 +271,6 @@ if (formPintor && formCliente) {
         const camposVazios = camposObrigatorios.filter(id => !document.getElementById(id).value);
 
         if (camposVazios.length > 0) {
-            console.log("-> Campos vazios detectados:", camposVazios);
             showError('Por favor, preencha todos os campos obrigatórios.', errorMessageCliente);
             return;
         }
@@ -305,39 +293,35 @@ if (formPintor && formCliente) {
         };
         
         if (dados.senha !== dados.confirmarSenha) {
-            console.log("-> As senhas não coincidem.");
             showError('As senhas não coincidem!', errorMessageCliente);
             return false;
         }
 
         try {
-            console.log("-> Tentando criar usuário no Firebase Auth...");
             const userCredential = await createUserWithEmailAndPassword(auth, dados.email, dados.senha);
             const userId = userCredential.user.uid;
-            console.log("-> Usuário criado com sucesso no Auth! UID:", userId);
 
-            console.log("-> Tentando salvar dados do perfil do cliente no Firestore...");
             await setDoc(doc(db, 'clientes', userId), {
                 ...dados,
                 senha: null,
                 confirmarSenha: null
             });
-            console.log("-> Dados do cliente salvos em /clientes/" + userId);
 
-            console.log("-> Tentando salvar tipo de usuário em /cpf_registry/" + userId);
             await setDoc(doc(db, 'cpf_registry', userId), {
                 userId: userId,
                 userType: 'cliente'
             });
-            console.log("-> Tipo de usuário salvo com sucesso! O cadastro foi concluído.");
+
+            alert('Cadastro realizado com sucesso! Você será redirecionado para a página de login.');
+            window.location.href = 'login.html';
 
         } catch (error) {
-            console.error("-> Erro durante o cadastro:", error);
             if (error.code === 'auth/email-already-in-use') {
                 showError('Este e-mail já está em uso. Por favor, use outro.', errorMessageCliente);
             } else {
                 showError('Erro no cadastro: ' + error.message, errorMessageCliente);
             }
+            console.error("Erro no cadastro:", error);
         }
     });
 }
@@ -355,27 +339,22 @@ if (loginForm) {
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        console.log("-> Tentativa de login.");
         hideError(errorMessage);
 
         const email = emailInput.value;
         const senha = senhaInput.value;
 
         try {
-            console.log("-> Enviando e-mail e senha para o Firebase Auth...");
             await signInWithEmailAndPassword(auth, email, senha);
-            console.log("-> Login bem-sucedido! O onAuthStateChanged vai cuidar do redirecionamento.");
         } catch (error) {
-            console.error("-> Erro durante o login:", error);
             let message = 'Erro no login. Verifique seu e-mail e senha.';
-            if (error.code === 'auth/user-not-found') {
-                message = 'Nenhum usuário encontrado com este e-mail.';
-            } else if (error.code === 'auth/wrong-password') {
-                message = 'Senha incorreta.';
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                message = 'E-mail ou senha inválidos.';
             } else if (error.code === 'auth/invalid-email') {
                 message = 'Formato de e-mail inválido.';
             }
             showError(message, errorMessage);
+            console.error("Erro no login:", error);
         }
     });
 
@@ -417,86 +396,102 @@ const cancelEditButton = document.getElementById('cancel-edit-button');
 const logoutButton = document.getElementById('logout-button');
 const deleteProfileButton = document.getElementById('delete-profile-button');
 
+// Carrega as máscaras no formulário de edição do perfil
+if (typeof IMask !== 'undefined' && editForm) {
+    const editTelefone = document.getElementById('edit-phone');
+    const editCep = document.getElementById('edit-cep');
+    new IMask(editTelefone, { mask: '(00) 00000-0000' });
+    new IMask(editCep, { mask: '00000-000' });
+    
+    // Adicionado o evento para o CEP no formulário de edição
+    const editCidade = document.getElementById('edit-cidade');
+    const editEstado = document.getElementById('edit-estado');
+    editCep.addEventListener('blur', (e) => buscarCep(e.target.value, editCidade, editEstado));
+}
+
+
 // Listener para gerenciar o estado de autenticação em todas as páginas
 onAuthStateChanged(auth, async (user) => {
     const isLoginPage = window.location.pathname.endsWith('login.html');
     const isCadastroPage = window.location.pathname.endsWith('cadastro.html');
     const isPerfilPage = window.location.pathname.endsWith('perfil.html');
     
-    // Se o usuário estiver logado...
     if (user) {
-        console.log("-> onAuthStateChanged: Usuário logado. UID:", user.uid);
-        // ...e estiver nas páginas de login ou cadastro, redireciona para o perfil
         if (isLoginPage || isCadastroPage) {
-            console.log("-> Usuário logado em página de login/cadastro. Redirecionando para perfil.html");
+            console.log("Usuário logado. Redirecionando para perfil.html");
             window.location.href = 'perfil.html';
             return;
         }
         
-        // ...e estiver na página de perfil, carrega os dados
         if (isPerfilPage) {
             const loadProfileData = async (user) => {
-                console.log("-> Tentando carregar dados do perfil para o UID:", user.uid);
                 try {
-                    const docRef = doc(db, 'cpf_registry', user.uid);
-                    const cpfDoc = await getDoc(docRef);
-
+                    const cpfDoc = await getDoc(doc(db, 'cpf_registry', user.uid));
                     if (!cpfDoc.exists()) {
-                        console.error("-> ERRO: Tipo de usuário não encontrado para o UID. Documento em 'cpf_registry' não existe.");
-                        await signOut(auth); // Sai para evitar loops
-                        console.log("-> Usuário deslogado. A página irá redirecionar.");
+                        console.error("ERRO: Tipo de usuário não encontrado. Redirecionando para login.");
+                        await signOut(auth);
                         return;
                     }
 
-                    console.log("-> Documento do tipo de usuário encontrado. Tipo:", cpfDoc.data().userType);
                     const currentUserType = cpfDoc.data().userType;
                     const collectionName = currentUserType === 'pintor' ? 'pintores' : 'clientes';
-
                     const userDoc = await getDoc(doc(db, collectionName, user.uid));
-                    if (userDoc.exists()) {
-                        console.log("-> Dados do perfil encontrados e carregados com sucesso!");
-                        const userData = userDoc.data();
 
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        
+                        // Campos de visualização
                         document.getElementById('user-name').textContent = userData.nomeCompleto || 'Não informado';
                         document.getElementById('user-email').textContent = userData.email || 'Não informado';
                         document.getElementById('user-phone').textContent = userData.telefone || 'Não informado';
-
+                        document.getElementById('user-address').textContent = `${userData.rua || 'Não informado'}, ${userData.numero || ''} - ${userData.cidade || ''}, ${userData.estado || ''}`;
+                        const socialLink = document.getElementById('user-social-link');
+                        if (socialLink) {
+                            socialLink.href = userData.linkRedeSocial || '#';
+                            socialLink.textContent = userData.linkRedeSocial ? 'Ver Perfil Social' : 'Não informado';
+                        }
+                        
+                        // Campos de edição
+                        // O nome não é editável, então apenas o exibe
                         document.getElementById('edit-name').value = userData.nomeCompleto || '';
+                        document.getElementById('edit-email').value = userData.email || '';
                         document.getElementById('edit-phone').value = userData.telefone || '';
+                        document.getElementById('edit-cep').value = userData.cep || '';
+                        document.getElementById('edit-cidade').value = userData.cidade || '';
+                        document.getElementById('edit-estado').value = userData.estado || '';
+                        document.getElementById('edit-rua').value = userData.rua || '';
+                        document.getElementById('edit-numero').value = userData.numero || '';
+                        document.getElementById('edit-social').value = userData.linkRedeSocial || '';
                         
                         const pintorFieldsView = document.getElementById('pintor-fields-view');
                         const pintorFieldsEdit = document.getElementById('pintor-fields-edit');
                         if (currentUserType === 'pintor') {
-                            pintorFieldsView.style.display = 'block';
-                            pintorFieldsEdit.style.display = 'block';
+                            if (pintorFieldsView) pintorFieldsView.style.display = 'block';
+                            if (pintorFieldsEdit) pintorFieldsEdit.style.display = 'block';
                             document.getElementById('user-bio').textContent = userData.biografia || 'Não informado';
                             document.getElementById('user-experience').textContent = `${userData.tempoExperiencia || '0'} ${userData.unidadeExperiencia || 'anos'}`;
                             document.getElementById('edit-bio').value = userData.biografia || '';
                             document.getElementById('edit-experience').value = userData.tempoExperiencia || '';
                             document.getElementById('edit-unidade-exp').value = userData.unidadeExperiencia || 'anos';
-                            const socialLink = document.getElementById('user-social-link');
-                            socialLink.href = userData.linkRedeSocial || '#';
-                            socialLink.textContent = userData.linkRedeSocial ? 'Ver Perfil Social' : 'Não informado';
                         } else {
-                            pintorFieldsView.style.display = 'none';
-                            pintorFieldsEdit.style.display = 'none';
+                            if (pintorFieldsView) pintorFieldsView.style.display = 'none';
+                            if (pintorFieldsEdit) pintorFieldsEdit.style.display = 'none';
                         }
                     } else {
-                        console.error("-> ERRO: Documento do usuário não encontrado no Firestore.");
+                        console.error("ERRO: Documento do usuário não encontrado no Firestore.");
+                        await signOut(auth); // Sai para evitar loops
+                        return;
                     }
                 } catch (error) {
-                    console.error("-> Erro ao carregar os dados do perfil:", error);
+                    console.error("Erro ao carregar os dados do perfil:", error);
                 }
             };
 
             loadProfileData(user);
         }
     } else {
-        console.log("-> onAuthStateChanged: Nenhum usuário logado.");
-        // Se o usuário não estiver logado...
-        // ...e estiver na página de perfil, redireciona para o login
         if (isPerfilPage) {
-            console.log("-> Nenhum usuário logado. Redirecionando para login.html");
+            console.log("Nenhum usuário logado. Redirecionando para login.html");
             window.location.href = 'login.html';
         }
     }
@@ -512,35 +507,43 @@ if (profileContainer) {
     cancelEditButton.addEventListener('click', () => {
         profileEdit.classList.add('hidden');
         profileView.classList.remove('hidden');
-        location.reload(); // Recarrega a página para atualizar os dados
+        location.reload();
     });
 
     editForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const newDados = {
-            nomeCompleto: document.getElementById('edit-name').value,
+        const user = auth.currentUser;
+        if (!user) {
+            alert('Nenhum usuário logado.');
+            return;
+        }
+
+        const cpfDoc = await getDoc(doc(db, 'cpf_registry', user.uid));
+        const currentUserType = cpfDoc.data().userType;
+        const collectionName = currentUserType === 'pintor' ? 'pintores' : 'clientes';
+
+        let newDados = {
             telefone: document.getElementById('edit-phone').value,
-            biografia: document.getElementById('edit-bio').value,
-            tempoExperiencia: parseInt(document.getElementById('edit-experience').value) || 0,
-            unidadeExperiencia: document.getElementById('edit-unidade-exp').value,
+            cep: document.getElementById('edit-cep').value,
+            cidade: document.getElementById('edit-cidade').value,
+            estado: document.getElementById('edit-estado').value,
+            rua: document.getElementById('edit-rua').value,
+            numero: document.getElementById('edit-numero').value,
             linkRedeSocial: document.getElementById('edit-social').value,
         };
 
-        try {
-            const user = auth.currentUser;
-            const cpfDoc = await getDoc(doc(db, 'cpf_registry', user.uid));
-            const currentUserType = cpfDoc.data().userType;
-            const collectionName = currentUserType === 'pintor' ? 'pintores' : 'clientes';
+        if (currentUserType === 'pintor') {
+            newDados.biografia = document.getElementById('edit-bio').value;
+            newDados.tempoExperiencia = parseInt(document.getElementById('edit-experience').value) || 0;
+            newDados.unidadeExperiencia = document.getElementById('edit-unidade-exp').value;
+        }
 
+        try {
             await updateDoc(doc(db, collectionName, user.uid), newDados);
             
-            console.log("Perfil atualizado com sucesso!");
             alert("Seu perfil foi atualizado com sucesso!");
-            
-            profileEdit.classList.add('hidden');
-            profileView.classList.remove('hidden');
-            location.reload(); // Recarrega a página para atualizar os dados
+            location.reload();
         } catch (error) {
             console.error("Erro ao atualizar o perfil:", error);
             alert("Erro ao atualizar o perfil. Tente novamente.");
@@ -550,6 +553,7 @@ if (profileContainer) {
     logoutButton.addEventListener('click', async () => {
         try {
             await signOut(auth);
+            window.location.href = 'index.html';
         } catch (error) {
             console.error("Erro ao fazer logout:", error);
             alert("Erro ao sair. Tente novamente.");
