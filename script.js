@@ -9,12 +9,12 @@ import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, serverTimestam
 
 // SUAS CREDENCIAIS AQUI
 const firebaseConfig = {
-    apiKey: "AIzaSyBDNb5W_CxnPvyR6J7KSG0j6mTLgdTwZBs",
-    authDomain: "dadospintorparceiroveloz.firebaseapp.com",
-    projectId: "dadospintorparceiroveloz",
-    storageBucket: "dadospintorparceiroveloz.firebasestorage.app",
-    messagingSenderId: "688575061008",
-    appId: "1:688575061008:web:29fc2dbe6f5cab66893e95"
+  apiKey: "AIzaSyCmuGFCKnZ-qBVUpDxs6moJis19lx8nvXw",
+  authDomain: "pintordata.firebaseapp.com",
+  projectId: "pintordata",
+  storageBucket: "pintordata.firebasestorage.app",
+  messagingSenderId: "994883381349",
+  appId: "1:994883381349:web:b802e44d49d6f6f163fe8c"
 };
 
 const app = initializeApp(firebaseConfig);
