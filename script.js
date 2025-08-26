@@ -38,7 +38,6 @@ auth.onAuthStateChanged(user => {
 // Lógica Específica da Página de CADASTRO
 // ===============================================
 if (document.getElementById('form-pintor')) {
-    // ... (todo o código do formulário de cadastro, sem alterações) ...
     const formPintor = document.getElementById('form-pintor');
     const inputCep = document.getElementById('cep-pintor');
     const inputCidade = document.getElementById('cidade-pintor');
@@ -117,6 +116,13 @@ if (document.getElementById('form-pintor')) {
             displayFormMessage(formMessageCadastro, 'As senhas não coincidem. Por favor, verifique.', 'error');
             return;
         }
+        
+        // --- Nova validação do CPF no Cadastro ---
+        const unmaskedCpf = cpfMask.unmaskedValue;
+        if (unmaskedCpf.length !== 11) {
+            displayFormMessage(formMessageCadastro, 'O CPF deve ter exatamente 11 dígitos.', 'error');
+            return;
+        }
 
         const email = document.getElementById('email-pintor').value;
         const senha = inputSenha.value;
@@ -128,7 +134,7 @@ if (document.getElementById('form-pintor')) {
                 uid: user.uid,
                 nome: document.getElementById('nome-pintor').value,
                 email: email,
-                cpf: cpfMask.unmaskedValue,
+                cpf: unmaskedCpf,
                 telefone: phoneMask.unmaskedValue,
                 cep: cepMask.unmaskedValue,
                 cidade: inputCidade.value,
@@ -168,11 +174,8 @@ if (document.getElementById('form-login')) {
     const inputEmailLogin = document.getElementById('email-login');
     const inputSenhaLogin = document.getElementById('senha-login');
     const formMessageLogin = document.getElementById('form-message-login');
-    
-    // Novo: Seleciona o link de "Esqueci minha senha"
     const forgotPasswordLink = document.getElementById('forgot-password-link');
 
-    // Lógica de envio do formulário de login
     formLogin.addEventListener('submit', async (e) => {
         e.preventDefault();
         displayFormMessage(formMessageLogin, '', '');
@@ -196,7 +199,6 @@ if (document.getElementById('form-login')) {
         }
     });
 
-    // Novo: Lógica de recuperação de senha
     forgotPasswordLink.addEventListener('click', async (e) => {
         e.preventDefault();
         const email = inputEmailLogin.value;
@@ -224,7 +226,6 @@ if (document.getElementById('form-login')) {
 // Lógica Específica da Página de PERFIL
 // ===============================================
 if (document.getElementById('form-perfil')) {
-    // ... (todo o código do formulário de perfil, sem alterações) ...
     const formPerfil = document.getElementById('form-perfil');
     const inputNome = document.getElementById('nome-perfil');
     const inputEmail = document.getElementById('email-perfil');
@@ -332,9 +333,16 @@ if (document.getElementById('form-perfil')) {
 
     formPerfil.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
         const user = auth.currentUser;
         if (!user) {
             displayFormMessage(formMessagePerfil, 'Você precisa estar logado para salvar as alterações.', 'error');
+            return;
+        }
+
+        // Nova validação do CPF
+        if (cpfMask.unmaskedValue.length !== 11) {
+            displayFormMessage(formMessagePerfil, 'O CPF deve ter exatamente 11 dígitos.', 'error');
             return;
         }
 
