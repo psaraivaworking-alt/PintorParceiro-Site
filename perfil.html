@@ -6,27 +6,65 @@
     <title>Meu Perfil - Plataforma de Pintura</title>
     <link rel="stylesheet" href="style.css">
     
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
     
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </head>
 <body>
 
     <div class="profile-container">
         <h1>Meu Perfil</h1>
-        <div class="profile-info">
+
+        <div id="profile-view" class="profile-section">
             <p><strong>Nome:</strong> <span id="user-name"></span></p>
             <p><strong>E-mail:</strong> <span id="user-email"></span></p>
             <p><strong>Telefone:</strong> <span id="user-phone"></span></p>
-            
-            <div id="pintor-fields" class="hidden">
+
+            <div id="pintor-fields-view">
                 <p><strong>Biografia:</strong> <span id="user-bio"></span></p>
                 <p><strong>Experiência:</strong> <span id="user-experience"></span></p>
+                <p><strong>Link Social:</strong> <a id="user-social-link" href="#" target="_blank"></a></p>
             </div>
+            
+            <button id="edit-profile-button">Editar Perfil</button>
         </div>
-        <button id="logout-button">Sair da Conta</button>
+
+        <div id="profile-edit" class="profile-section hidden">
+            <form id="edit-form">
+                <label for="edit-name">Nome Completo:</label>
+                <input type="text" id="edit-name" required>
+
+                <label for="edit-phone">Telefone:</label>
+                <input type="tel" id="edit-phone" required>
+                
+                <div id="pintor-fields-edit">
+                    <label for="edit-bio">Biografia:</label>
+                    <textarea id="edit-bio" maxlength="200" required></textarea>
+                    <label for="edit-experience">Experiência (anos):</label>
+                    <input type="number" id="edit-experience" required>
+                    <label for="edit-unidade-exp">Unidade:</label>
+                    <select id="edit-unidade-exp">
+                        <option value="meses">Meses</option>
+                        <option value="anos">Anos</option>
+                    </select>
+                    <label for="edit-social">Link Rede Social:</label>
+                    <input type="url" id="edit-social">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" id="save-profile-button">Salvar</button>
+                    <button type="button" id="cancel-edit-button">Cancelar</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="button-actions">
+            <button id="logout-button">Sair da Conta</button>
+            <button id="delete-profile-button" class="btn-danger">Excluir Perfil</button>
+        </div>
+
     </div>
 
 </body>
