@@ -1,81 +1,56 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pintor Parceiro - Buscar Pintores</title>
-    <link rel="icon" href="https://i.postimg.cc/Wz2WcVgm/Selo-Pintor-PArceiro.png" type="image/x-icon">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Para ícones -->
-    <link rel="stylesheet" href="style.css"> <!-- Link para o arquivo CSS externo -->
+    <title>Buscar Pintores - Conecta Pintores</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
 </head>
-<body class="search-page">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Encontre o Pintor Ideal</h1>
 
-    <header>
-        <div class="navbar">
-            <a href="index.html" class="logo">
-                <img src="https://i.postimg.cc/cL0sk9DQ/Marca-Pintor-Parceiro-1.png" alt="Logo Pintor Parceiro" class="logo-img">
-            </a>
-            <!-- Botão Hamburger para dispositivos móveis -->
-            <button class="hamburger-menu" id="hamburgerMenu" aria-label="Abrir menu">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </button>
-            <div class="nav-links" id="navLinks">
-                <!-- Links serão preenchidos dinamicamente pelo JavaScript -->
+        <!-- Mensagem de feedback (sucesso/erro) -->
+        <div id="message-box" class="hidden p-3 mb-4 rounded-md text-sm" role="alert"></div>
+
+        <form id="search-form" class="space-y-4 mb-8 p-6 border border-gray-200 rounded-lg bg-gray-50">
+            <div>
+                <label for="search-cep" class="block text-sm font-medium text-gray-700 mb-1">CEP</label>
+                <input type="text" id="search-cep" name="search-cep" required
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" maxlength="9" placeholder="00000-000">
             </div>
+            <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 items-center">
+                <p class="text-sm font-medium text-gray-700">Tipo de Busca:</p>
+                <div class="flex items-center space-x-2">
+                    <input type="radio" id="search-local-cep" name="search-type" value="local-cep" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300" checked>
+                    <label for="search-local-cep" class="text-sm font-medium text-gray-700">CEP Local</label>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="radio" id="search-city" name="search-type" value="city" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                    <label for="search-city" class="text-sm font-medium text-gray-700">Toda a Cidade</label>
+                </div>
+                <button type="submit" id="btn-search-painters"
+                        class="ml-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-md shadow-sm transition duration-300 ease-in-out">
+                    Buscar Pintores
+                </button>
+            </div>
+        </form>
+
+        <div id="search-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Resultados da busca serão inseridos aqui -->
+            <p id="no-results-message" class="col-span-full text-center text-gray-600 hidden">Nenhum pintor encontrado para a sua busca.</p>
         </div>
-    </header>
+    </div>
 
-    <main>
-        <section class="search-section">
-            <div class="container">
-                <h2>Encontre o Pintor Ideal</h2>
-                <p>Busque por CEP ou Cidade para encontrar pintores qualificados perto de você.</p>
-                
-                <div class="search-type-toggle">
-                    <div class="radio-option">
-                        <input type="radio" id="searchByCep" name="searchType" value="cep" checked>
-                        <label for="searchByCep">Buscar por CEP</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="searchByCity" name="searchType" value="city">
-                        <label for="searchByCity">Buscar por Cidade</label>
-                    </div>
-                </div>
-
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Digite o CEP (ex: 12345-678)" maxlength="9">
-                    <button id="searchButton">Buscar Pintores</button>
-                </div>
-                <div id="messageBox" class="message-box"></div> <!-- Caixa de mensagens -->
-            </div>
-        </section>
-
-        <section class="painters-results-section">
-            <div class="container">
-                <div id="paintersResults" class="results-grid">
-                    <!-- Cards dos pintores serão inseridos aqui pelo JavaScript -->
-                </div>
-                <div id="noResultsMessage" class="no-results" style="display: none;">
-                    Nenhum pintor encontrado para o termo informado.
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <div class="container footer-content">
-            <h4>Pintor Parceiro</h4>
-            <p>Conectando você aos melhores pintores da sua região</p>
-            <p>© 2025 Todos os direitos reservados - Tintas Veloz</p>
-        </div>
-    </footer>
-
-    <!-- Referência ao arquivo JavaScript externo -->
+    <!-- Link para o arquivo JavaScript externo único -->
     <script type="module" src="script.js"></script>
 </body>
 </html>
