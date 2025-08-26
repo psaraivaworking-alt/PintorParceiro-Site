@@ -31,11 +31,15 @@
         <h2>Criar uma Conta de Pintor</h2>
         
         <form id="form-pintor">
-            <p class="error-message" id="error-message-pintor"></p>
             <input type="text" id="nome-pintor" placeholder="Nome Completo" required>
             <input type="email" id="email-pintor" placeholder="E-mail" required>
-            <input type="password" id="senha-pintor" placeholder="Senha (mín. 6 caracteres)" required minlength="6">
-            <input type="password" id="confirmar-senha-pintor" placeholder="Confirmar Senha" required>
+            
+            <div class="password-group">
+                <input type="password" id="senha-pintor" placeholder="Senha (mín. 6 caracteres)" required minlength="6">
+                <input type="password" id="confirmar-senha-pintor" placeholder="Confirmar Senha" required>
+                <button type="button" id="toggle-senha" class="toggle-password-btn">Ver Senha</button>
+            </div>
+            
             <input type="text" id="cpf-pintor" placeholder="CPF" required>
             <input type="tel" id="telefone-pintor" placeholder="Telefone (WhatsApp)" required>
             <input type="text" id="cep-pintor" placeholder="CEP" required>
@@ -59,6 +63,7 @@
             <textarea id="biografia-pintor" rows="4" placeholder="Fale um pouco sobre você e seu trabalho (máx. 200 caracteres)" maxlength="200"></textarea>
             <p class="caracteres-counter"><span id="contador-biografia-pintor">0</span>/200</p>
             <button type="submit">Cadastrar como Pintor</button>
+            <p class="form-message" id="form-message"></p>
         </form>
     </main>
 
