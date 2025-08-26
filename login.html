@@ -1,28 +1,40 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Pintor ou Cliente</title>
+    <title>Login - PintorData</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <form id="login-form" class="login-form">
-            <h2>Login</h2>
-            <div class="form-group">
-                <input type="email" id="email-login" placeholder="E-mail" required>
-            </div>
-            <div class="form-group">
-                <input type="password" id="senha-login" placeholder="Senha" required>
-            </div>
-            <button type="submit">Entrar</button>
-            <p id="error-message-login" class="error-message"></p>
-            <p class="forgot-password">Esqueceu a senha? <a href="#" id="forgot-password-link">Clique aqui</a></p>
-        </form>
-        <p class="switch-link">Não tem uma conta? <a href="cadastro.html">Cadastre-se</a></p>
-    </div>
-    
+    <header class="header">
+        <div class="logo">PintorData</div>
+        <nav class="nav-principal">
+            <a href="index.html" class="btn-secundario">Início</a>
+            <a href="cadastro.html" class="btn-principal">Cadastre-se</a>
+        </nav>
+    </header>
+
+    <main class="container form-page">
+        <div class="form-card">
+            <h2>Entrar na sua conta</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email-login">E-mail</label>
+                    <input type="email" id="email-login" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="senha-login">Senha</label>
+                    <input type="password" id="senha-login" name="senha" required>
+                </div>
+                <div class="error-message" id="error-message-login"></div>
+                <button type="submit" class="btn-principal">Entrar</button>
+            </form>
+            <p class="form-link">Esqueceu a senha? <a href="#" id="forgot-password-link">Redefinir</a></p>
+            <p class="form-link">Não tem uma conta? <a href="cadastro.html">Cadastre-se aqui</a></p>
+        </div>
+    </main>
+
     <script type="module" src="script.js"></script>
 </body>
 </html>
