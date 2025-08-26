@@ -40,7 +40,7 @@ auth.onAuthStateChanged(user => {
 // Lógica Específica da Página de CADASTRO
 // ===============================================
 if (document.getElementById('form-pintor')) {
-    // Seleciona elementos do formulário de cadastro
+    // Código de cadastro que já temos...
     const formPintor = document.getElementById('form-pintor');
     const inputCep = document.getElementById('cep-pintor');
     const inputCidade = document.getElementById('cidade-pintor');
@@ -55,7 +55,6 @@ if (document.getElementById('form-pintor')) {
     const toggleSenhaBtn = document.getElementById('toggle-senha');
     const formMessageCadastro = document.getElementById('form-message');
 
-    // Aplica as Máscaras de Input (IMask)
     const cpfMask = new IMask(document.getElementById('cpf-pintor'), {
         mask: '000.000.000-00'
     });
@@ -66,13 +65,11 @@ if (document.getElementById('form-pintor')) {
         mask: '00000-000'
     });
 
-    // Lógica do Contador de Caracteres da Biografia
     inputBiografia.addEventListener('input', () => {
         const caracteresDigitados = inputBiografia.value.length;
         contadorBiografia.textContent = caracteresDigitados;
     });
 
-    // Lógica do Checkbox "Sem número"
     checkboxSemNumero.addEventListener('change', () => {
         if (checkboxSemNumero.checked) {
             inputNumero.value = '';
@@ -84,7 +81,6 @@ if (document.getElementById('form-pintor')) {
         }
     });
 
-    // Lógica do botão "Ver Senha"
     toggleSenhaBtn.addEventListener('click', () => {
         const type = inputSenha.type === 'password' ? 'text' : 'password';
         inputSenha.type = type;
@@ -92,7 +88,6 @@ if (document.getElementById('form-pintor')) {
         toggleSenhaBtn.textContent = type === 'password' ? 'Ver Senha' : 'Esconder Senha';
     });
 
-    // Lógica de Preenchimento Automático do CEP (ViaCEP)
     inputCep.addEventListener('blur', async () => {
         const cep = inputCep.value.replace(/\D/g, '');
         if (cep.length === 8) {
@@ -116,7 +111,6 @@ if (document.getElementById('form-pintor')) {
         }
     });
 
-    // Lógica de Validação e ENVIO PARA O FIREBASE
     formPintor.addEventListener('submit', async (e) => {
         e.preventDefault();
         displayFormMessage(formMessageCadastro, '', '');
@@ -142,7 +136,7 @@ if (document.getElementById('form-pintor')) {
                 cidade: inputCidade.value,
                 estado: inputEstado.value,
                 rua: inputRua.value,
-                numero: inputNumero.value,
+                numero: document.getElementById('numero-pintor').value,
                 semNumero: checkboxSemNumero.checked,
                 redeSocial: document.getElementById('rede-social-pintor').value,
                 experienciaTempo: document.getElementById('experiencia-pintor').value,
@@ -154,7 +148,6 @@ if (document.getElementById('form-pintor')) {
             setTimeout(() => {
                 window.location.href = 'login.html';
             }, 2000);
-
         } catch (error) {
             let mensagemDeErro = 'Erro ao cadastrar. Por favor, tente novamente.';
             if (error.code === 'auth/email-already-in-use') {
@@ -173,13 +166,12 @@ if (document.getElementById('form-pintor')) {
 // Lógica Específica da Página de LOGIN
 // ===============================================
 if (document.getElementById('form-login')) {
-    // Seleciona elementos do formulário de login
+    // Código de login que já temos...
     const formLogin = document.getElementById('form-login');
     const inputEmailLogin = document.getElementById('email-login');
     const inputSenhaLogin = document.getElementById('senha-login');
     const formMessageLogin = document.getElementById('form-message-login');
 
-    // Lógica de envio do formulário de login
     formLogin.addEventListener('submit', async (e) => {
         e.preventDefault();
         displayFormMessage(formMessageLogin, '', '');
@@ -201,6 +193,171 @@ if (document.getElementById('form-login')) {
                 mensagemDeErro = 'O e-mail fornecido é inválido.';
             }
             displayFormMessage(formMessageLogin, mensagemDeErro, 'error');
+        }
+    });
+}
+
+// ===============================================
+// Lógica Específica da Página de PERFIL
+// ===============================================
+if (document.getElementById('form-perfil')) {
+    // Seleciona os elementos do formulário de perfil
+    const formPerfil = document.getElementById('form-perfil');
+    const inputNome = document.getElementById('nome-perfil');
+    const inputEmail = document.getElementById('email-perfil');
+    const inputCpf = document.getElementById('cpf-perfil');
+    const inputTelefone = document.getElementById('telefone-perfil');
+    const inputCep = document.getElementById('cep-perfil');
+    const inputCidade = document.getElementById('cidade-perfil');
+    const inputEstado = document.getElementById('estado-perfil');
+    const inputRua = document.getElementById('rua-perfil');
+    const inputNumero = document.getElementById('numero-perfil');
+    const checkboxSemNumero = document.getElementById('sem-numero-perfil');
+    const inputRedeSocial = document.getElementById('rede-social-perfil');
+    const inputExperiencia = document.getElementById('experiencia-perfil');
+    const selectUnidadeExperiencia = document.getElementById('unidade-experiencia-perfil');
+    const inputBiografia = document.getElementById('biografia-perfil');
+    const contadorBiografia = document.getElementById('contador-biografia-perfil');
+    const formMessagePerfil = document.getElementById('form-message-perfil');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    // Funções de máscara e preenchimento de CEP para o formulário de perfil
+    const cpfMask = new IMask(inputCpf, {
+        mask: '000.000.000-00'
+    });
+    const phoneMask = new IMask(inputTelefone, {
+        mask: '(00) 00000-0000'
+    });
+    const cepMask = new IMask(inputCep, {
+        mask: '00000-000'
+    });
+    
+    // Lógica do contador de caracteres da biografia
+    inputBiografia.addEventListener('input', () => {
+        const caracteresDigitados = inputBiografia.value.length;
+        contadorBiografia.textContent = caracteresDigitados;
+    });
+
+    // Lógica do checkbox "Sem número"
+    checkboxSemNumero.addEventListener('change', () => {
+        if (checkboxSemNumero.checked) {
+            inputNumero.value = '';
+            inputNumero.disabled = true;
+            inputNumero.placeholder = 'Sem número';
+        } else {
+            inputNumero.disabled = false;
+            inputNumero.placeholder = 'Número';
+        }
+    });
+
+    // Lógica de preenchimento de CEP
+    inputCep.addEventListener('blur', async () => {
+        const cep = inputCep.value.replace(/\D/g, '');
+        if (cep.length === 8) {
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await response.json();
+                if (!data.erro) {
+                    inputCidade.value = data.localidade;
+                    inputEstado.value = data.uf;
+                    inputRua.value = data.logradouro;
+                } else {
+                    displayFormMessage(formMessagePerfil, 'CEP não encontrado.', 'error');
+                    inputCidade.value = '';
+                    inputEstado.value = '';
+                    inputRua.value = '';
+                }
+            } catch (error) {
+                displayFormMessage(formMessagePerfil, 'Erro ao buscar CEP. Tente novamente.', 'error');
+            }
+        }
+    });
+
+    // Função para carregar os dados do usuário
+    const carregarDadosDoUsuario = async (user) => {
+        try {
+            const doc = await db.collection("pintores").doc(user.uid).get();
+            if (doc.exists) {
+                const dadosPintor = doc.data();
+                inputNome.value = dadosPintor.nome || '';
+                inputEmail.value = dadosPintor.email || '';
+                cpfMask.value = dadosPintor.cpf || '';
+                phoneMask.value = dadosPintor.telefone || '';
+                cepMask.value = dadosPintor.cep || '';
+                inputCidade.value = dadosPintor.cidade || '';
+                inputEstado.value = dadosPintor.estado || '';
+                inputRua.value = dadosPintor.rua || '';
+                inputNumero.value = dadosPintor.numero || '';
+                checkboxSemNumero.checked = dadosPintor.semNumero || false;
+                inputRedeSocial.value = dadosPintor.redeSocial || '';
+                inputExperiencia.value = dadosPintor.experienciaTempo || '';
+                selectUnidadeExperiencia.value = dadosPintor.experienciaUnidade || 'anos';
+                inputBiografia.value = dadosPintor.biografia || '';
+                contadorBiografia.textContent = inputBiografia.value.length;
+                
+                // Força a atualização do estado do checkbox
+                checkboxSemNumero.dispatchEvent(new Event('change'));
+            } else {
+                displayFormMessage(formMessagePerfil, 'Dados do perfil não encontrados.', 'error');
+            }
+        } catch (error) {
+            displayFormMessage(formMessagePerfil, 'Erro ao carregar dados do perfil.', 'error');
+        }
+    };
+
+    // Lógica para verificar o login ao carregar a página
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            // Usuário logado, carrega os dados do perfil
+            carregarDadosDoUsuario(user);
+        } else {
+            // Nenhum usuário logado, redireciona para o login
+            window.location.href = 'login.html';
+        }
+    });
+
+    // Lógica de atualização do perfil no Firestore
+    formPerfil.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const user = auth.currentUser;
+        if (!user) {
+            displayFormMessage(formMessagePerfil, 'Você precisa estar logado para salvar as alterações.', 'error');
+            return;
+        }
+
+        try {
+            const dadosAtualizados = {
+                nome: inputNome.value,
+                cpf: cpfMask.unmaskedValue,
+                telefone: phoneMask.unmaskedValue,
+                cep: cepMask.unmaskedValue,
+                cidade: inputCidade.value,
+                estado: inputEstado.value,
+                rua: inputRua.value,
+                numero: inputNumero.value,
+                semNumero: checkboxSemNumero.checked,
+                redeSocial: inputRedeSocial.value,
+                experienciaTempo: inputExperiencia.value,
+                experienciaUnidade: selectUnidadeExperiencia.value,
+                biografia: inputBiografia.value
+            };
+
+            await db.collection("pintores").doc(user.uid).update(dadosAtualizados);
+            displayFormMessage(formMessagePerfil, 'Perfil atualizado com sucesso!', 'success');
+
+        } catch (error) {
+            displayFormMessage(formMessagePerfil, 'Erro ao salvar alterações. Tente novamente.', 'error');
+        }
+    });
+
+    // Lógica do botão de Logout
+    logoutBtn.addEventListener('click', async () => {
+        try {
+            await auth.signOut();
+            window.location.href = 'login.html';
+        } catch (error) {
+            console.error('Erro ao fazer logout:', error);
+            displayFormMessage(formMessagePerfil, 'Erro ao sair. Tente novamente.', 'error');
         }
     });
 }
