@@ -123,8 +123,11 @@ if (formPintor && formCliente) {
         console.warn("IMask não foi carregado. As máscaras de entrada não funcionarão.");
     }
     
+
     btnPintor.addEventListener('click', () => alternarFormulario('pintor'));
     btnCliente.addEventListener('click', () => alternarFormulario('cliente'));
+
+    // Adicionado o evento para o CEP
     inputCepPintor.addEventListener('blur', (e) => buscarCep(e.target.value, inputCidadePintor, inputEstadoPintor));
     inputCepCliente.addEventListener('blur', (e) => buscarCep(e.target.value, inputCidadeCliente, inputEstadoCliente));
 
