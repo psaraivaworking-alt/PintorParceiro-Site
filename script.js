@@ -15,7 +15,7 @@ const firebaseConfig = {
     projectId: "pintordata",
     storageBucket: "pintordata.firebasestorage.app",
     messagingSenderId: "994883381349",
-    appId: "1:9948833381349:web:b802e44d49d6f6f163fe8c"
+    appId: "1:994883381349:web:b802e44d49d6f6f163fe8c"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -112,16 +112,18 @@ if (formPintor && formCliente) {
         }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        if (typeof IMask !== 'undefined') {
-            new IMask(inputCpfPintor, { mask: '000.000.000-00' });
-            new IMask(inputTelefonePintor, { mask: '(00) 00000-0000' });
-            new IMask(inputCepPintor, { mask: '00000-000' });
-            new IMask(inputCpfCliente, { mask: '000.000.000-00' });
-            new IMask(inputTelefoneCliente, { mask: '(00) 00000-0000' });
-            new IMask(inputCepCliente, { mask: '00000-000' });
-        }
-    });
+    // Carrega as máscaras apenas se a biblioteca IMask estiver disponível
+    if (typeof IMask !== 'undefined') {
+        new IMask(inputCpfPintor, { mask: '000.000.000-00' });
+        new IMask(inputTelefonePintor, { mask: '(00) 00000-0000' });
+        new IMask(inputCepPintor, { mask: '00000-000' });
+        new IMask(inputCpfCliente, { mask: '000.000.000-00' });
+        new IMask(inputTelefoneCliente, { mask: '(00) 00000-0000' });
+        new IMask(inputCepCliente, { mask: '00000-000' });
+    } else {
+        console.warn("IMask não foi carregado. As máscaras de entrada não funcionarão.");
+    }
+    
 
     btnPintor.addEventListener('click', () => alternarFormulario('pintor'));
     btnCliente.addEventListener('click', () => alternarFormulario('cliente'));
@@ -180,6 +182,26 @@ if (formPintor && formCliente) {
         e.preventDefault();
         hideError(errorMessagePintor);
 
+        // Validação de campos
+        const camposObrigatorios = [
+            'nome-pintor', 'email-pintor', 'senha-pintor', 'confirmar-senha-pintor',
+            'cpf-pintor', 'telefone-pintor', 'cep-pintor', 'cidade-pintor',
+            'estado-pintor', 'rua-pintor', 'experiencia-pintor', 'unidade-experiencia-pintor',
+            'biografia-pintor'
+        ];
+        
+        // Adiciona o campo 'numero' se o 'sem numero' não estiver marcado
+        if (!checkboxSemNumeroPintor.checked) {
+            camposObrigatorios.push('numero-pintor');
+        }
+
+        const camposVazios = camposObrigatorios.filter(id => !document.getElementById(id).value);
+
+        if (camposVazios.length > 0) {
+            showError('Por favor, preencha todos os campos obrigatórios.', errorMessagePintor);
+            return;
+        }
+
         const dados = {
             nomeCompleto: document.getElementById('nome-pintor').value,
             email: document.getElementById('email-pintor').value,
@@ -220,8 +242,6 @@ if (formPintor && formCliente) {
                 userId: userId,
                 userType: 'pintor'
             });
-
-            // Removido o redirecionamento imediato aqui
         } catch (error) {
             if (error.code === 'auth/email-already-in-use') {
                 showError('Este e-mail já está em uso. Por favor, use outro.', errorMessagePintor);
@@ -235,6 +255,25 @@ if (formPintor && formCliente) {
     formCliente.addEventListener('submit', async (e) => {
         e.preventDefault();
         hideError(errorMessageCliente);
+
+        // Validação de campos
+        const camposObrigatorios = [
+            'nome-cliente', 'email-cliente', 'senha-cliente', 'confirmar-senha-cliente',
+            'cpf-cliente', 'telefone-cliente', 'cep-cliente', 'cidade-cliente',
+            'estado-cliente', 'rua-cliente'
+        ];
+
+        // Adiciona o campo 'numero' se o 'sem numero' não estiver marcado
+        if (!checkboxSemNumeroCliente.checked) {
+            camposObrigatorios.push('numero-cliente');
+        }
+
+        const camposVazios = camposObrigatorios.filter(id => !document.getElementById(id).value);
+
+        if (camposVazios.length > 0) {
+            showError('Por favor, preencha todos os campos obrigatórios.', errorMessageCliente);
+            return;
+        }
 
         const dados = {
             nomeCompleto: document.getElementById('nome-cliente').value,
@@ -272,8 +311,6 @@ if (formPintor && formCliente) {
                 userId: userId,
                 userType: 'cliente'
             });
-
-            // Removido o redirecionamento imediato aqui
         } catch (error) {
             if (error.code === 'auth/email-already-in-use') {
                 showError('Este e-mail já está em uso. Por favor, use outro.', errorMessageCliente);
@@ -305,7 +342,6 @@ if (loginForm) {
 
         try {
             await signInWithEmailAndPassword(auth, email, senha);
-            // Removida a linha de redirecionamento imediata
         } catch (error) {
             let message = 'Erro no login. Verifique seu e-mail e senha.';
             if (error.code === 'auth/user-not-found') {
@@ -360,66 +396,80 @@ const deleteProfileButton = document.getElementById('delete-profile-button');
 
 // Listener para gerenciar o estado de autenticação em todas as páginas
 onAuthStateChanged(auth, async (user) => {
-    // Se o usuário estiver na página de login e logado, redireciona para o perfil
-    if (user && window.location.pathname.endsWith('login.html')) {
-        console.log("Usuário logado. Redirecionando para perfil.html");
-        window.location.href = 'perfil.html';
-        return;
-    }
-    // Se o usuário estiver em uma página protegida (perfil.html) e não logado, redireciona para login
-    if (!user && window.location.pathname.endsWith('perfil.html')) {
-        console.log("Nenhum usuário logado. Redirecionando para login.html");
-        window.location.href = 'login.html';
-        return;
-    }
-
-    // Se o usuário estiver na página de perfil e logado, carrega os dados
-    if (user && profileContainer) {
-        let currentUserType = null;
-        let currentUserId = user.uid;
-        console.log("Usuário autenticado:", currentUserId);
-        
-        // Busca o tipo de usuário no 'cpf_registry'
-        const cpfDoc = await getDoc(doc(db, 'cpf_registry', user.uid));
-        if (!cpfDoc.exists()) {
-            console.error("ERRO: Tipo de usuário não encontrado para o UID:", user.uid);
-            signOut(auth);
+    const isLoginPage = window.location.pathname.endsWith('login.html');
+    const isCadastroPage = window.location.pathname.endsWith('cadastro.html');
+    const isPerfilPage = window.location.pathname.endsWith('perfil.html');
+    
+    // Se o usuário estiver logado...
+    if (user) {
+        // ...e estiver nas páginas de login ou cadastro, redireciona para o perfil
+        if (isLoginPage || isCadastroPage) {
+            console.log("Usuário logado. Redirecionando para perfil.html");
+            window.location.href = 'perfil.html';
             return;
         }
-        currentUserType = cpfDoc.data().userType;
+        
+        // ...e estiver na página de perfil, carrega os dados
+        if (isPerfilPage) {
+            const loadProfileData = async (user) => {
+                try {
+                    const docRef = doc(db, 'cpf_registry', user.uid);
+                    const cpfDoc = await getDoc(docRef);
 
-        const collectionName = currentUserType === 'pintor' ? 'pintores' : 'clientes';
+                    if (!cpfDoc.exists()) {
+                        console.error("ERRO: Tipo de usuário não encontrado para o UID:", user.uid);
+                        // Sign out the user to prevent loops
+                        await signOut(auth);
+                        return;
+                    }
 
-        const userDoc = await getDoc(doc(db, collectionName, user.uid));
-        if (userDoc.exists()) {
-            const userData = userDoc.data();
+                    const currentUserType = cpfDoc.data().userType;
+                    const collectionName = currentUserType === 'pintor' ? 'pintores' : 'clientes';
 
-            document.getElementById('user-name').textContent = userData.nomeCompleto || 'Não informado';
-            document.getElementById('user-email').textContent = userData.email || 'Não informado';
-            document.getElementById('user-phone').textContent = userData.telefone || 'Não informado';
+                    const userDoc = await getDoc(doc(db, collectionName, user.uid));
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
 
-            document.getElementById('edit-name').value = userData.nomeCompleto || '';
-            document.getElementById('edit-phone').value = userData.telefone || '';
-            
-            const pintorFieldsView = document.getElementById('pintor-fields-view');
-            const pintorFieldsEdit = document.getElementById('pintor-fields-edit');
-            if (currentUserType === 'pintor') {
-                pintorFieldsView.style.display = 'block';
-                pintorFieldsEdit.style.display = 'block';
-                document.getElementById('user-bio').textContent = userData.biografia || 'Não informado';
-                document.getElementById('user-experience').textContent = `${userData.tempoExperiencia || '0'} ${userData.unidadeExperiencia || 'anos'}`;
-                document.getElementById('edit-bio').value = userData.biografia || '';
-                document.getElementById('edit-experience').value = userData.tempoExperiencia || '';
-                document.getElementById('edit-unidade-exp').value = userData.unidadeExperiencia || 'anos';
-                const socialLink = document.getElementById('user-social-link');
-                socialLink.href = userData.linkRedeSocial || '#';
-                socialLink.textContent = userData.linkRedeSocial ? 'Ver Perfil Social' : 'Não informado';
-            } else {
-                pintorFieldsView.style.display = 'none';
-                pintorFieldsEdit.style.display = 'none';
-            }
-        } else {
-            console.error("ERRO: Documento do usuário não encontrado no Firestore.");
+                        document.getElementById('user-name').textContent = userData.nomeCompleto || 'Não informado';
+                        document.getElementById('user-email').textContent = userData.email || 'Não informado';
+                        document.getElementById('user-phone').textContent = userData.telefone || 'Não informado';
+
+                        document.getElementById('edit-name').value = userData.nomeCompleto || '';
+                        document.getElementById('edit-phone').value = userData.telefone || '';
+                        
+                        const pintorFieldsView = document.getElementById('pintor-fields-view');
+                        const pintorFieldsEdit = document.getElementById('pintor-fields-edit');
+                        if (currentUserType === 'pintor') {
+                            pintorFieldsView.style.display = 'block';
+                            pintorFieldsEdit.style.display = 'block';
+                            document.getElementById('user-bio').textContent = userData.biografia || 'Não informado';
+                            document.getElementById('user-experience').textContent = `${userData.tempoExperiencia || '0'} ${userData.unidadeExperiencia || 'anos'}`;
+                            document.getElementById('edit-bio').value = userData.biografia || '';
+                            document.getElementById('edit-experience').value = userData.tempoExperiencia || '';
+                            document.getElementById('edit-unidade-exp').value = userData.unidadeExperiencia || 'anos';
+                            const socialLink = document.getElementById('user-social-link');
+                            socialLink.href = userData.linkRedeSocial || '#';
+                            socialLink.textContent = userData.linkRedeSocial ? 'Ver Perfil Social' : 'Não informado';
+                        } else {
+                            pintorFieldsView.style.display = 'none';
+                            pintorFieldsEdit.style.display = 'none';
+                        }
+                    } else {
+                        console.error("ERRO: Documento do usuário não encontrado no Firestore.");
+                    }
+                } catch (error) {
+                    console.error("Erro ao carregar os dados do perfil:", error);
+                }
+            };
+
+            loadProfileData(user);
+        }
+    } else {
+        // Se o usuário não estiver logado...
+        // ...e estiver na página de perfil, redireciona para o login
+        if (isPerfilPage) {
+            console.log("Nenhum usuário logado. Redirecionando para login.html");
+            window.location.href = 'login.html';
         }
     }
 });
@@ -434,7 +484,7 @@ if (profileContainer) {
     cancelEditButton.addEventListener('click', () => {
         profileEdit.classList.add('hidden');
         profileView.classList.remove('hidden');
-        loadProfileData(auth.currentUser);
+        location.reload(); // Recarrega a página para atualizar os dados
     });
 
     editForm.addEventListener('submit', async (e) => {
@@ -450,16 +500,19 @@ if (profileContainer) {
         };
 
         try {
+            const user = auth.currentUser;
+            const cpfDoc = await getDoc(doc(db, 'cpf_registry', user.uid));
+            const currentUserType = cpfDoc.data().userType;
             const collectionName = currentUserType === 'pintor' ? 'pintores' : 'clientes';
-            await updateDoc(doc(db, collectionName, currentUserId), newDados);
+
+            await updateDoc(doc(db, collectionName, user.uid), newDados);
             
             console.log("Perfil atualizado com sucesso!");
             alert("Seu perfil foi atualizado com sucesso!");
             
             profileEdit.classList.add('hidden');
             profileView.classList.remove('hidden');
-            loadProfileData(auth.currentUser);
-
+            location.reload(); // Recarrega a página para atualizar os dados
         } catch (error) {
             console.error("Erro ao atualizar o perfil:", error);
             alert("Erro ao atualizar o perfil. Tente novamente.");
@@ -469,7 +522,6 @@ if (profileContainer) {
     logoutButton.addEventListener('click', async () => {
         try {
             await signOut(auth);
-            // O onAuthStateChanged vai cuidar do redirecionamento
         } catch (error) {
             console.error("Erro ao fazer logout:", error);
             alert("Erro ao sair. Tente novamente.");
@@ -482,10 +534,13 @@ if (profileContainer) {
                 const credential = EmailAuthProvider.credential(auth.currentUser.email, prompt("Por favor, insira sua senha para confirmar:"));
                 await reauthenticateWithCredential(auth.currentUser, credential);
                 
+                const user = auth.currentUser;
+                const cpfDoc = await getDoc(doc(db, 'cpf_registry', user.uid));
+                const currentUserType = cpfDoc.data().userType;
                 const collectionName = currentUserType === 'pintor' ? 'pintores' : 'clientes';
-                await deleteDoc(doc(db, collectionName, currentUserId));
-
-                await auth.currentUser.delete();
+                
+                await deleteDoc(doc(db, collectionName, user.uid));
+                await user.delete();
 
                 alert("Seu perfil foi excluído com sucesso. Você será redirecionado para a página inicial.");
                 window.location.href = 'index.html';
