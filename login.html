@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Pintor Parceiro Veloz</title>
     <link rel="stylesheet" href="style.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
 </head>
 <body>
     <header>
@@ -22,20 +25,28 @@
     </header>
 
     <main class="form-container">
-        <h2>Entrar</h2>
-        <form id="login-form">
-            <p class="error-message" id="error-message-login"></p>
+        <h2>Acesse sua Conta de Pintor</h2>
+        
+        <form id="form-login">
             <input type="email" id="email-login" placeholder="E-mail" required>
             <input type="password" id="senha-login" placeholder="Senha" required>
+            
             <button type="submit">Entrar</button>
-            <a href="#" id="forgot-password-link">Esqueci minha senha</a>
+            
+            <p class="form-message" id="form-message-login"></p>
         </form>
+        
+        <div class="links-adicionais">
+            <a href="#">Esqueci minha senha</a>
+            <span>ou</span>
+            <a href="cadastro.html">Criar uma nova conta</a>
+        </div>
     </main>
 
     <footer>
         <p>&copy; 2024 Pintor Parceiro Veloz. Todos os direitos reservados.</p>
     </footer>
-    
-    <script src="script.js" type="module"></script>
+
+    <script src="login.js" type="module"></script>
 </body>
 </html>
