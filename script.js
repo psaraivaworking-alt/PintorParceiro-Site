@@ -382,7 +382,6 @@ if (profileContainer) {
                     const userType = cpfQuery.docs[0].data().userType;
                     console.log("Status: Tipo de usuário encontrado:", userType);
                     
-                    // CORREÇÃO APLICADA AQUI
                     let collectionName = userType === 'pintor' ? 'pintores' : 'clientes';
                     
                     console.log(`Status: Buscando dados na coleção '${collectionName}'...`);
