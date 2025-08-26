@@ -11,17 +11,12 @@ const firebaseConfig = {
     messagingSenderId: "994883381349",
     appId: "1:994883381349:web:b802e44d49d6f6f163fe8c"
 };
+// script.js - CÓDIGO UNIFICADO PARA TODAS AS PÁGINAS
+
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-
-// script.js - CÓDIGO UNIFICADO PARA TODAS AS PÁGINAS
-
-// ----------------------------------------------------
-// 1. CONFIGURAÇÃO DO FIREBASE
-// ----------------------------------------------------
-
 
 // ----------------------------------------------------
 // 2. FUNÇÕES E LÓGICA COMPARTILHADA
@@ -364,7 +359,6 @@ if (loginForm) {
 // ----------------------------------------------------
 // 5. LÓGICA DO PERFIL (EXECUTADA APENAS EM perfil.html)
 // ----------------------------------------------------
-// script.js - Seção 5 - LÓGICA DO PERFIL
 const profileContainer = document.querySelector('.profile-container');
 
 if (profileContainer) {
@@ -375,8 +369,6 @@ if (profileContainer) {
     const userBioSpan = document.getElementById('user-bio');
     const userExperienceSpan = document.getElementById('user-experience');
     const logoutButton = document.getElementById('logout-button');
-
-    console.log("Iniciando verificação de autenticação...");
 
     auth.onAuthStateChanged(async (user) => {
         if (user) {
@@ -390,8 +382,11 @@ if (profileContainer) {
                     const userType = cpfQuery.docs[0].data().userType;
                     console.log("Status: Tipo de usuário encontrado:", userType);
                     
-                    console.log(`Status: Buscando dados na coleção '${userType}s'...`);
-                    const userDoc = await db.collection(userType + 's').doc(user.uid).get();
+                    // CORREÇÃO APLICADA AQUI
+                    let collectionName = userType === 'pintor' ? 'pintores' : 'clientes';
+                    
+                    console.log(`Status: Buscando dados na coleção '${collectionName}'...`);
+                    const userDoc = await db.collection(collectionName).doc(user.uid).get();
 
                     if (userDoc.exists) {
                         const userData = userDoc.data();
@@ -408,7 +403,7 @@ if (profileContainer) {
                         }
                         
                     } else {
-                        console.error("ERRO: Documento do usuário não encontrado na coleção:", userType);
+                        console.error("ERRO: Documento do usuário não encontrado na coleção:", collectionName);
                     }
                 } else {
                     console.error("ERRO: Entrada de CPF não encontrada para o usuário. Verifique se o documento 'cpf_registry' existe.");
