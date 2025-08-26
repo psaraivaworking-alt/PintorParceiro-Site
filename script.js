@@ -180,6 +180,7 @@ if (formPintor && formCliente) {
 
     formPintor.addEventListener('submit', async (e) => {
         e.preventDefault();
+        console.log("-> Tentativa de cadastro de pintor.");
         hideError(errorMessagePintor);
 
         // Validação de campos
@@ -198,6 +199,7 @@ if (formPintor && formCliente) {
         const camposVazios = camposObrigatorios.filter(id => !document.getElementById(id).value);
 
         if (camposVazios.length > 0) {
+            console.log("-> Campos vazios detectados:", camposVazios);
             showError('Por favor, preencha todos os campos obrigatórios.', errorMessagePintor);
             return;
         }
@@ -224,36 +226,45 @@ if (formPintor && formCliente) {
         };
         
         if (dados.senha !== dados.confirmarSenha) {
+            console.log("-> As senhas não coincidem.");
             showError('As senhas não coincidem!', errorMessagePintor);
             return false;
         }
 
         try {
+            console.log("-> Tentando criar usuário no Firebase Auth...");
             const userCredential = await createUserWithEmailAndPassword(auth, dados.email, dados.senha);
             const userId = userCredential.user.uid;
+            console.log("-> Usuário criado com sucesso no Auth! UID:", userId);
 
+            console.log("-> Tentando salvar dados do perfil do pintor no Firestore...");
             await setDoc(doc(db, 'pintores', userId), {
                 ...dados,
                 senha: null,
                 confirmarSenha: null
             });
+            console.log("-> Dados do pintor salvos em /pintores/" + userId);
 
-            await setDoc(doc(db, 'cpf_registry', dados.cpf), {
+            console.log("-> Tentando salvar tipo de usuário em /cpf_registry/" + userId);
+            await setDoc(doc(db, 'cpf_registry', userId), {
                 userId: userId,
                 userType: 'pintor'
             });
+            console.log("-> Tipo de usuário salvo com sucesso! O cadastro foi concluído.");
+
         } catch (error) {
+            console.error("-> Erro durante o cadastro:", error);
             if (error.code === 'auth/email-already-in-use') {
                 showError('Este e-mail já está em uso. Por favor, use outro.', errorMessagePintor);
             } else {
                 showError('Erro no cadastro: ' + error.message, errorMessagePintor);
             }
-            console.error("Erro no cadastro:", error);
         }
     });
 
     formCliente.addEventListener('submit', async (e) => {
         e.preventDefault();
+        console.log("-> Tentativa de cadastro de cliente.");
         hideError(errorMessageCliente);
 
         // Validação de campos
@@ -271,6 +282,7 @@ if (formPintor && formCliente) {
         const camposVazios = camposObrigatorios.filter(id => !document.getElementById(id).value);
 
         if (camposVazios.length > 0) {
+            console.log("-> Campos vazios detectados:", camposVazios);
             showError('Por favor, preencha todos os campos obrigatórios.', errorMessageCliente);
             return;
         }
@@ -293,31 +305,39 @@ if (formPintor && formCliente) {
         };
         
         if (dados.senha !== dados.confirmarSenha) {
+            console.log("-> As senhas não coincidem.");
             showError('As senhas não coincidem!', errorMessageCliente);
             return false;
         }
 
         try {
+            console.log("-> Tentando criar usuário no Firebase Auth...");
             const userCredential = await createUserWithEmailAndPassword(auth, dados.email, dados.senha);
             const userId = userCredential.user.uid;
+            console.log("-> Usuário criado com sucesso no Auth! UID:", userId);
 
+            console.log("-> Tentando salvar dados do perfil do cliente no Firestore...");
             await setDoc(doc(db, 'clientes', userId), {
                 ...dados,
                 senha: null,
                 confirmarSenha: null
             });
+            console.log("-> Dados do cliente salvos em /clientes/" + userId);
 
-            await setDoc(doc(db, 'cpf_registry', dados.cpf), {
+            console.log("-> Tentando salvar tipo de usuário em /cpf_registry/" + userId);
+            await setDoc(doc(db, 'cpf_registry', userId), {
                 userId: userId,
                 userType: 'cliente'
             });
+            console.log("-> Tipo de usuário salvo com sucesso! O cadastro foi concluído.");
+
         } catch (error) {
+            console.error("-> Erro durante o cadastro:", error);
             if (error.code === 'auth/email-already-in-use') {
                 showError('Este e-mail já está em uso. Por favor, use outro.', errorMessageCliente);
             } else {
                 showError('Erro no cadastro: ' + error.message, errorMessageCliente);
             }
-            console.error("Erro no cadastro:", error);
         }
     });
 }
@@ -335,14 +355,18 @@ if (loginForm) {
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        console.log("-> Tentativa de login.");
         hideError(errorMessage);
 
         const email = emailInput.value;
         const senha = senhaInput.value;
 
         try {
+            console.log("-> Enviando e-mail e senha para o Firebase Auth...");
             await signInWithEmailAndPassword(auth, email, senha);
+            console.log("-> Login bem-sucedido! O onAuthStateChanged vai cuidar do redirecionamento.");
         } catch (error) {
+            console.error("-> Erro durante o login:", error);
             let message = 'Erro no login. Verifique seu e-mail e senha.';
             if (error.code === 'auth/user-not-found') {
                 message = 'Nenhum usuário encontrado com este e-mail.';
@@ -352,7 +376,6 @@ if (loginForm) {
                 message = 'Formato de e-mail inválido.';
             }
             showError(message, errorMessage);
-            console.error("Erro no login:", error);
         }
     });
 
@@ -402,9 +425,10 @@ onAuthStateChanged(auth, async (user) => {
     
     // Se o usuário estiver logado...
     if (user) {
+        console.log("-> onAuthStateChanged: Usuário logado. UID:", user.uid);
         // ...e estiver nas páginas de login ou cadastro, redireciona para o perfil
         if (isLoginPage || isCadastroPage) {
-            console.log("Usuário logado. Redirecionando para perfil.html");
+            console.log("-> Usuário logado em página de login/cadastro. Redirecionando para perfil.html");
             window.location.href = 'perfil.html';
             return;
         }
@@ -412,22 +436,25 @@ onAuthStateChanged(auth, async (user) => {
         // ...e estiver na página de perfil, carrega os dados
         if (isPerfilPage) {
             const loadProfileData = async (user) => {
+                console.log("-> Tentando carregar dados do perfil para o UID:", user.uid);
                 try {
                     const docRef = doc(db, 'cpf_registry', user.uid);
                     const cpfDoc = await getDoc(docRef);
 
                     if (!cpfDoc.exists()) {
-                        console.error("ERRO: Tipo de usuário não encontrado para o UID:", user.uid);
-                        // Sign out the user to prevent loops
-                        await signOut(auth);
+                        console.error("-> ERRO: Tipo de usuário não encontrado para o UID. Documento em 'cpf_registry' não existe.");
+                        await signOut(auth); // Sai para evitar loops
+                        console.log("-> Usuário deslogado. A página irá redirecionar.");
                         return;
                     }
 
+                    console.log("-> Documento do tipo de usuário encontrado. Tipo:", cpfDoc.data().userType);
                     const currentUserType = cpfDoc.data().userType;
                     const collectionName = currentUserType === 'pintor' ? 'pintores' : 'clientes';
 
                     const userDoc = await getDoc(doc(db, collectionName, user.uid));
                     if (userDoc.exists()) {
+                        console.log("-> Dados do perfil encontrados e carregados com sucesso!");
                         const userData = userDoc.data();
 
                         document.getElementById('user-name').textContent = userData.nomeCompleto || 'Não informado';
@@ -455,20 +482,21 @@ onAuthStateChanged(auth, async (user) => {
                             pintorFieldsEdit.style.display = 'none';
                         }
                     } else {
-                        console.error("ERRO: Documento do usuário não encontrado no Firestore.");
+                        console.error("-> ERRO: Documento do usuário não encontrado no Firestore.");
                     }
                 } catch (error) {
-                    console.error("Erro ao carregar os dados do perfil:", error);
+                    console.error("-> Erro ao carregar os dados do perfil:", error);
                 }
             };
 
             loadProfileData(user);
         }
     } else {
+        console.log("-> onAuthStateChanged: Nenhum usuário logado.");
         // Se o usuário não estiver logado...
         // ...e estiver na página de perfil, redireciona para o login
         if (isPerfilPage) {
-            console.log("Nenhum usuário logado. Redirecionando para login.html");
+            console.log("-> Nenhum usuário logado. Redirecionando para login.html");
             window.location.href = 'login.html';
         }
     }
