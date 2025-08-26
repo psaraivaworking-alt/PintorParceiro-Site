@@ -3,33 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PintorData - Encontre o Pintor Certo</title>
+    <title>Pintor Parceiro Veloz - Encontre o Pintor Ideal</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <header class="header">
-        <div class="logo">PintorData</div>
-        <nav class="nav-principal">
-            <a href="login.html" class="btn-secundario">Entrar</a>
-            <a href="cadastro.html" class="btn-principal">Cadastre-se</a>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="index.html">Pintor Parceiro Veloz</a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="busca.html">Buscar Pintor</a></li>
+                <li><a href="cadastro.html">Cadastro</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="perfil.html" id="nav-perfil" class="hidden">Meu Perfil</a></li>
+            </ul>
         </nav>
     </header>
 
-    <main class="container">
+    <main class="home-main">
         <section class="hero">
-            <h1>Encontre o Pintor Perfeito para o Seu Projeto</h1>
-            <p>Conectamos você aos melhores pintores profissionais, avaliados por clientes como você.</p>
-            <div class="hero-botoes">
-                <a href="busca.html" class="btn-principal">Encontrar Pintor</a>
-                <a href="cadastro.html" class="btn-secundario">Seja um Pintor</a>
+            <h1>Encontre o Pintor Perfeito para a Sua Casa ou Escritório</h1>
+            <p>Conectamos você aos melhores pintores da sua região, de forma rápida e segura.</p>
+            <div class="cta-buttons">
+                <a href="busca.html" class="cta-button primary">Buscar um Pintor</a>
+                <a href="cadastro.html" class="cta-button secondary">Cadastrar-se como Pintor</a>
+            </div>
+        </section>
+        
+        <section class="features">
+            <h2>Por que escolher o Pintor Parceiro Veloz?</h2>
+            <div class="feature-cards">
+                <div class="card">
+                    <i class="fas fa-search"></i>
+                    <h3>Busca Rápida</h3>
+                    <p>Encontre profissionais qualificados em segundos, filtrando por localização e experiência.</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-handshake"></i>
+                    <h3>Profissionais Verificados</h3>
+                    <p>Todos os pintores em nossa plataforma passam por um processo de validação.</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-star"></i>
+                    <h3>Avaliações</h3>
+                    <p>Veja as avaliações de outros clientes e escolha o melhor profissional para o seu projeto.</p>
+                </div>
             </div>
         </section>
     </main>
 
-    <footer class="footer">
-        <p>&copy; 2025 PintorData. Todos os direitos reservados.</p>
+    <footer>
+        <p>&copy; 2024 Pintor Parceiro Veloz. Todos os direitos reservados.</p>
     </footer>
 
-    <script type="module" src="script.js"></script>
+    <script src="script.js" type="module"></script>
 </body>
 </html>
