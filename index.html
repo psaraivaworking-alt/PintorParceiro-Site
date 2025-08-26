@@ -3,124 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pintor Parceiro - Encontre o Pintor Ideal</title>
-    <link rel="icon" href="https://i.postimg.cc/Wz2WcVgm/Selo-Pintor-PArceiro.png" type="image/x-icon">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Para ícones -->
-    <link rel="stylesheet" href="style.css"> <!-- Link para o arquivo CSS externo -->
+    <title>PintorData - Encontre o Pintor Certo</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="home-page">
-
-    <header>
-        <div class="navbar">
-            <a href="index.html" class="logo">
-                <img src="https://i.postimg.cc/cL0sk9DQ/Marca-Pintor-Parceiro-1.png" alt="Logo Pintor Parceiro" class="logo-img">
-            </a>
-            <!-- Botão Hamburger para dispositivos móveis -->
-            <button class="hamburger-menu" id="hamburgerMenu" aria-label="Abrir menu">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </button>
-            <div class="nav-links" id="navLinks">
-                <!-- Links serão preenchidos dinamicamente pelo JavaScript -->
-            </div>
-        </div>
+<body>
+    <header class="header">
+        <div class="logo">PintorData</div>
+        <nav class="nav-principal">
+            <a href="login.html" class="btn-secundario">Entrar</a>
+            <a href="cadastro.html" class="btn-principal">Cadastre-se</a>
+        </nav>
     </header>
 
-    <main>
-        <section class="hero-section">
-            <img src="https://i.postimg.cc/mgMzw75r/Abertura-do-site-1.jpg" alt="Banner de um pintor trabalhando" class="hero-banner-image">
-            <div class="hero-content">
-                <h1>Encontre o Pintor Perfeito</h1>
-                <p>A maior plataforma para conectar você aos melhores pintores da sua região. Busque por CEP e encontre profissionais qualificados perto de você.</p>
-                <div class="hero-actions">
-                    <a href="busca.html" class="btn btn-primary">Buscar Pintores</a>
-                </div>
-            </div>
-        </section>
-
-        <section class="how-it-works-section">
-            <div class="container how-it-works-content">
-                <div class="how-it-works-text">
-                    <h2>Como Funciona o Pintor Parceiro</h2>
-                    <p>Nossa plataforma foi desenvolvida para simplificar a sua vida. Com apenas alguns cliques, você encontra o profissional ideal para o seu projeto de pintura, com a garantia de qualidade e um serviço ágil e seguro.</p>
-                </div>
-                <div class="feature-cards-grid">
-                    <div class="feature-card">
-                        <i class="fas fa-search icon"></i>
-                        <h3>Busca Inteligente</h3>
-                        <p>Encontre pintores qualificados na sua região usando apenas o CEP ou a cidade.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-user-check icon"></i>
-                        <h3>Pintores Verificados</h3>
-                        <p>Todos os profissionais em nossa plataforma passam por um rigoroso processo de verificação.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-paint-roller icon"></i>
-                        <h3>Qualidade Garantida</h3>
-                        <p>Trabalhamos apenas com pintores experientes e com excelentes avaliações de outros clientes.</p>
-                    </div>
-                    <div class="feature-card">
-                        <i class="fas fa-comments icon"></i>
-                        <h3>Resposta Rápida</h3>
-                        <p>Tenha contato direto e rápido com os pintores disponíveis, facilitando a negociação.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="stats-section">
-            <div class="container">
-                <h2>Por que escolher o Pintor Parceiro?</h2>
-                <p>Oferecemos a melhor experiência para conectar você aos pintores mais qualificados da sua região, garantindo transparência e satisfação.</p>
-                <div class="stats-cards">
-                    <div class="stat-card">
-                        <h3>500+</h3>
-                        <p>Pintores Cadastrados</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>50+</h3>
-                        <p>Cidades Atendidas</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>98%</h3>
-                        <p>Satisfação</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>24h</h3>
-                        <p>Resposta Média</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="cta-section">
-            <img src="https://i.postimg.cc/k47P24dC/Ilustracao-3-1.png" alt="Ilustração de um pintor feliz" class="cta-image">
-            <div class="cta-content">
-                <h2>Pronto para encontrar seu pintor ideal?</h2>
-                <p>Comece agora mesmo e conecte-se com os melhores profissionais da sua região para transformar o seu ambiente!</p>
-                <div class="cta-actions">
-                    <a href="busca.html" class="btn btn-primary">Buscar Agora</a>
-                    <a href="cadastro.html" class="btn btn-secondary">Cadastrar Pintor</a>
-                </div>
+    <main class="container">
+        <section class="hero">
+            <h1>Encontre o Pintor Perfeito para o Seu Projeto</h1>
+            <p>Conectamos você aos melhores pintores profissionais, avaliados por clientes como você.</p>
+            <div class="hero-botoes">
+                <a href="busca.html" class="btn-principal">Encontrar Pintor</a>
+                <a href="cadastro.html" class="btn-secundario">Seja um Pintor</a>
             </div>
         </section>
     </main>
 
-    <footer>
-        <div class="container footer-content">
-            <h4>Pintor Parceiro</h4>
-            <p>Conectando você aos melhores pintores da sua região</p>
-            <p>© 2025 Todos os direitos reservados - Tintas Veloz</p>
-        </div>
+    <footer class="footer">
+        <p>&copy; 2025 PintorData. Todos os direitos reservados.</p>
     </footer>
 
-    <!-- Referência ao arquivo JavaScript externo -->
     <script type="module" src="script.js"></script>
-
 </body>
 </html>
