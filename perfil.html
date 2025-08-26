@@ -3,118 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Perfil - PintorData</title>
+    <title>Meu Perfil - Pintor Parceiro Veloz</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/imask@6.0.7/dist/imask.js"></script>
+    <script src="https://unpkg.com/imask"></script>
 </head>
 <body>
-    <header class="header">
-        <div class="logo">PintorData</div>
-        <nav class="nav-principal">
-            <button id="edit-profile-button" class="btn-principal">Editar Perfil</button>
-            <button id="logout-button" class="btn-secundario">Sair</button>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="index.html">Pintor Parceiro Veloz</a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="busca.html">Buscar Pintor</a></li>
+                <li><a href="cadastro.html">Cadastro</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li class="active"><a href="perfil.html" id="nav-perfil">Meu Perfil</a></li>
+            </ul>
         </nav>
     </header>
 
-    <main class="container profile-container">
-        <section id="profile-view">
-            <h1>Meu Perfil</h1>
-            <div class="profile-card">
-                <div class="profile-info-group">
-                    <label>Nome:</label>
-                    <span id="user-name"></span>
-                </div>
-                <div class="profile-info-group">
-                    <label>E-mail:</label>
-                    <span id="user-email"></span>
-                </div>
-                <div class="profile-info-group">
-                    <label>Telefone:</label>
-                    <span id="user-phone"></span>
-                </div>
-                <div class="profile-info-group">
-                    <label>Endereço:</label>
-                    <span id="user-address"></span>
-                </div>
-                <div class="profile-info-group pintor-fields" id="pintor-fields-view">
-                    <label>Experiência:</label>
-                    <span id="user-experience"></span>
-                </div>
-                <div class="profile-info-group pintor-fields" id="pintor-fields-view">
-                    <label>Biografia:</label>
-                    <span id="user-bio"></span>
-                </div>
+    <main class="profile-container">
+        <div id="profile-view" class="profile-card">
+            <h2>Meu Perfil</h2>
+            <p><strong>Nome:</strong> <span id="user-name"></span></p>
+            <p><strong>E-mail:</strong> <span id="user-email"></span></p>
+            <p><strong>Telefone:</strong> <span id="user-phone"></span></p>
+            <p><strong>Endereço:</strong> <span id="user-address"></span></p>
+            <div id="pintor-fields-view">
+                <p><strong>Experiência:</strong> <span id="user-experience"></span></p>
+                <p><strong>Biografia:</strong> <span id="user-bio"></span></p>
             </div>
-            <button id="delete-profile-button" class="btn-aviso">Excluir Perfil</button>
-        </section>
-
-        <section id="profile-edit" class="hidden">
-            <h1>Editar Perfil</h1>
+            <div class="profile-actions">
+                <button id="edit-profile-button">Editar Perfil</button>
+                <button id="logout-button" class="secondary-button">Sair</button>
+                <button id="delete-profile-button" class="danger-button">Excluir Perfil</button>
+            </div>
+        </div>
+        
+        <div id="profile-edit" class="profile-card hidden">
+            <h2>Editar Perfil</h2>
             <form id="edit-form">
-                <div class="form-group">
-                    <label for="edit-name">Nome Completo</label>
-                    <input type="text" id="edit-name" name="nome" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="edit-email">E-mail</label>
-                    <input type="email" id="edit-email" name="email" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="edit-phone">Telefone</label>
-                    <input type="tel" id="edit-phone" name="telefone">
-                </div>
-                <div class="form-group">
-                    <label for="edit-cep">CEP</label>
-                    <input type="text" id="edit-cep" name="cep">
-                </div>
-                <div class="form-group form-row">
-                    <div class="form-field-50">
-                        <label for="edit-cidade">Cidade</label>
-                        <input type="text" id="edit-cidade" name="cidade" readonly>
-                    </div>
-                    <div class="form-field-50">
-                        <label for="edit-estado">Estado</label>
-                        <input type="text" id="edit-estado" name="estado" readonly>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="edit-rua">Rua</label>
-                    <input type="text" id="edit-rua" name="rua">
-                </div>
-                <div class="form-group">
-                    <label for="edit-numero">Número</label>
-                    <input type="text" id="edit-numero" name="numero">
-                </div>
-                <div class="form-group pintor-fields" id="pintor-fields-edit">
-                    <label for="edit-social">Link Rede Social</label>
-                    <input type="url" id="edit-social" name="rede-social">
-                </div>
-                <div class="form-group form-row pintor-fields" id="pintor-fields-edit">
-                    <div class="form-field-50">
-                        <label for="edit-experience">Tempo de Experiência</label>
-                        <input type="number" id="edit-experience" name="experiencia">
-                    </div>
-                    <div class="form-field-50">
-                        <label for="edit-unidade-exp">Unidade</label>
-                        <select id="edit-unidade-exp" name="unidade-experiencia">
+                <input type="text" id="edit-name" placeholder="Nome Completo" disabled>
+                <input type="email" id="edit-email" placeholder="E-mail" disabled>
+                <input type="tel" id="edit-phone" placeholder="Telefone">
+                <input type="text" id="edit-cep" placeholder="CEP">
+                <input type="text" id="edit-cidade" placeholder="Cidade" readonly>
+                <input type="text" id="edit-estado" placeholder="Estado" readonly>
+                <input type="text" id="edit-rua" placeholder="Rua">
+                <input type="text" id="edit-numero" placeholder="Número">
+                <div id="pintor-fields-edit">
+                    <input type="url" id="edit-social" placeholder="Link para rede social">
+                    <div class="experiencia-container">
+                        <input type="number" id="edit-experience" placeholder="Tempo de Experiência" min="0">
+                        <select id="edit-unidade-exp">
                             <option value="meses">Meses</option>
-                            <option value="anos">Anos</option>
+                            <option value="anos" selected>Anos</option>
                         </select>
                     </div>
+                    <textarea id="edit-bio" rows="4" placeholder="Biografia"></textarea>
                 </div>
-                <div class="form-group pintor-fields" id="pintor-fields-edit">
-                    <label for="edit-bio">Biografia</label>
-                    <textarea id="edit-bio" name="biografia" maxlength="200"></textarea>
-                </div>
-                
                 <div class="form-actions">
-                    <button type="submit" class="btn-principal">Salvar Alterações</button>
-                    <button type="button" id="cancel-edit-button" class="btn-secundario">Cancelar</button>
+                    <button type="submit">Salvar Alterações</button>
+                    <button type="button" id="cancel-edit-button" class="secondary-button">Cancelar</button>
                 </div>
             </form>
-        </section>
+        </div>
     </main>
 
-    <script type="module" src="script.js"></script>
+    <footer>
+        <p>&copy; 2024 Pintor Parceiro Veloz. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="script.js" type="module"></script>
 </body>
 </html>
