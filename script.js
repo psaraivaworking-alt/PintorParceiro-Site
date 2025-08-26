@@ -27,7 +27,15 @@ const inputBiografia = document.getElementById('biografia-pintor');
 const contadorBiografia = document.getElementById('contador-biografia-pintor');
 const inputSenha = document.getElementById('senha-pintor');
 const inputConfirmarSenha = document.getElementById('confirmar-senha-pintor');
-const mensagemErro = document.getElementById('error-message-pintor');
+const toggleSenhaBtn = document.getElementById('toggle-senha'); // Novo botão
+const formMessage = document.getElementById('form-message'); // Nova área de mensagem
+
+// --- Função para exibir mensagens no formulário ---
+function displayFormMessage(message, type) {
+    formMessage.textContent = message;
+    formMessage.className = 'form-message ' + type; // Adiciona classe 'success' ou 'error'
+    formMessage.style.display = 'block';
+}
 
 // --- Aplica as Máscaras de Input (IMask) ---
 const cpfMask = new IMask(document.getElementById('cpf-pintor'), {
@@ -60,6 +68,15 @@ checkboxSemNumero.addEventListener('change', () => {
     }
 });
 
+// --- Lógica do botão "Ver Senha" ---
+toggleSenhaBtn.addEventListener('click', () => {
+    const type = inputSenha.type === 'password' ? 'text' : 'password';
+    inputSenha.type = type;
+    inputConfirmarSenha.type = type; // Altera ambos
+    toggleSenhaBtn.textContent = type === 'password' ? 'Ver Senha' : 'Esconder Senha';
+});
+
+
 // --- Lógica de Preenchimento Automático do CEP (ViaCEP) ---
 inputCep.addEventListener('blur', async () => {
     const cep = inputCep.value.replace(/\D/g, '');
@@ -72,18 +89,15 @@ inputCep.addEventListener('blur', async () => {
                 inputCidade.value = data.localidade;
                 inputEstado.value = data.uf;
                 inputRua.value = data.logradouro;
-                mensagemErro.textContent = '';
-                mensagemErro.style.display = 'none';
+                displayFormMessage('', ''); // Limpa qualquer mensagem anterior
             } else {
-                mensagemErro.textContent = 'CEP não encontrado.';
-                mensagemErro.style.display = 'block';
+                displayFormMessage('CEP não encontrado.', 'error');
                 inputCidade.value = '';
                 inputEstado.value = '';
                 inputRua.value = '';
             }
         } catch (error) {
-            mensagemErro.textContent = 'Erro ao buscar CEP. Tente novamente.';
-            mensagemErro.style.display = 'block';
+            displayFormMessage('Erro ao buscar CEP. Tente novamente.', 'error');
         }
     }
 });
@@ -92,13 +106,11 @@ inputCep.addEventListener('blur', async () => {
 formPintor.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    mensagemErro.textContent = '';
-    mensagemErro.style.display = 'none';
+    displayFormMessage('', ''); // Limpa qualquer mensagem anterior
 
     // Validação de Senha
     if (inputSenha.value !== inputConfirmarSenha.value) {
-        mensagemErro.textContent = 'As senhas não coincidem. Por favor, verifique.';
-        mensagemErro.style.display = 'block';
+        displayFormMessage('As senhas não coincidem. Por favor, verifique.', 'error');
         return;
     }
 
@@ -133,8 +145,11 @@ formPintor.addEventListener('submit', async (e) => {
         await db.collection("pintores").doc(user.uid).set(dadosPintor);
 
         // Cadastro bem-sucedido
-        alert('Cadastro realizado com sucesso! Você será redirecionado para a página de login.');
-        window.location.href = 'login.html'; // Redireciona para a página de login
+        displayFormMessage('Cadastro realizado com sucesso! Redirecionando para o login...', 'success');
+        // Redireciona após um pequeno atraso para a mensagem ser lida
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 2000); // 2 segundos de atraso
 
     } catch (error) {
         // Trata os erros do Firebase
@@ -146,10 +161,11 @@ formPintor.addEventListener('submit', async (e) => {
             mensagemDeErro = 'A senha é muito fraca. Ela deve ter no mínimo 6 caracteres.';
         } else if (error.code === 'auth/invalid-email') {
             mensagemDeErro = 'O e-mail fornecido é inválido.';
+        } else {
+             // Erros gerais, pode ser útil para depuração
+             console.error("Erro detalhado do Firebase:", error);
         }
         
-        mensagemErro.textContent = mensagemDeErro;
-        mensagemErro.style.display = 'block';
-        console.error("Erro no cadastro:", error);
+        displayFormMessage(mensagemDeErro, 'error');
     }
 });
