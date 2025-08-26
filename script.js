@@ -123,11 +123,8 @@ if (formPintor && formCliente) {
         console.warn("IMask não foi carregado. As máscaras de entrada não funcionarão.");
     }
     
-
     btnPintor.addEventListener('click', () => alternarFormulario('pintor'));
     btnCliente.addEventListener('click', () => alternarFormulario('cliente'));
-
-    // Adicionado o evento para o CEP
     inputCepPintor.addEventListener('blur', (e) => buscarCep(e.target.value, inputCidadePintor, inputEstadoPintor));
     inputCepCliente.addEventListener('blur', (e) => buscarCep(e.target.value, inputCidadeCliente, inputEstadoCliente));
 
@@ -396,21 +393,17 @@ const cancelEditButton = document.getElementById('cancel-edit-button');
 const logoutButton = document.getElementById('logout-button');
 const deleteProfileButton = document.getElementById('delete-profile-button');
 
-// Carrega as máscaras no formulário de edição do perfil
 if (typeof IMask !== 'undefined' && editForm) {
     const editTelefone = document.getElementById('edit-phone');
     const editCep = document.getElementById('edit-cep');
     new IMask(editTelefone, { mask: '(00) 00000-0000' });
     new IMask(editCep, { mask: '00000-000' });
     
-    // Adicionado o evento para o CEP no formulário de edição
     const editCidade = document.getElementById('edit-cidade');
     const editEstado = document.getElementById('edit-estado');
     editCep.addEventListener('blur', (e) => buscarCep(e.target.value, editCidade, editEstado));
 }
 
-
-// Listener para gerenciar o estado de autenticação em todas as páginas
 onAuthStateChanged(auth, async (user) => {
     const isLoginPage = window.location.pathname.endsWith('login.html');
     const isCadastroPage = window.location.pathname.endsWith('cadastro.html');
@@ -440,7 +433,6 @@ onAuthStateChanged(auth, async (user) => {
                     if (userDoc.exists()) {
                         const userData = userDoc.data();
                         
-                        // Campos de visualização
                         document.getElementById('user-name').textContent = userData.nomeCompleto || 'Não informado';
                         document.getElementById('user-email').textContent = userData.email || 'Não informado';
                         document.getElementById('user-phone').textContent = userData.telefone || 'Não informado';
@@ -451,8 +443,6 @@ onAuthStateChanged(auth, async (user) => {
                             socialLink.textContent = userData.linkRedeSocial ? 'Ver Perfil Social' : 'Não informado';
                         }
                         
-                        // Campos de edição
-                        // O nome não é editável, então apenas o exibe
                         document.getElementById('edit-name').value = userData.nomeCompleto || '';
                         document.getElementById('edit-email').value = userData.email || '';
                         document.getElementById('edit-phone').value = userData.telefone || '';
@@ -479,7 +469,7 @@ onAuthStateChanged(auth, async (user) => {
                         }
                     } else {
                         console.error("ERRO: Documento do usuário não encontrado no Firestore.");
-                        await signOut(auth); // Sai para evitar loops
+                        await signOut(auth);
                         return;
                     }
                 } catch (error) {
@@ -497,7 +487,6 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// Lógica para os botões do perfil (visível apenas em perfil.html)
 if (profileContainer) {
     editProfileButton.addEventListener('click', () => {
         profileView.classList.add('hidden');
