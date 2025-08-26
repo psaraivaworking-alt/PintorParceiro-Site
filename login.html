@@ -5,33 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Plataforma de Pintura</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    
 </head>
 <body>
-
     <div class="login-container">
-        <h1>Entrar na sua Conta</h1>
-        
-        <form id="login-form" class="login-form">
-            <div id="error-message-login" class="error-message"></div>
-
-            <div class="form-section">
-                <input type="email" id="email-login" placeholder="E-mail" required>
-                <input type="password" id="senha-login" placeholder="Senha" required>
-                <a href="#" id="forgot-password-link" class="forgot-password">Esqueceu a senha?</a>
-            </div>
-
+        <h1>Login</h1>
+        <div id="error-message-login" class="error-message"></div>
+        <form id="login-form">
+            <input type="email" id="email-login" placeholder="E-mail" required>
+            <input type="password" id="senha-login" placeholder="Senha" required>
+            <a href="#" id="forgot-password-link">Esqueci minha senha</a>
             <button type="submit">Entrar</button>
         </form>
-        
         <div class="link-cadastro">
             Não tem uma conta? <a href="cadastro.html">Cadastre-se</a>
         </div>
     </div>
-
-<script type="module" src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
