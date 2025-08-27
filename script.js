@@ -420,7 +420,6 @@ if (document.getElementById('form-perfil')) {
     });
 }
 
-
 // ===============================================
 // Lógica Específica da Página de BUSCA
 // ===============================================
@@ -434,31 +433,48 @@ if (document.getElementById('form-busca')) {
     // Variável para a máscara do CEP
     let cepMaskInstance = null;
     
+    // Função para aplicar a máscara do CEP
+    function applyCepMask() {
+        if (!cepMaskInstance) {
+            cepMaskInstance = new IMask(searchQuery, {
+                mask: '00000-000'
+            });
+        }
+    }
+    
+    // Função para remover a máscara
+    function removeCepMask() {
+        if (cepMaskInstance) {
+            cepMaskInstance.destroy();
+            cepMaskInstance = null;
+            searchQuery.value = ''; // Limpa o campo ao mudar a busca
+        }
+    }
+
     // Adiciona o event listener para os botões de rádio
     searchTypeRadios.forEach(radio => {
         radio.addEventListener('change', () => {
             if (radio.value === 'local') {
                 searchQuery.placeholder = 'Digite o CEP (ex: 66000-000)';
-                // Aplica a máscara se ainda não foi aplicada
-                if (!cepMaskInstance) {
-                    cepMaskInstance = new IMask(searchQuery, {
-                        mask: '00000-000'
-                    });
-                }
+                applyCepMask();
             } else {
                 searchQuery.placeholder = 'Digite a Cidade ou Estado (ex: Belém ou PA)';
-                // Remove a máscara se ela existir
-                if (cepMaskInstance) {
-                    cepMaskInstance.destroy();
-                    cepMaskInstance = null;
-                    searchQuery.value = ''; // Limpa o campo para evitar conflitos
-                }
+                removeCepMask();
             }
         });
     });
 
+    // Aplica a máscara na carga inicial da página se "local" for o padrão
+    document.addEventListener('DOMContentLoaded', () => {
+        if (document.getElementById('search-type-local')?.checked) {
+            applyCepMask();
+        }
+    });
+
+
     // Função para exibir os pintores na tela em cards formatados
     function displayPintorCards(pintores) {
+        console.log('Dados recebidos para exibir:', pintores); // Log para ver o que chegou na função
         resultsContainer.innerHTML = '';
         if (pintores.length === 0) {
             displayFormMessage(formMessageBusca, 'Nenhum pintor encontrado com os critérios de busca.', 'error');
@@ -478,11 +494,15 @@ if (document.getElementById('form-busca')) {
             if (pintor.redeSocial && pintor.redeSocial.trim() !== '') {
                 socialMediaHtml = `<p><strong>Rede Social:</strong> <a href="${pintor.redeSocial}" target="_blank">${pintor.redeSocial}</a></p>`;
             }
+            
+            // Corrige a capitalização da cidade para exibição
+            const cidadeExibicao = pintor.cidade.charAt(0).toUpperCase() + pintor.cidade.slice(1);
+            const estadoExibicao = pintor.estado.toUpperCase();
 
             card.innerHTML = `
                 <h3>${pintor.nome}</h3>
                 <p><strong>Telefone:</strong> ${telefoneFormatado}</p>
-                <p><strong>Local:</strong> ${pintor.cidade.charAt(0).toUpperCase() + pintor.cidade.slice(1)} - ${pintor.estado}</p>
+                <p><strong>Local:</strong> ${cidadeExibicao} - ${estadoExibicao}</p>
                 <p><strong>Experiência:</strong> ${pintor.experienciaTempo} ${pintor.experienciaUnidade}</p>
                 ${socialMediaHtml}
                 <p class="pintor-bio">"${pintor.biografia}"</p>
@@ -501,6 +521,8 @@ if (document.getElementById('form-busca')) {
         const query = searchQuery.value.trim();
         const searchType = Array.from(searchTypeRadios).find(radio => radio.checked).value;
         let pintores = [];
+        
+        console.log('Iniciando busca. Tipo:', searchType, 'Termo:', query);
 
         try {
             if (searchType === 'local') {
@@ -519,23 +541,34 @@ if (document.getElementById('form-busca')) {
                 }
 
                 const cidadeNormalizada = normalizeText(data.localidade);
+                
+                console.log('CEP encontrado. Buscando pintores na cidade:', cidadeNormalizada);
 
                 const pintoresRef = db.collection("pintores");
                 const querySnapshot = await pintoresRef.where('cidade', '==', cidadeNormalizada).get();
                 
+                // Mapeia os dados antes de filtrar pelo CEP
+                const todosPintoresDaCidade = querySnapshot.docs.map(doc => doc.data());
+                console.log('Todos os pintores na cidade:', todosPintoresDaCidade);
+
                 const cepPrefix = cepLimpo.substring(0, 5);
-                pintores = querySnapshot.docs
-                    .map(doc => doc.data())
-                    .filter(pintor => pintor.cep.startsWith(cepPrefix));
+                pintores = todosPintoresDaCidade.filter(pintor => pintor.cep.startsWith(cepPrefix));
+                
+                console.log('Pintores filtrados por CEP:', pintores);
 
             } else if (searchType === 'regional') {
                 const termoNormalizado = normalizeText(query);
+                
+                console.log('Iniciando busca regional para:', termoNormalizado);
                 
                 const cidadeQuerySnapshot = await db.collection("pintores").where('cidade', '==', termoNormalizado).get();
                 const cidadeResultados = cidadeQuerySnapshot.docs.map(doc => doc.data());
                 
                 const estadoQuerySnapshot = await db.collection("pintores").where('estado', '==', termoNormalizado.toUpperCase()).get();
                 const estadoResultados = estadoQuerySnapshot.docs.map(doc => doc.data());
+                
+                console.log('Resultados da busca por cidade:', cidadeResultados);
+                console.log('Resultados da busca por estado:', estadoResultados);
 
                 const resultados = [...cidadeResultados, ...estadoResultados];
                 const unicos = {};
@@ -544,6 +577,7 @@ if (document.getElementById('form-busca')) {
                 });
 
                 pintores = Object.values(unicos);
+                console.log('Resultados finais da busca regional:', pintores);
             }
             
             displayPintorCards(pintores);
