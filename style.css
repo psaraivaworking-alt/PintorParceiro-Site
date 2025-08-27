@@ -271,10 +271,20 @@ footer {
 
 .search-options {
     display: flex;
+    flex-wrap: wrap;
     gap: 1.5rem;
     justify-content: center;
     margin-bottom: 1rem;
     font-weight: bold;
+}
+
+.search-options label {
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.search-options input[type="radio"]:checked + label {
+    color: #007bff;
 }
 
 .search-input-container {
@@ -322,16 +332,24 @@ footer {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pintor-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
 }
 
 .pintor-card h3 {
     margin: 0 0 0.5rem 0;
     color: #333;
+    font-size: 1.5rem;
 }
 
 .pintor-card p {
     margin: 0;
-    color: #666;
+    color: #555;
+    line-height: 1.4;
 }
 
 .pintor-card .pintor-bio {
@@ -340,4 +358,33 @@ footer {
     border-top: 1px solid #eee;
     padding-top: 0.5rem;
     margin-top: 0.5rem;
+}
+
+.pintor-card a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.pintor-card a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.whatsapp-link-btn {
+    display: inline-block;
+    background-color: #25D366;
+    color: white !important;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    text-align: center;
+    margin-top: 1rem;
+    transition: background-color 0.3s, transform 0.2s;
+    text-decoration: none !important;
+}
+
+.whatsapp-link-btn:hover {
+    background-color: #128C7E;
+    transform: translateY(-2px);
 }
