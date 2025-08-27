@@ -130,14 +130,16 @@ if (document.getElementById('form-pintor')) {
 
         const email = document.getElementById('email-pintor').value;
         const senha = inputSenha.value;
+        const cidadeOriginal = inputCidade.value;
+        const estadoOriginal = inputEstado.value;
 
         try {
             const userCredential = await auth.createUserWithEmailAndPassword(email, senha);
             const user = userCredential.user;
             
-            // Normaliza os dados de cidade e estado antes de salvar
-            const cidadeNormalizada = normalizeText(inputCidade.value);
-            const estadoNormalizado = normalizeText(inputEstado.value);
+            // Normaliza os dados de cidade e estado ANTES de salvar no banco
+            const cidadeNormalizada = normalizeText(cidadeOriginal);
+            const estadoNormalizado = normalizeText(estadoOriginal);
             
             const dadosPintor = {
                 uid: user.uid,
@@ -146,8 +148,10 @@ if (document.getElementById('form-pintor')) {
                 cpf: unmaskedCpf,
                 telefone: phoneMask.unmaskedValue,
                 cep: cepMask.unmaskedValue,
-                cidade: cidadeNormalizada,
-                estado: inputEstado.value,
+                cidade: cidadeOriginal, // Guarda a cidade original para exibição
+                cidade_normalizada: cidadeNormalizada, // Guarda a versão normalizada para busca
+                estado: estadoOriginal, // Guarda o estado original para exibição
+                estado_normalizado: estadoNormalizado, // Guarda a versão normalizada para busca
                 rua: inputRua.value,
                 numero: document.getElementById('numero-pintor').value,
                 semNumero: checkboxSemNumero.checked,
@@ -361,6 +365,7 @@ if (document.getElementById('form-perfil')) {
                 cpf: cpfMask.unmaskedValue,
                 telefone: phoneMask.unmaskedValue,
                 cep: cepMask.unmaskedValue,
+                // AQUI: Salva os dados originais no perfil para que o usuário possa vê-los no formulário
                 cidade: inputCidade.value,
                 estado: inputEstado.value,
                 rua: inputRua.value,
@@ -429,11 +434,9 @@ if (document.getElementById('form-busca')) {
     const searchTypeRadios = document.getElementsByName('search-type');
     const resultsContainer = document.getElementById('results-container');
     const formMessageBusca = document.getElementById('form-message-busca');
-    
-    // Variável para a máscara do CEP
+
     let cepMaskInstance = null;
-    
-    // Função para aplicar a máscara do CEP
+
     function applyCepMask() {
         if (!cepMaskInstance) {
             cepMaskInstance = new IMask(searchQuery, {
@@ -441,17 +444,15 @@ if (document.getElementById('form-busca')) {
             });
         }
     }
-    
-    // Função para remover a máscara
+
     function removeCepMask() {
         if (cepMaskInstance) {
             cepMaskInstance.destroy();
             cepMaskInstance = null;
-            searchQuery.value = ''; // Limpa o campo ao mudar a busca
+            searchQuery.value = '';
         }
     }
 
-    // Adiciona o event listener para os botões de rádio
     searchTypeRadios.forEach(radio => {
         radio.addEventListener('change', () => {
             if (radio.value === 'local') {
@@ -464,17 +465,16 @@ if (document.getElementById('form-busca')) {
         });
     });
 
-    // Aplica a máscara na carga inicial da página se "local" for o padrão
-    document.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('load', () => {
         if (document.getElementById('search-type-local')?.checked) {
             applyCepMask();
+        } else {
+            searchQuery.placeholder = 'Digite a Cidade ou Estado (ex: Belém ou PA)';
         }
     });
 
-
-    // Função para exibir os pintores na tela em cards formatados
     function displayPintorCards(pintores) {
-        console.log('Dados recebidos para exibir:', pintores); // Log para ver o que chegou na função
+        console.log('Dados recebidos para exibir:', pintores);
         resultsContainer.innerHTML = '';
         if (pintores.length === 0) {
             displayFormMessage(formMessageBusca, 'Nenhum pintor encontrado com os critérios de busca.', 'error');
@@ -484,28 +484,27 @@ if (document.getElementById('form-busca')) {
         pintores.forEach(pintor => {
             const card = document.createElement('div');
             card.className = 'pintor-card';
-            
-            // Cria o link do WhatsApp
+
             const telefoneFormatado = `(${pintor.telefone.substring(0, 2)}) ${pintor.telefone.substring(2, 7)}-${pintor.telefone.substring(7, 11)}`;
             const whatsappLink = `https://wa.me/55${pintor.telefone}?text=Olá,%20vi%20seu%20perfil%20no%20Pintor%20Parceiro%20Veloz%20e%20gostaria%20de%20um%20orçamento.`;
 
-            // HTML para o link de rede social (exibido somente se a rede social existir)
             let socialMediaHtml = '';
             if (pintor.redeSocial && pintor.redeSocial.trim() !== '') {
                 socialMediaHtml = `<p><strong>Rede Social:</strong> <a href="${pintor.redeSocial}" target="_blank">${pintor.redeSocial}</a></p>`;
             }
             
-            // Corrige a capitalização da cidade para exibição
-            const cidadeExibicao = pintor.cidade.charAt(0).toUpperCase() + pintor.cidade.slice(1);
-            const estadoExibicao = pintor.estado.toUpperCase();
+            // Usa o campo original para exibição
+            const cidadeExibicao = pintor.cidade;
+            const estadoExibicao = pintor.estado;
 
             card.innerHTML = `
                 <h3>${pintor.nome}</h3>
-                <p><strong>Telefone:</strong> ${telefoneFormatado}</p>
+                <p><strong>CEP:</strong> ${pintor.cep}</p>
                 <p><strong>Local:</strong> ${cidadeExibicao} - ${estadoExibicao}</p>
                 <p><strong>Experiência:</strong> ${pintor.experienciaTempo} ${pintor.experienciaUnidade}</p>
                 ${socialMediaHtml}
                 <p class="pintor-bio">"${pintor.biografia}"</p>
+                <p><strong>Telefone:</strong> ${telefoneFormatado}</p>
                 <a href="${whatsappLink}" target="_blank" class="whatsapp-link-btn">Entrar em contato via WhatsApp</a>
             `;
             resultsContainer.appendChild(card);
@@ -517,11 +516,11 @@ if (document.getElementById('form-busca')) {
         e.preventDefault();
         displayFormMessage(formMessageBusca, 'Buscando pintores...', 'info');
         resultsContainer.innerHTML = '';
-        
+
         const query = searchQuery.value.trim();
         const searchType = Array.from(searchTypeRadios).find(radio => radio.checked).value;
         let pintores = [];
-        
+
         console.log('Iniciando busca. Tipo:', searchType, 'Termo:', query);
 
         try {
@@ -531,42 +530,41 @@ if (document.getElementById('form-busca')) {
                     displayFormMessage(formMessageBusca, 'Por favor, digite um CEP válido com 8 dígitos.', 'error');
                     return;
                 }
-                
+
                 const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
                 const data = await response.json();
-                
+
                 if (data.erro) {
                     displayFormMessage(formMessageBusca, 'CEP não encontrado. Tente uma busca regional.', 'error');
                     return;
                 }
 
                 const cidadeNormalizada = normalizeText(data.localidade);
-                
-                console.log('CEP encontrado. Buscando pintores na cidade:', cidadeNormalizada);
+
+                console.log('CEP encontrado. Buscando pintores na cidade normalizada:', cidadeNormalizada);
 
                 const pintoresRef = db.collection("pintores");
-                const querySnapshot = await pintoresRef.where('cidade', '==', cidadeNormalizada).get();
-                
-                // Mapeia os dados antes de filtrar pelo CEP
+                const querySnapshot = await pintoresRef.where('cidade_normalizada', '==', cidadeNormalizada).get();
+
                 const todosPintoresDaCidade = querySnapshot.docs.map(doc => doc.data());
                 console.log('Todos os pintores na cidade:', todosPintoresDaCidade);
 
                 const cepPrefix = cepLimpo.substring(0, 5);
                 pintores = todosPintoresDaCidade.filter(pintor => pintor.cep.startsWith(cepPrefix));
-                
+
                 console.log('Pintores filtrados por CEP:', pintores);
 
             } else if (searchType === 'regional') {
                 const termoNormalizado = normalizeText(query);
-                
+
                 console.log('Iniciando busca regional para:', termoNormalizado);
-                
-                const cidadeQuerySnapshot = await db.collection("pintores").where('cidade', '==', termoNormalizado).get();
+
+                const cidadeQuerySnapshot = await db.collection("pintores").where('cidade_normalizada', '==', termoNormalizado).get();
                 const cidadeResultados = cidadeQuerySnapshot.docs.map(doc => doc.data());
-                
-                const estadoQuerySnapshot = await db.collection("pintores").where('estado', '==', termoNormalizado.toUpperCase()).get();
+
+                const estadoQuerySnapshot = await db.collection("pintores").where('estado_normalizado', '==', termoNormalizado.toUpperCase()).get();
                 const estadoResultados = estadoQuerySnapshot.docs.map(doc => doc.data());
-                
+
                 console.log('Resultados da busca por cidade:', cidadeResultados);
                 console.log('Resultados da busca por estado:', estadoResultados);
 
@@ -579,7 +577,7 @@ if (document.getElementById('form-busca')) {
                 pintores = Object.values(unicos);
                 console.log('Resultados finais da busca regional:', pintores);
             }
-            
+
             displayPintorCards(pintores);
 
         } catch (error) {
