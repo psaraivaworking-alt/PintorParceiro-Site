@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buscar Pintor - Pintor Parceiro Veloz</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/imask"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <header>
@@ -22,28 +25,29 @@
         </nav>
     </header>
 
-    <main class="form-container">
-        <h2>Encontre o Pintor na sua Região</h2>
-        <form id="form-busca">
-            <p class="error-message" id="error-message-busca"></p>
-            <input type="text" id="cep-busca" placeholder="Digite seu CEP para buscar na sua cidade" required>
-            <div class="radio-group">
+    <main class="main-busca">
+        <h2>Encontre o Pintor Certo para Você</h2>
+        <form id="form-busca" class="search-form">
+            <div class="search-options">
                 <label>
-                    <input type="radio" name="tipo-busca" value="cidade" checked> Buscar por Cidade
+                    <input type="radio" name="search-type" value="local" checked>
+                    Busca Local (por CEP)
                 </label>
                 <label>
-                    <input type="radio" name="tipo-busca" value="cep"> Buscar por CEP
+                    <input type="radio" name="search-type" value="regional">
+                    Busca Regional (por Cidade/Estado)
                 </label>
             </div>
-            <button type="submit">Buscar Pintores</button>
+            <div class="search-input-container">
+                <input type="text" id="search-query" placeholder="Digite o CEP, Cidade ou Estado" required>
+                <button type="submit">Buscar</button>
+            </div>
         </form>
+
+        <p class="form-message" id="form-message-busca"></p>
         
-        <div class="resultados-container">
-            <h3>Resultados da Busca</h3>
-            <p class="no-results" id="no-results" style="display: none;">Nenhum pintor encontrado nesta região. Tente uma nova busca.</p>
-            <div id="resultados-busca">
-                </div>
-        </div>
+        <div id="results-container" class="results-container">
+            </div>
     </main>
 
     <footer>
