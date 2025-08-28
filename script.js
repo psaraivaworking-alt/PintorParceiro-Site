@@ -201,7 +201,8 @@ if (document.getElementById('form-login')) {
     const formLogin = document.getElementById('form-login');
     const inputEmailLogin = document.getElementById('email-login');
     const inputSenhaLogin = document.getElementById('senha-login');
-    const formMessageLogin = document.getElementById('form-message-login');
+    // CORRIGIDO: O ID do elemento de mensagem no login.html é 'form-message', não 'form-message-login'.
+    const formMessageLogin = document.getElementById('form-message');
     const forgotPasswordLink = document.getElementById('forgot-password-link');
 
     formLogin.addEventListener('submit', async (e) => {
@@ -243,7 +244,7 @@ if (document.getElementById('form-login')) {
             if (error.code === 'auth/invalid-email') {
                 mensagemDeErro = 'O e-mail fornecido é inválido.';
             } else if (error.code === 'auth/user-not-found') {
-                 mensagemDeErro = 'Nenhum usuário encontrado com este e-mail.';
+                mensagemDeErro = 'Nenhum usuário encontrado com este e-mail.';
             }
             displayFormMessage(formMessageLogin, mensagemDeErro, 'error');
         }
@@ -383,7 +384,7 @@ if (document.getElementById('form-perfil')) {
                 cidade: inputCidade.value,
                 cidade_normalizada: normalizeText(inputCidade.value),
                 estado: inputEstado.value,
-                estado_normalizado: normalizeText(inputEstado.value), // Corrigido para consistência
+                estado_normalizada: normalizeText(inputEstado.value), // Corrigido para consistência
                 rua: inputRua.value,
                 numero: inputNumero.value,
                 semNumero: checkboxSemNumero.checked,
