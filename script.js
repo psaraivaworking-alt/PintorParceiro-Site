@@ -16,13 +16,19 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 // Seleciona elementos da navegação (comuns a todas as páginas)
-const navPerfil = document.getElementById('nav-perfil');
+// Este elemento pode ser mantido mesmo que não seja visível em todas as páginas
+// Se 'nav-perfil' não existe na página, esta linha não causará erro.
+const navPerfil = document.getElementById('nav-perfil'); 
 
 // --- Função para exibir mensagens no formulário ---
 function displayFormMessage(formMessageElement, message, type) {
-    formMessageElement.textContent = message;
-    formMessageElement.className = 'form-message ' + type;
-    formMessageElement.style.display = 'block';
+    if (formMessageElement) { // Verifica se o elemento existe
+        formMessageElement.textContent = message;
+        formMessageElement.className = 'form-message ' + type;
+        formMessageElement.style.display = 'block';
+    } else {
+        console.warn('Elemento de mensagem do formulário não encontrado:', formMessageElement);
+    }
 }
 
 // --- Função para normalizar texto para busca (remove acentos e transforma em minúsculas) ---
@@ -31,11 +37,18 @@ function normalizeText(text) {
 }
 
 // --- Lógica de verificação do login na navegação ---
+// Adapte esta lógica conforme a sua nova navegação se comportar
+// Se a navegação não depender de mostrar/esconder itens para perfil,
+// você pode remover ou ajustar este bloco.
 auth.onAuthStateChanged(user => {
-    if (user) {
-        navPerfil.classList.remove('hidden');
-    } else {
-        navPerfil.classList.add('hidden');
+    if (navPerfil) { // Só tenta manipular se o elemento existir
+        if (user) {
+            navPerfil.classList.remove('hidden');
+            // Você pode redirecionar para perfil se quiser que o login leve direto ao perfil
+            // window.location.href = 'perfil.html'; 
+        } else {
+            navPerfil.classList.add('hidden');
+        }
     }
 });
 
@@ -83,12 +96,14 @@ if (document.getElementById('form-pintor')) {
         }
     });
 
-    toggleSenhaBtn.addEventListener('click', () => {
-        const type = inputSenha.type === 'password' ? 'text' : 'password';
-        inputSenha.type = type;
-        inputConfirmarSenha.type = type;
-        toggleSenhaBtn.textContent = type === 'password' ? 'Ver Senha' : 'Esconder Senha';
-    });
+    if (toggleSenhaBtn) { // Verifica se o botão existe (apenas para cadastro/perfil)
+        toggleSenhaBtn.addEventListener('click', () => {
+            const type = inputSenha.type === 'password' ? 'text' : 'password';
+            inputSenha.type = type;
+            inputConfirmarSenha.type = type;
+            toggleSenhaBtn.textContent = type === 'password' ? 'Ver Senha' : 'Esconder Senha';
+        });
+    }
 
     inputCep.addEventListener('blur', async () => {
         const cep = inputCep.value.replace(/\D/g, '');
@@ -137,7 +152,6 @@ if (document.getElementById('form-pintor')) {
             const userCredential = await auth.createUserWithEmailAndPassword(email, senha);
             const user = userCredential.user;
             
-            // Normaliza os dados de cidade e estado ANTES de salvar no banco
             const cidadeNormalizada = normalizeText(cidadeOriginal);
             const estadoNormalizado = normalizeText(estadoOriginal);
             
@@ -148,18 +162,19 @@ if (document.getElementById('form-pintor')) {
                 cpf: unmaskedCpf,
                 telefone: phoneMask.unmaskedValue,
                 cep: cepMask.unmaskedValue,
-                cidade: cidadeOriginal, // Guarda a cidade original para exibição
-                cidade_normalizada: cidadeNormalizada, // Guarda a versão normalizada para busca
-                estado: estadoOriginal, // Guarda o estado original para exibição
-                estado_normalizado: estadoNormalizado, // Guarda a versão normalizada para busca
+                cidade: cidadeOriginal,
+                cidade_normalizada: cidadeNormalizada,
+                estado: estadoOriginal,
+                estado_normalizada: estadoNormalizado,
                 rua: inputRua.value,
                 numero: document.getElementById('numero-pintor').value,
                 semNumero: checkboxSemNumero.checked,
                 redeSocial: document.getElementById('rede-social-pintor').value,
                 experienciaTempo: document.getElementById('experiencia-pintor').value,
-                experienciaUnidade: document.getElementById('unidade-experiencia-pintor').value,
+                experienciaUnidade: 'anos', // Agora é fixo como 'anos'
                 biografia: inputBiografia.value
             };
+            
             await db.collection("pintores").doc(user.uid).set(dadosPintor);
             displayFormMessage(formMessageCadastro, 'Cadastro realizado com sucesso! Redirecionando...', 'success');
             setTimeout(() => {
@@ -365,9 +380,10 @@ if (document.getElementById('form-perfil')) {
                 cpf: cpfMask.unmaskedValue,
                 telefone: phoneMask.unmaskedValue,
                 cep: cepMask.unmaskedValue,
-                // AQUI: Salva os dados originais no perfil para que o usuário possa vê-los no formulário
                 cidade: inputCidade.value,
+                cidade_normalizada: normalizeText(inputCidade.value),
                 estado: inputEstado.value,
+                estado_normalizado: normalizeText(inputEstado.value), // Corrigido para consistência
                 rua: inputRua.value,
                 numero: inputNumero.value,
                 semNumero: checkboxSemNumero.checked,
@@ -459,7 +475,7 @@ if (document.getElementById('form-busca')) {
                 searchQuery.placeholder = 'Digite o CEP (ex: 66000-000)';
                 applyCepMask();
             } else {
-                searchQuery.placeholder = 'Digite a Cidade ou Estado (ex: Belém ou PA)';
+                searchQuery.placeholder = 'Digite a Cidade (ex: Belém )';
                 removeCepMask();
             }
         });
@@ -469,12 +485,19 @@ if (document.getElementById('form-busca')) {
         if (document.getElementById('search-type-local')?.checked) {
             applyCepMask();
         } else {
-            searchQuery.placeholder = 'Digite a Cidade ou Estado (ex: Belém ou PA)';
+            searchQuery.placeholder = 'Digite a Cidade (ex: Belém)';
+        }
+    });
+    
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            if (document.getElementById('search-type-local')?.checked) {
+                applyCepMask();
+            }
         }
     });
 
     function displayPintorCards(pintores) {
-        console.log('Dados recebidos para exibir:', pintores);
         resultsContainer.innerHTML = '';
         if (pintores.length === 0) {
             displayFormMessage(formMessageBusca, 'Nenhum pintor encontrado com os critérios de busca.', 'error');
@@ -493,7 +516,6 @@ if (document.getElementById('form-busca')) {
                 socialMediaHtml = `<p><strong>Rede Social:</strong> <a href="${pintor.redeSocial}" target="_blank">${pintor.redeSocial}</a></p>`;
             }
             
-            // Usa o campo original para exibição
             const cidadeExibicao = pintor.cidade;
             const estadoExibicao = pintor.estado;
 
@@ -521,8 +543,6 @@ if (document.getElementById('form-busca')) {
         const searchType = Array.from(searchTypeRadios).find(radio => radio.checked).value;
         let pintores = [];
 
-        console.log('Iniciando busca. Tipo:', searchType, 'Termo:', query);
-
         try {
             if (searchType === 'local') {
                 const cepLimpo = query.replace(/\D/g, '');
@@ -541,32 +561,22 @@ if (document.getElementById('form-busca')) {
 
                 const cidadeNormalizada = normalizeText(data.localidade);
 
-                console.log('CEP encontrado. Buscando pintores na cidade normalizada:', cidadeNormalizada);
-
                 const pintoresRef = db.collection("pintores");
                 const querySnapshot = await pintoresRef.where('cidade_normalizada', '==', cidadeNormalizada).get();
 
                 const todosPintoresDaCidade = querySnapshot.docs.map(doc => doc.data());
-                console.log('Todos os pintores na cidade:', todosPintoresDaCidade);
 
                 const cepPrefix = cepLimpo.substring(0, 5);
                 pintores = todosPintoresDaCidade.filter(pintor => pintor.cep.startsWith(cepPrefix));
 
-                console.log('Pintores filtrados por CEP:', pintores);
-
             } else if (searchType === 'regional') {
                 const termoNormalizado = normalizeText(query);
-
-                console.log('Iniciando busca regional para:', termoNormalizado);
 
                 const cidadeQuerySnapshot = await db.collection("pintores").where('cidade_normalizada', '==', termoNormalizado).get();
                 const cidadeResultados = cidadeQuerySnapshot.docs.map(doc => doc.data());
 
                 const estadoQuerySnapshot = await db.collection("pintores").where('estado_normalizado', '==', termoNormalizado.toUpperCase()).get();
                 const estadoResultados = estadoQuerySnapshot.docs.map(doc => doc.data());
-
-                console.log('Resultados da busca por cidade:', cidadeResultados);
-                console.log('Resultados da busca por estado:', estadoResultados);
 
                 const resultados = [...cidadeResultados, ...estadoResultados];
                 const unicos = {};
@@ -575,7 +585,6 @@ if (document.getElementById('form-busca')) {
                 });
 
                 pintores = Object.values(unicos);
-                console.log('Resultados finais da busca regional:', pintores);
             }
 
             displayPintorCards(pintores);
@@ -585,4 +594,43 @@ if (document.getElementById('form-busca')) {
             displayFormMessage(formMessageBusca, 'Ocorreu um erro ao realizar a busca. Tente novamente mais tarde.', 'error');
         }
     });
+}
+
+
+// ===============================================
+// Lógica Específica da Página INICIAL (INDEX)
+// ===============================================
+// Lógica de animação de números para o index
+const numbers = document.querySelectorAll('.number');
+
+const animateNumbers = () => {
+    numbers.forEach(number => {
+        const target = parseInt(number.getAttribute('data-target'));
+        const isSatisfaction = number.nextElementSibling.textContent.includes('Satisfação');
+        let current = 0;
+        const increment = target / 100;
+
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                clearInterval(timer);
+                current = target;
+            }
+            number.textContent = isSatisfaction ? `${Math.round(current)}%` : Math.round(current);
+        }, 10);
+    });
+};
+
+// Observar a seção para iniciar a animação quando ela estiver visível
+const whyChooseSection = document.querySelector('.why-choose-us-section');
+if (whyChooseSection) {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateNumbers();
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 }); // Inicia quando 50% da seção está visível
+    observer.observe(whyChooseSection);
 }
