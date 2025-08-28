@@ -3,59 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buscar Pintor - Pintor Parceiro Veloz</title>
+    <title>Buscar Pintor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/imask"></script>
-
-    
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/Dy0LN510/Marca-Pintor-Parceiro-1.png">
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">
-                <a href="index.html">Pintor Parceiro Veloz</a>
-            </div>
-            <ul class="nav-links">
-                <li class="active"><a href="busca.html">Buscar Pintor</a></li>
-                <li><a href="cadastro.html">Cadastro</a></li>
-                <li><a href="login.html">Login</a></li>
-                <li><a href="perfil.html" id="nav-perfil" class="hidden">Meu Perfil</a></li>
-            </ul>
-        </nav>
+
+    <header class="main-header">
+        <div class="header-content">
+            <a href="index.html" class="nav-icon"><i class="fas fa-arrow-left"></i></a>
+            <nav class="header-nav">
+                <a href="login.html" class="nav-link">Login</a>
+                <a href="cadastro.html" class="nav-link">Cadastro</a>
+            </nav>
+        </div>
     </header>
 
-    <main class="main-busca">
-        <h2>Encontre o Pintor Certo para Você</h2>
-        <form id="form-busca" class="search-form">
-            <div class="search-options">
-                <label>
-                    <input type="radio" name="search-type" value="local" checked>
-                    Busca Local (por CEP)
-                </label>
-                <label>
-                    <input type="radio" name="search-type" value="regional">
-                    Busca Regional (por Cidade/Estado)
-                </label>
-            </div>
-            <div class="search-input-container">
-                <input type="text" id="search-query" placeholder="Digite o CEP, Cidade ou Estado" required>
-                <button type="submit">Buscar</button>
-            </div>
-        </form>
+    <main>
+        <section class="form-section">
+            <div class="form-container">
+                <h2>Encontre um Pintor</h2>
+                <div id="form-message-busca" class="form-message"></div>
+                <form id="form-busca" action="#" method="GET">
+                    <div class="form-group">
+                        <label>Escolha o tipo de busca:</label>
+                        <div class="radio-group">
+                             <label for="search-type-local">Por CEP:</label>
+                            <input type="radio" id="search-type-local" name="search-type" value="local" checked>
 
-        <p class="form-message" id="form-message-busca"></p>
-        
-        <div id="results-container" class="results-container">
+                                   <label for="search-type-regional">Por Cidade:</label>
+                            <input type="radio" id="search-type-regional" name="search-type" value="regional">
+                    
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="search-query">Digite sua busca:</label>
+                        <input type="text" id="search-query" name="search-query" placeholder="Digite o CEP (ex: 66000-000)" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Buscar</button>
+                </form>
             </div>
+            <div id="results-container" class="results-container">
+                
+                </div>
+        </section>
     </main>
-
-    <footer>
-        <p>&copy; 2024 Pintor Parceiro Veloz. Todos os direitos reservados.</p>
+ <div class="disclaimer-text">
+                <p>Obs: A Tintas Veloz não se responsabiliza pelos serviços contratados. A plataforma tem a função de conectar profissionais com clientes.</p>
+            </div>
+   <footer class="main-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 Pintor Parceiro Veloz. Todos os direitos reservados.</p>
+            <p>By @equipemarketing Tintas Veloz.</p>
+        </div>
     </footer>
-
-    <script src="script.js" type="module"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.0.7/imask.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
