@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Login - Pintor Parceiro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="https://i.postimg.cc/Dy0LN510/Marca-Pintor-Parceiro-1.png">
 </head>
@@ -14,7 +14,7 @@
         <div class="header-content">
             <a href="index.html" class="nav-icon"><i class="fas fa-arrow-left"></i></a>
             <nav class="header-nav">
-                <a href="cadastro.html" class="nav-link">Cadastro</a>
+                <a href="cadastro.html" class="nav-link">Cadastrar</a>
                 <a href="busca.html" class="nav-link">Buscar Pintor</a>
             </nav>
         </div>
@@ -22,26 +22,33 @@
 
     <main>
         <section class="form-section">
-            <div class="form-container">
-                <h2>Login</h2>
-                <div id="form-message-login" class="form-message"></div>
-                <form id="form-login" action="#" method="POST">
-                    <div class="form-group">
-                        <label for="email-login">E-mail</label>
-                        <input type="email" id="email-login" name="email-login" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="senha-login">Senha</label>
-                        <input type="password" id="senha-login" name="senha-login" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Entrar</button>
-                    <small style="display: block; text-align: center; margin-top: 15px;"><a href="#" id="forgot-password-link">Esqueceu a senha?</a></small>
-                </form>
+            <div class="form-wrapper">
+                <div class="login-banner"></div>
+                <div class="form-container">
+                    <h2>Login do Pintor</h2>
+                    <div id="form-message" class="form-message"></div>
+                    <form id="form-login" action="#" method="POST">
+                        <div class="form-group">
+                            <label for="email-login">E-mail</label>
+                            <input type="email" id="email-login" name="email-login" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="senha-login">Senha</label>
+                            <input type="password" id="senha-login" name="senha-login" required>
+                        </div>
+                        <div class="form-links">
+                            <a href="#" id="forgot-password-link">Esqueci a senha</a>
+                            <br>
+                       
+                        </div>
+                        <button type="submit" class="btn-primary">Entrar</button>
+                    </form>
+                </div>
             </div>
         </section>
     </main>
 
-      <footer class="main-footer">
+     <footer class="main-footer">
         <div class="footer-content">
             <p>&copy; 2025 Pintor Parceiro Veloz. Todos os direitos reservados.</p>
             <p>By @equipemarketing Tintas Veloz.</p>
@@ -50,6 +57,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
