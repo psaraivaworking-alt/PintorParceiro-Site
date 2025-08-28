@@ -3,61 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pintor Parceiro Veloz - Encontre o Pintor Ideal</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Pintor Parceiro Veloz</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/Dy0LN510/Marca-Pintor-Parceiro-1.png">
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">
-                <a href="index.html">Pintor Parceiro Veloz</a>
-            </div>
-            <ul class="nav-links">
-                <li><a href="busca.html">Buscar Pintor</a></li>
-                <li><a href="cadastro.html">Cadastro</a></li>
-                <li><a href="login.html">Login</a></li>
-                <li><a href="perfil.html" id="nav-perfil" class="hidden">Meu Perfil</a></li>
-            </ul>
-        </nav>
+
+    <header class="main-header">
+        <div class="header-content">
+            <nav class="header-nav">
+                <a href="login.html" class="nav-link">Login</a>
+                <a href="cadastro.html" class="nav-link">Cadastro</a>
+                <a href="busca.html" class="nav-link">Buscar Pintor</a>
+            </nav>
+        </div>
     </header>
 
-    <main class="home-main">
-        <section class="hero">
-            <h1>Encontre o Pintor Perfeito para o seu Projeto</h1>
-            <p>Conectamos você aos melhores pintores da sua região, de forma rápida e segura.</p>
-            <div class="cta-buttons">
-                <a href="busca.html" class="cta-button primary">Buscar um Pintor</a>
-                <a href="cadastro.html" class="cta-button secondary">Cadastrar-se como Pintor</a>
+    <main>
+        <section class="banner-section">
+            <img src="https://i.postimg.cc/Bn11QH1S/Abertura-do-site.jpg" alt="Abertura do site" class="banner-image">
+            <h1 class="section-title">O que é o Pintor Parceiro?</h1>
+            <p class="section-text">Pintor Parceiro Veloz é uma iniciativa da Tintas Veloz 
+                que reconhece e valoriza os pintores profissionais que confiam em nossos produtos. 
+                O programa promove encontros e eventos em diversas cidades do Norte e Nordeste, 
+                criando momentos de aprendizado, troca de experiências e celebração. Nosso objetivo 
+                é estreitar a relação com os pintores, apresentar as novidades da linha de tintas e, 
+                acima de tudo, homenagear o talento e a dedicação desses profissionais que transformam 
+                cada obra em resultado de qualidade.</p>
+        </section>
+
+        <section class="features-section alt-bg-section">
+            <h2 class="section-title">Nossos Benefícios</h2>
+            <div class="card-grid">
+                <div class="info-card">
+                    <i class="fas fa-handshake"></i>
+                    <h3>Conexão Profissional</h3>
+                    <p>Reúna-se com outros pintores para fazer networking e compartilhar conhecimentos.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-brush"></i>
+                    <h3>Inovação em Produtos</h3>
+                    <p>Descubra as novidades e os diferenciais da linha de tintas Veloz em nossos eventos exclusivos.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <h3>Eventos Regionais</h3>
+                    <p>Participe de encontros em sua região, com dias de aprendizado e troca de experiências.</p>
+                </div>
             </div>
         </section>
-        
-        <section class="features">
-            <h2>Por que escolher o Pintor Parceiro Veloz?</h2>
-            <div class="feature-cards">
-                <div class="card">
-                    <i class="fas fa-search"></i>
-                    <h3>Busca Rápida</h3>
-                    <p>Encontre profissionais qualificados em segundos, filtrando por localização e experiência.</p>
+
+        <section class="find-pintor-section">
+            <h2 class="section-title">Encontre o Pintor perto de você</h2>
+            <p class="section-text">A maior plataforma para conectar você aos melhores pintores. Busque por CEP e encontre profissionais qualificados na sua região.</p>
+            <a href="busca.html" class="btn-busca"><i class="fas fa-compass"></i> Buscar Pintores</a>
+           
+            <div class="card-grid">
+                <div class="info-card">
+                    <i class="fas fa-search-location"></i>
+                    <h3>Busca Inteligente</h3>
+                    <p>Encontre pintores qualificados na sua região usando apenas o CEP.</p>
                 </div>
-                <div class="card">
-                    <i class="fas fa-handshake"></i>
+                <div class="info-card">
+                    <i class="fas fa-clipboard-check"></i>
                     <h3>Profissionais Verificados</h3>
-                    <p>Todos os pintores em nossa plataforma passam por um processo de validação.</p>
+                    <p>Todos os profissionais passam por uma verificação de dados e experiência.</p>
                 </div>
-                <div class="card">
-                    <i class="fas fa-star"></i>
-                    <h3>Avaliações</h3>
-                    <p>Veja as avaliações de outros clientes e escolha o melhor profissional para o seu projeto.</p>
+                <div class="info-card">
+                    <i class="fas fa-award"></i>
+                    <h3>Qualidade Garantida</h3>
+                    <p>Conecte-se com profissionais experientes e bem avaliados por outros clientes.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-phone-alt"></i>
+                    <h3>Contato Direto</h3>
+                    <p>Entre em contato com os pintores da sua região de forma simples e rápida.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="why-choose-us-section alt-bg-section">
+            <h2 class="section-title">Por que escolher o Pintor Parceiro?</h2>
+            <p class="section-text">Oferecemos a melhor experiência para conectar você aos pintores mais qualificados.</p>
+            <ul class="why-choose-list">
+                <li>Busca por CEP simples e rápida</li>
+                <li>Informações completas de contato</li>
+                <li>Sem taxas de uso e cadastro</li>
+                <li>Cobertura em toda região Norte e Nordeste</li>
+            </ul>
+            <div class="animated-numbers-container">
+                <div class="number-card">
+                    <span class="number" data-target="500">0</span>
+                    <p>Pintores Cadastrados</p>
+                </div>
+                <div class="number-card">
+                    <span class="number" data-target="50">0</span>
+                    <p>Cidades Atendidas</p>
+                </div>
+                <div class="number-card">
+                    <span class="number" data-target="98">0</span>
+                    <p>Satisfação</p>
+                </div>
+                <div class="number-card">
+                    <span class="number" data-target="24">0</span>
+                    <p>Resposta Média</p>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer>
-        <p>&copy; 2024 Pintor Parceiro Veloz. Todos os direitos reservados.</p>
+
+ <!--       
+<script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+<df-messenger
+  chat-icon="https:&#x2F;&#x2F;i.postimg.cc&#x2F;026gsnXr&#x2F;Copilot-20250828-115116.png"
+  intent="WELCOME"
+  chat-title="VELOZINHA"
+  agent-id="8181e44e-af3a-465d-b5bb-27bd4a63d906"
+  language-code="pt-br"
+  wait-open	
+></df-messenger>
+
+<style>
+  df-messenger {
+   --df-messenger-bot-message: #3affff;
+   --df-messenger-button-titlebar-color: #e0eff1;
+   --df-messenger-chat-background-color: #fafafa;
+   --df-messenger-font-color: rgb(0, 0, 0);
+   --df-messenger-send-icon: #000000;
+   --df-messenger-user-message: #ffffff;
+  }
+</style>
+-->
+
+
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 Pintor Parceiro Veloz. Todos os direitos reservados.</p>
+            <p>By @equipemarketing Tintas Veloz.</p>
+        </div>
     </footer>
 
-    <script src="script.js" type="module"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.0.7/imask.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
