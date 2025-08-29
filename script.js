@@ -201,7 +201,6 @@ if (document.getElementById('form-login')) {
     const formLogin = document.getElementById('form-login');
     const inputEmailLogin = document.getElementById('email-login');
     const inputSenhaLogin = document.getElementById('senha-login');
-    // CORRIGIDO: O ID do elemento de mensagem no login.html é 'form-message', não 'form-message-login'.
     const formMessageLogin = document.getElementById('form-message');
     const forgotPasswordLink = document.getElementById('forgot-password-link');
 
@@ -576,7 +575,7 @@ if (document.getElementById('form-busca')) {
                 const cidadeQuerySnapshot = await db.collection("pintores").where('cidade_normalizada', '==', termoNormalizado).get();
                 const cidadeResultados = cidadeQuerySnapshot.docs.map(doc => doc.data());
 
-                const estadoQuerySnapshot = await db.collection("pintores").where('estado_normalizado', '==', termoNormalizado.toUpperCase()).get();
+                const estadoQuerySnapshot = await db.collection("pintores").where('estado_normalizada', '==', termoNormalizado.toUpperCase()).get();
                 const estadoResultados = estadoQuerySnapshot.docs.map(doc => doc.data());
 
                 const resultados = [...cidadeResultados, ...estadoResultados];
@@ -606,8 +605,12 @@ const numbers = document.querySelectorAll('.number');
 
 const animateNumbers = () => {
     numbers.forEach(number => {
+        // Obtenha o valor numérico do 'data-target'
         const target = parseInt(number.getAttribute('data-target'));
-        const isSatisfaction = number.nextElementSibling.textContent.includes('Satisfação');
+        // Obtenha o texto do próximo elemento (<p>)
+        const textElement = number.nextElementSibling;
+        const textContent = textElement ? textElement.textContent.toLowerCase() : '';
+
         let current = 0;
         const increment = target / 100;
 
@@ -617,7 +620,16 @@ const animateNumbers = () => {
                 clearInterval(timer);
                 current = target;
             }
-            number.textContent = isSatisfaction ? `${Math.round(current)}%` : Math.round(current);
+            
+            // Verifique se o texto inclui "satisfação" ou "resposta média" e formate corretamente
+            if (textContent.includes('satisfação')) {
+                number.textContent = `${Math.round(current)}%`;
+            } else if (textContent.includes('resposta média')) {
+                number.textContent = `${Math.round(current)}h`;
+            } else {
+                // Adicione o "+" para os outros itens
+                number.textContent = `+${Math.round(current)}`;
+            }
         }, 10);
     });
 };
