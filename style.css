@@ -455,7 +455,14 @@ section {
     gap: 20px; /* Espaço entre os cartões */
 }
 
+.results-container{
+    display: flex;
+     flex-wrap: wrap;
+      justify-content: center;  gap: 20px; /* Espaço entre os cartões */
+}
+
 .pintor-card {
+    margin-bottom: 20px;
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
