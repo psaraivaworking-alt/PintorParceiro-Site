@@ -119,7 +119,7 @@ que transformam cada obra em resultado de qualidade.
 <df-messenger
   chat-icon="https://i.postimg.cc/nhp6bzZd/Copilot-20250829-130353.png"
   intent="WELCOME"
-  chat-title="VELOZINHA"
+  chat-title="TINA"
   agent-id="8181e44e-af3a-465d-b5bb-27bd4a63d906"
   language-code="pt-br"
   wait-open	
@@ -129,11 +129,37 @@ que transformam cada obra em resultado de qualidade.
   df-messenger {
    --df-messenger-bot-message: #3affff;
    --df-messenger-button-titlebar-color: #e0eff1;
+   --df-messenger-bot-message: #3affff;
    --df-messenger-chat-background-color: #fafafa;
    --df-messenger-font-color: rgb(0, 0, 0);
    --df-messenger-send-icon: #000000;
    --df-messenger-user-message: #ffffff;
+   --df-messenger-button-titlebar-font-color:#000000;	 /* Color do titulo*/
   }
+
+/* Mover o widget do Dialogflow */
+df-messenger {
+  position: fixed !important;
+  bottom: 80px !important; /* sobe o chat para não ficar colado no nav */
+  right: 50px !important;
+  z-index: 9999 !important; /* garante que fique acima do conteúdo */
+}
+
+/* Ajustar a janela de chat aberta */
+df-messenger chat-wrapper {
+  bottom: 80px !important;
+}
+
+@media (max-width: 768px) {
+  df-messenger {
+    bottom: 80px !important; /* sobe o chat no mobile */
+    right: 15px !important;
+  }
+}
+
+
+
+
 </style>
 
 
@@ -153,4 +179,3 @@ que transformam cada obra em resultado de qualidade.
     <script src="script.js"></script>
 </body>
 </html>
-
